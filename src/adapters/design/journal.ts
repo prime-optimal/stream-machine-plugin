@@ -10,6 +10,7 @@ export const operationSchema = z.object({
   status: z.enum(["submitting", "queued", "running", "succeeded", "failed", "canceled", "unknown"]),
   runId: z.string().optional(), taskId: z.string().optional(), source: z.string().optional(),
   file: z.string().optional(), previewUrl: z.string().optional(),
+  failureCode: z.enum(["RENDERER_UNAVAILABLE", "RENDER_FAILED"]).optional(),
 });
 export type Operation = z.infer<typeof operationSchema>;
 

@@ -1,0 +1,68 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Stream overlay</title><style id="overlay-style">*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden}#canvas{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;background:transparent;color:#f4f7ef;font-family:system-ui,sans-serif}.title{position:absolute;left:3.125%;top:4.6%;width:93.75%;margin:0;font-size:36.48px;line-height:1.2;letter-spacing:.025em;font-weight:700;overflow-wrap:anywhere}.frame{position:absolute;left:6.25%;top:16.666666666666668%;width:87.5%;height:66.66666666666667%;box-shadow:0 0 0 4px #b9ef67;pointer-events:none}.plate{position:absolute;left:3.125%;top:90%;width:93.75%;height:6%;padding:0 23.04px;display:flex;align-items:center;background:#111b20;font-size:26.88px;line-height:1.2;overflow-wrap:anywhere}.camera-title{background:#111b20;padding:11.52px 23.04px}.eyebrow{position:absolute;left:5%;top:7%;font-size:26.88px;letter-spacing:.12em;color:#b9ef67;font-family:system-ui,sans-serif}.schedule-title{left:5%;top:13%;width:90%;font-size:61.44px}.rows{position:absolute;left:5%;top:30%;width:90%;height:51%;display:grid;grid-template-rows:repeat(3,1fr)}.row{display:grid;grid-template-columns:23% 1fr;align-items:center;gap:3%;border-top:1px solid #f4f7ef;font-size:38.4px;line-height:1.15}.time{font-variant-numeric:tabular-nums;font-family:ui-monospace,monospace}.name{overflow-wrap:anywhere}.footer{position:absolute;left:5%;top:88%;width:90%;font-size:30.72px;line-height:1.3;overflow-wrap:anywhere}</style></head><body><main id="canvas" data-od-id="overlay-canvas" aria-label="Stream overlay"><h1 class="title camera-title" data-od-id="event-title">WEEKEND / STUDIO</h1><div class="frame" data-od-id="camera-border" aria-label="Transparent camera aperture"></div><div class="plate" data-od-id="supporting-copy">Independent sessions · camera one</div></main><script>const engine=(function overlayEngine() {
+  const defaults = {variant:'camera-frame',title:'WEEKEND / STUDIO',style:'technical',accent:'#b9ef67',background:'#111b20',foreground:'#f4f7ef',width:1920,height:1080,copy:'Independent sessions · live from the studio',motion:'static',aperture:null,schedule:[{time:'18:00',name:'Sample opening session'},{time:'19:30',name:'Sample main session'},{time:'21:00',name:'Sample closing session'}],synthetic:true,font:null};
+  function object(value, allowed, label) {
+    if(!value || typeof value!=='object' || Array.isArray(value) || ![Object.prototype,null].includes(Object.getPrototypeOf(value))) throw Error(label+' must be a plain object');
+    for(const key of Reflect.ownKeys(value)) if(typeof key!=='string' || !Object.hasOwn(allowed,key)) throw Error('Unknown '+label+' field: '+String(key));
+  }
+  function text(value,max,label) {
+    if(typeof value!=='string' || !value.trim() || Array.from(value).length>max || /[\x00-\x1f\x7f]/.test(value)) throw Error('Invalid '+label+' (1–'+max+' characters)');
+    return value;
+  }
+  function color(v) { if(typeof v!=='string'||!/^#[0-9a-f]{6}$/i.test(v)) throw Error('Colors require #RRGGBB'); return v; }
+  function contrast(a,b) {
+    const lum = c => {const rgb=c.slice(1).match(/../g).map(x=>parseInt(x,16)/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;};
+    const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);
+  }
+  function number(v,min,max,label) {if(!Number.isInteger(v)||v<min||v>max) throw Error('Invalid '+label); return v;}
+  function normalize(input) {
+    object(input,defaults,'config'); const c={...defaults,...input};
+    if(!['camera-frame','fullscreen-schedule'].includes(c.variant)) throw Error('Unsupported variant');
+    if(!['technical','editorial'].includes(c.style)) throw Error('Unsupported style');
+    if(!['static','reduced'].includes(c.motion)) throw Error('Static or reduced motion only');
+    text(c.title,42,'title');text(c.copy,80,'copy');
+    number(c.width,640,3840,'width');number(c.height,360,2160,'height');
+    if(c.width/c.height<1.5 || c.width/c.height>2) throw Error('Landscape ratio must be 1.5–2');
+    for(const k of ['accent','background','foreground']) color(c[k]);
+    if(contrast(c.foreground,c.background)<4.5 || contrast(c.accent,c.background)<3) throw Error('Insufficient text/accent contrast');
+    if(typeof c.synthetic!=='boolean') throw Error('synthetic must be boolean');
+    const base={x:120,y:180,width:1680,height:720};
+    if(c.variant==='fullscreen-schedule') c.aperture=null;
+    else {
+      if(c.aperture===null || (typeof c.aperture==='string' && ['', 'auto'].includes(c.aperture.trim())))
+        c.aperture={x:Math.round(c.width/16),y:Math.round(c.height/6),width:Math.round(c.width*7/8),height:Math.round(c.height*2/3)};
+      else if(typeof c.aperture==='string') c.aperture=JSON.parse(c.aperture);
+      object(c.aperture,base,'aperture');
+      for(const k of Object.keys(base)) number(c.aperture[k],0,3840,'aperture.'+k);
+      const a=c.aperture,p=c.width/32;
+      if(a.width<c.width*.25||a.height<c.height*.25||a.x<p||a.y<c.height*.15||a.x+a.width>c.width-p||a.y+a.height>c.height*.86) throw Error('Aperture must fit safe bounds (x ≥ 3.125%, y ≥ 15%, right ≤ 96.875%, bottom ≤ 86%)');
+    }
+    if(typeof c.schedule==='string') c.schedule=JSON.parse(c.schedule);
+    if(!Array.isArray(c.schedule)||c.schedule.length<1||c.schedule.length>6) throw Error('Schedule requires 1–6 rows');
+    c.schedule=c.schedule.map(row=>{object(row,{time:1,name:1},'schedule row');return {time:text(row.time,12,'time'),name:text(row.name,38,'session')};});
+    if(c.font!==null) {
+      object(c.font,{data:1,source:1,license:1},'font');
+      if(typeof c.font.data!=='string'||c.font.data.length>2800000||!/^data:font\/woff2;base64,[A-Za-z0-9+/]+=*$/.test(c.font.data)) throw Error('Font must be a WOFF2 data URI under 2 MB');
+      text(c.font.source,180,'font source');text(c.font.license,180,'font license');
+    }
+    return c;
+  }
+  const escape = v => String(v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  function geometry(c) {
+    if(c.variant==='fullscreen-schedule') {
+      const bounds={x:c.width*.05,y:c.height*.3,width:c.width*.9,height:c.height*.51};
+      return {evidence:'calculated-layout',canvas:{width:c.width,height:c.height,opaque:true,coverage:'full'},scheduleBounds:bounds,rows:c.schedule.map((row,i)=>({x:bounds.x,y:bounds.y+i*bounds.height/c.schedule.length,width:bounds.width,height:bounds.height/c.schedule.length}))};
+    }
+    const a=c.aperture,stroke=c.width/480;
+    return {evidence:'calculated-layout',canvas:{width:c.width,height:c.height,opaque:false,coverage:'partial'},aperture:{...a},borderOuter:{x:a.x-stroke,y:a.y-stroke,width:a.width+stroke*2,height:a.height+stroke*2},borderInner:{...a},nameplate:{x:c.width/32,y:c.height*.9,width:c.width*15/16,height:c.height*.06},apertureCovered:false};
+  }
+  function view(c) {
+    const a=c.aperture, pct=(n,d)=>100*n/d+'%', editorial=c.style==='editorial';
+    const frameStyle=c.variant==='camera-frame'?`.frame{position:absolute;left:${pct(a.x,c.width)};top:${pct(a.y,c.height)};width:${pct(a.width,c.width)};height:${pct(a.height,c.height)};box-shadow:0 0 0 ${c.width/480}px ${c.accent};pointer-events:none}`:'';
+    const family=c.font?'CreatorFont':editorial?'Georgia,serif':'system-ui,sans-serif';
+    const face=c.font?`@font-face{font-family:CreatorFont;src:url('${c.font.data}') format('woff2');font-display:block}`:'';
+    const css=`${face}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden}#canvas{position:absolute;left:50%;top:50%;width:${c.width}px;height:${c.height}px;transform-origin:center;background:${c.variant==='camera-frame'?'transparent':c.background};color:${c.foreground};font-family:${family}}.title{position:absolute;left:3.125%;top:4.6%;width:93.75%;margin:0;font-size:${c.width*.019}px;line-height:1.2;letter-spacing:${editorial?'-.025em':'.025em'};font-weight:700;overflow-wrap:anywhere}${frameStyle}.plate{position:absolute;left:3.125%;top:90%;width:93.75%;height:6%;padding:0 ${c.width*.012}px;display:flex;align-items:center;background:${c.background};font-size:${c.width*.014}px;line-height:1.2;overflow-wrap:anywhere}.camera-title{background:${c.background};padding:${c.width*.006}px ${c.width*.012}px}.eyebrow{position:absolute;left:5%;top:7%;font-size:${c.width*.014}px;letter-spacing:.12em;color:${c.accent};font-family:system-ui,sans-serif}.schedule-title{left:5%;top:13%;width:90%;font-size:${c.width*.032}px}.rows{position:absolute;left:5%;top:30%;width:90%;height:51%;display:grid;grid-template-rows:repeat(${c.schedule.length},1fr)}.row{display:grid;grid-template-columns:23% 1fr;align-items:center;gap:3%;border-top:1px solid ${c.foreground};font-size:${c.width*.020}px;line-height:1.15}.time{font-variant-numeric:tabular-nums;font-family:${c.font?'CreatorFont':'ui-monospace,monospace'}}.name{overflow-wrap:anywhere}.footer{position:absolute;left:5%;top:88%;width:90%;font-size:${c.width*.016}px;line-height:1.3;overflow-wrap:anywhere}`;
+    const html=c.variant==='camera-frame'?`<h1 class="title camera-title" data-od-id="event-title">${escape(c.title)}</h1><div class="frame" data-od-id="camera-border" aria-label="Transparent camera aperture"></div><div class="plate" data-od-id="supporting-copy">${escape(c.copy)}</div>`:`<div class="eyebrow" data-od-id="schedule-label">${c.synthetic?'SAMPLE LINEUP / DEMONSTRATION':'PROGRAM / RUNNING ORDER'}</div><h1 class="title schedule-title" data-od-id="event-title">${escape(c.title)}</h1><div class="rows" data-od-id="schedule-rows">${c.schedule.map((r,i)=>`<div class="row" data-od-id="session-${i+1}"><span class="time">${escape(r.time)}</span><span class="name">${escape(r.name)}</span></div>`).join('')}</div><div class="footer" data-od-id="supporting-copy">${escape(c.copy)}</div>`;
+    return {css,html};
+  }
+  return {normalize,view,geometry,contrast};
+})();let config={"variant":"camera-frame","title":"WEEKEND / STUDIO","style":"technical","accent":"#b9ef67","background":"#111b20","foreground":"#f4f7ef","width":1920,"height":1080,"copy":"Independent sessions · camera one","motion":"static","aperture":{"x":120,"y":180,"width":1680,"height":720},"schedule":[{"time":"18:00","name":"Sample opening session"},{"time":"19:30","name":"Sample main session"},{"time":"21:00","name":"Sample closing session"}],"synthetic":true,"font":null};const canvas=document.getElementById('canvas');function fit(){canvas.style.transform='translate(-50%,-50%) scale('+Math.min(innerWidth/config.width,innerHeight/config.height)+')'}window.addEventListener('resize',fit);window.StreamOverlay=Object.freeze({update(patch){if(!patch||typeof patch!=='object'||Array.isArray(patch))throw Error('Invalid patch');for(const k of Reflect.ownKeys(patch))if(!Object.hasOwn({title:1,copy:1,accent:1,background:1,foreground:1,schedule:1},k))throw Error('Unsupported live field');const next=engine.normalize({...config,...patch});const view=engine.view(next);document.getElementById('overlay-style').textContent=view.css;canvas.innerHTML=view.html;config=next;fit();return engine.geometry(config)},geometry(){return engine.geometry(config)}});fit();</script></body></html>

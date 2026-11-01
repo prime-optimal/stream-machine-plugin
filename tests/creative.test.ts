@@ -4,7 +4,6 @@ import { CreativeJournal } from "../src/adapters/design/journal";
 import { DESIGN_ORIGIN, remoteProvider, type CreativeProvider } from "../src/adapters/design/provider";
 
 const id = "34687798-1fa0-4a69-ae35-631a44a286c5";
-const scaffold = '<div data-duration="10"\n    ></div><script>window.__timelines["main"] = tl;</script>';
 function fixture() {
   const calls: string[] = [];
   const provider: CreativeProvider = {
@@ -14,6 +13,7 @@ function fixture() {
       if (name === "list_plugins") return { plugins: [{ id: "stream-overlay-authoring" }] };
       if (name === "start_run") return { runId: "real-run" };
       if (name === "get_run") return { status: "succeeded" };
+      if (name === "list_files") return { files: [{ name: "weekend-camera-v1/index.html", size: 100 }, { name: "stream-machine-proof.mp4", size: 500 }] };
       if (name === "get_file") return JSON.stringify({ taskId: "real-task", status: "done" });
       if (name === "write_file") return { ok: true };
       throw new Error("Unexpected provider operation");
@@ -73,6 +73,30 @@ describe("creative provider boundary", () => {
       expect(result).toMatchObject({ runId: "real-run", source: `.hyperframes-cache/${id}/index.html` });
       expect(f.calls.filter(name => name === "start_run")).toHaveLength(1);
       expect(await f.controller.run(id)).toMatchObject({ status: "succeeded", taskId: "real-task" });
+    } finally { f.journal.close(); }
+  });
+  test("outer run success cannot hide failed render receipt or claim MP4", async () => {
+    const f = fixture();
+    const original = f.provider.call;
+    f.provider.call = async (name, args) => name === "get_file"
+      ? JSON.stringify({ taskId: "failed-task", status: "failed", result: { error: { message: "Open Design desktop frame renderer is unavailable" } } })
+      : original(name, args);
+    try {
+      await f.controller.start({ requestId: id, project: "test-project", recipe: "video" });
+      const result = await f.controller.run(id);
+      expect(result).toMatchObject({ status: "failed", failureCode: "RENDERER_UNAVAILABLE", taskId: "failed-task" });
+      expect(result.file).toBeUndefined();
+    } finally { f.journal.close(); }
+  });
+  test("unusable localhost delivery URL is omitted", async () => {
+    const f = fixture();
+    const original = f.provider.call;
+    f.provider.call = async (name, args) => name === "get_run" ? { status: "succeeded", previewUrl: "http://127.0.0.1:7456/private" } : original(name, args);
+    try {
+      await f.controller.start({ requestId: id, project: "test-project", recipe: "overlay" });
+      const result = await f.controller.run(id);
+      expect(result.previewUrl).toBeUndefined();
+      expect(result.file).toBe("weekend-camera-v1/index.html");
     } finally { f.journal.close(); }
   });
   test("source traversal rejected before provider request", async () => {

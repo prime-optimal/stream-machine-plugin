@@ -1,0 +1,15 @@
+{
+  "mode": "live",
+  "provider": "opendesign",
+  "project": "stream-machine-creative-20261101",
+  "entry": "weekend-camera-v1/index.html",
+  "source": "existing-service",
+  "files": [
+    {
+      "name": "weekend-camera-v1/index.html",
+      "mime": "text/html",
+      "binary": false
+    }
+  ],
+  "truncated": false
+}
