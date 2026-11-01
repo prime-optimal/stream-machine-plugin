@@ -1,6 +1,6 @@
 # Home statechart
 
-Home lets you choose a task, start from a recipe, or resume recent work. The selected context follows you into a workspace or Connections. Returning Home keeps that context.
+Home lets you choose a task, start from a recipe, or resume recent items. The selected context follows you into a workspace or Connections. Returning Home keeps that context.
 
 This chart describes the proposed [plugin UX](../../../plans/plugin-ux-2026-11-01.md), not the current implementation. It covers the Home layout and navigation rules in the plan's Product direction, Routed shell, and Home sections.
 

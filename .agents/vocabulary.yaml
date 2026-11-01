@@ -57,7 +57,7 @@ nouns:
     - canonical: recent item
       deprecated: [session reference]
     - canonical: recent items
-      deprecated: [session references, recent-work references]
+      deprecated: [session references, recent-work references, recent work]
     - canonical: recent item records
       deprecated: [recent-work records]
     - canonical: recent item model
@@ -129,3 +129,7 @@ rejected:
     reason: Scope is the OAuth identifier (requiredScopes); permission is the user-facing label.
   - term: authorize
     reason: Authorize is the OAuth action; consent is the user's approval.
+  - term: hosted worker
+    reason: Hosted worker is a future cloud process; independent worker is the implemented local one.
+  - term: asset
+    reason: Assets is a workspace name; artifact is a generated output.
