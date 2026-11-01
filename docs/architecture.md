@@ -1,6 +1,6 @@
 # Stream Machine architecture
 
-Status: architecture scaffold. First slice uses fixtures only. No Twitch authorization, EventSub subscription, channel update, clip download, or device command runs.
+Status: architecture prototype. First slice uses fixtures only. No Twitch authorization, EventSub subscription, channel update, clip download, or device command runs.
 
 Repository: https://github.com/prime-optimal/stream-machine-plugin
 
@@ -74,7 +74,7 @@ Candidate surfaces:
 
 Extensions spec's Web support refers to Work browser, not classic ChatGPT. Availability varies across desktop, iOS, Android, and web. Treat platform tables as planning evidence; actual host negotiation and verification determine availability. No universal mobile/web parity claim.
 
-Current specification matrix: global/thread entrypoints, onboarding, and settings cover desktop, Work web, iOS, and Android; composer mentions cover desktop/Work web; file handlers are desktop-only; deep links exclude Android. These are specification claims, not verified availability in this scaffold. [Platform table](https://github.com/openai/mcp-extensions/blob/main/docs/spec.md#L7-L25).
+Current specification matrix: global/thread entrypoints, onboarding, and settings cover desktop, Work web, iOS, and Android; composer mentions cover desktop/Work web; file handlers are desktop-only; deep links exclude Android. These are specification claims, not verified availability in this prototype. [Platform table](https://github.com/openai/mcp-extensions/blob/main/docs/spec.md#L7-L25).
 
 ## Later execution lanes
 

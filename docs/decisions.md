@@ -35,7 +35,7 @@ Default labels: `feat`, `phase:architecture`, `priority:p1`.
 | Automatic execution policy | First unattended write; define action scope, expiry, retry, and revocation |
 | HyperFrames plugin versus local CLI adapter | Verified plugin exists or rendering slice begins |
 | App dependency IDs and endpoint configuration | Actual connection discovery returns verified IDs/contracts |
-| Packaging/install/publication | Scaffold validation complete and chosen host workflow established |
+| Packaging/install/publication | Prototype validation complete and chosen host workflow established |
 
 ## Open product questions
 

@@ -1,4 +1,4 @@
-# Stream Machine scaffold verification
+# Stream Machine prototype verification
 
 Date: 2026-11-01 (America/Los_Angeles).
 

@@ -6,7 +6,5 @@ permissions:
   pull-requests: write
 jobs:
   nlpm:
-    uses: prime-optimal/.github/.github/workflows/nlpm-advisory.yml@feat/1-nlpm-advisory
-    with:
-      tools-ref: feat/1-nlpm-advisory
+    uses: prime-optimal/.github/.github/workflows/nlpm-advisory.yml@main
     secrets: inherit
