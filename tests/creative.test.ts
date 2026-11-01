@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { CreativeController, startSchema } from "../src/adapters/design/controller";
 import { CreativeJournal } from "../src/adapters/design/journal";
-import type { CreativeProvider } from "../src/adapters/design/provider";
+import { DESIGN_ORIGIN, remoteProvider, type CreativeProvider } from "../src/adapters/design/provider";
 
 const id = "34687798-1fa0-4a69-ae35-631a44a286c5";
 const scaffold = '<div data-duration="10"\n    ></div><script>window.__timelines["main"] = tl;</script>';
@@ -29,6 +29,16 @@ function fixture() {
   return { controller: new CreativeController(provider, journal), journal, calls, provider };
 }
 describe("creative provider boundary", () => {
+  test("existing reverse proxy receives its configured Origin on media requests", async () => {
+    const original = globalThis.fetch;
+    const observed: { origin: string | null } = { origin: null };
+    globalThis.fetch = Object.assign(async (_input: Parameters<typeof fetch>[0], init?: RequestInit) => {
+      observed.origin = new Headers(init?.headers).get("Origin");
+      return Response.json({ tasks: [] });
+    }, { preconnect: original.preconnect });
+    try { await remoteProvider("Basic test-only").api("/api/projects/test/media/tasks"); expect(observed.origin).toBe(DESIGN_ORIGIN); }
+    finally { globalThis.fetch = original; }
+  });
   test("rejects unreviewed recipes, credentials and long copy", () => {
     const input = { requestId: id, project: "test-project", recipe: "overlay" };
     expect(startSchema.safeParse({ ...input, authorization: "secret" }).success).toBe(false);
