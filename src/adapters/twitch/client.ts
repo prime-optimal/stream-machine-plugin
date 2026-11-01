@@ -13,7 +13,7 @@ export class TwitchChannelClient {
         ...(title === undefined ? {} : { body: JSON.stringify({ title }) }),
       });
     } catch { throw new TwitchFault(title === undefined ? "TWITCH_UNAVAILABLE" : "WRITE_OUTCOME_UNKNOWN"); }
-    if (!response.ok) throw new TwitchFault(response.status === 401 ? "TWITCH_RECONNECT_REQUIRED" : response.status === 403 ? "TWITCH_SCOPE_REQUIRED" : response.status === 429 ? "TWITCH_RATE_LIMITED" : "TWITCH_UNAVAILABLE");
+    if (!response.ok) throw new TwitchFault(response.status === 401 ? "TWITCH_RECONNECT_REQUIRED" : response.status === 403 ? "TWITCH_SCOPE_REQUIRED" : response.status === 429 ? "TWITCH_RATE_LIMITED" : title !== undefined && response.status >= 500 ? "WRITE_OUTCOME_UNKNOWN" : "TWITCH_UNAVAILABLE");
     return response;
   }
   async read(access: TwitchAccess): Promise<TwitchChannel> {
