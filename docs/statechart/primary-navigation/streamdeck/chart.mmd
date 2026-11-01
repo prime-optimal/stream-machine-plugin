@@ -1,0 +1,36 @@
+---
+title: "Stream Deck workspace"
+---
+stateDiagram-v2
+  s0: Check devices
+  s1: Inspect Stream Machine page
+  s2: Device setup or support needed
+  s3: Edit layout draft
+  s4: Review changes
+  s5: Ready to apply
+  s6: Apply once
+  s7: Apply refused
+  s8: Stored configuration verified
+  s9: Outcome unknown
+  s10: User confirmed button press
+  s11: Device released
+  [*] --> s0
+  s0 --> s1: supported device found
+  s0 --> s2: device missing or unsupported
+  s1 --> s3: choose a recipe
+  s2 --> s0: check devices again
+  s3 --> s4: preview changes
+  s4 --> s3: edit draft and clear approval
+  s4 --> s5: authorize this preview
+  s5 --> s3: edit draft and clear approval
+  s5 --> s6: press Apply
+  s6 --> s7: rejected before USB takeover
+  s6 --> s8: stored configuration matches
+  s6 --> s9: acknowledgment is lost
+  s7 --> s3: revise and preview again
+  s8 --> s10: test button and confirm
+  s8 --> s11: release device and confirm cleanup
+  s9 --> s8: check original attempt and verify stored configuration
+  s9 --> s11: release device and confirm cleanup
+  s10 --> s11: release device and confirm cleanup
+  s11 --> s1: inspect page again
