@@ -2,9 +2,11 @@ name: nlpm
 on:
   pull_request:
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 jobs:
   nlpm:
-    uses: prime-optimal/.github/.github/workflows/nlpm-advisory.yml@main
+    uses: prime-optimal/.github/.github/workflows/nlpm-advisory.yml@feat/5-drift-apply
     secrets: inherit
+    with:
+      tools-ref: feat/5-drift-apply
