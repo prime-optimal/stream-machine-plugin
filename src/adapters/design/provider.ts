@@ -13,7 +13,9 @@ export class CreativeError extends Error {
 }
 
 export function configuredProvider(): CreativeProvider {
-  const authorization = process.env.STREAM_MACHINE_DESIGN_AUTHORIZATION;
+  const username = process.env.STREAM_MACHINE_DESIGN_USERNAME;
+  const password = process.env.STREAM_MACHINE_DESIGN_PASSWORD;
+  const authorization = process.env.STREAM_MACHINE_DESIGN_AUTHORIZATION || (username && password ? `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}` : undefined);
   if (!authorization) throw new CreativeError("CONFIGURATION_REQUIRED", "Inject existing service authorization server-side through fnox; never supply credentials as tool input.");
   return remoteProvider(authorization);
 }
