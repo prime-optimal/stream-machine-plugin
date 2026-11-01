@@ -22,7 +22,8 @@ function fixture() {
       if (name === "start_run") return { runId: "real-run" };
       if (name === "get_run") return { status: "succeeded", artifactPaths: ["weekend-camera-v1/index.html"] };
       if (name === "list_files") return { files: [{ name: "creative-html/unrelated/index.html", size: 100 }, { name: "weekend-camera-v1/index.html", size: 100 }] };
-      if (name === "create_artifact") { files.set(z.string().parse(args.name), z.string().parse(args.content)); return { ok: true }; }
+      if (name === "create_artifact") { const name = z.string().parse(args.name); if (name.endsWith(".json")) throw new Error("JSON metadata needs write_file"); files.set(name, z.string().parse(args.content)); return { ok: true }; }
+      if (name === "write_file") { files.set(z.string().parse(args.path), z.string().parse(args.content)); return { ok: true }; }
       if (name === "get_file") return files.get(z.string().parse(args.path));
       if (name === "get_artifact") return { files: [{ name: args.entry, content: files.get(z.string().parse(args.entry)), mime: "text/html", binary: false }], truncated: false };
       throw new Error("Unexpected provider operation");
@@ -81,7 +82,8 @@ describe("creative HTML reuse", () => {
     try {
       const result = await f.controller.start({ requestId: id, project: "test-project", recipe: "hyperframes-html", title: "HTML QA" });
       expect(result).toMatchObject({ status: "succeeded", file: `creative-html/${id}/index.html`, source: `creative-html/${id}/source.html` });
-      expect(f.calls.filter(call => call.name === "create_artifact")).toHaveLength(3);
+      expect(f.calls.filter(call => call.name === "create_artifact")).toHaveLength(2);
+      expect(f.calls.filter(call => call.name === "write_file")).toHaveLength(1);
       expect(f.calls.some(call => call.name === "start_run")).toBe(false);
       const count = f.calls.length;
       expect(await f.controller.run(id)).toEqual(result);
@@ -94,7 +96,7 @@ describe("creative HTML reuse", () => {
     try {
       const input = { requestId: id, project: "test-project", recipe: "hyperframes-html" };
       await Promise.all([f.controller.start(input), f.controller.start(input)]);
-      expect(f.calls.filter(call => call.name === "create_artifact")).toHaveLength(3);
+      expect(f.calls.filter(call => call.name === "create_artifact")).toHaveLength(2);
       await expect(f.controller.start({ ...input, title: "Different" })).rejects.toThrow("different inputs");
     } finally { f.journal.close(); }
   });

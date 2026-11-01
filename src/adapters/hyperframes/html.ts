@@ -51,7 +51,10 @@ export async function authorHtml(provider: CreativeProvider, project: string, re
     { name: `${directory}/source.json`, content: JSON.stringify({ schemaVersion: 1, recipe: "hyperframes-html", project, requestId, title, width: 1920, height: 1080, duration: 4, fonts: "system", provenance: HTML_PROVENANCE }, null, 2) },
     { name: file, content: composition.html },
   ];
-  for (const item of files) await provider.call("create_artifact", { project, name: item.name, content: item.content });
+  for (const item of files) {
+    if (item.name.endsWith(".json")) await provider.call("write_file", { project, path: item.name, content: item.content });
+    else await provider.call("create_artifact", { project, name: item.name, content: item.content });
+  }
   for (const item of files) {
     const text = z.string().parse(await provider.call("get_file", { project, path: item.name }));
     if (text !== item.content) throw new CreativeError("ARTIFACT_MISMATCH", "Stored HTML/source differs from authored content; inspect isolated project before retrying.");
