@@ -1,5 +1,9 @@
 [tools]
 bun = "1.4.4"
+hk = "2.0.1"
+pkl = "0.32.1"
+"github:jeduden/mdsmith" = "0.55.0"
+uv = "0.13.6"
 
 [tasks.install]
 description = "Install locked development dependencies"
@@ -52,3 +56,22 @@ run = "bun dist/worker.js stop"
 description = "Build private desktop plugin archive"
 depends = ["build"]
 run = "bun run package"
+
+[tasks."hooks:install"]
+description = "Install repository hk hooks through mise"
+run = "hk install --mise"
+
+[tasks."hooks:check"]
+description = "Check eligible files without fixing or staging"
+run = "hk check --all"
+
+[tasks.changelog]
+description = "Generate unreleased changelog from conventional commits"
+run = "uv run --no-project --with commitizen==4.19.3 cz changelog"
+
+[tasks."changelog:preview"]
+description = "Preview changelog without writing files"
+run = "uv run --no-project --with commitizen==4.19.3 cz changelog --dry-run"
+
+[env]
+HK_MISE = "1"
