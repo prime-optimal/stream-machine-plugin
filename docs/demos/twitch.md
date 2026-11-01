@@ -59,6 +59,8 @@ Browser displayed callback error despite successful grant and storage. Historica
 
 Approval form initially inherited `Referrer-Policy: no-referrer`. For navigation POST, the [Fetch standard](https://fetch.spec.whatwg.org/#append-a-request-origin-header) serializes Origin as `null` under this policy, which conflicts with the same-origin approval guard. Approval GET now uses `same-origin`; OAuth pages retain `no-referrer`. Failing-first regression verifies this header boundary. Tests retain rejection for null Origin with valid cookie, wrong Origin, and missing cookie. Rejection diagnostics expose only origin-match, null-origin, and matching-cookie booleans.
 
+Actual in-app browser reproduction on isolated loopback test pages confirmed the cause. Port 4057 with `no-referrer` produced `originIsSameOrigin: false`, `originIsNull: true`, `cookiePresent: true`. Port 4058 with `same-origin` produced `originIsSameOrigin: true`, `originIsNull: false`, `cookiePresent: true`. Both pages used the same HttpOnly SameSite Strict cookie guard and performed no Twitch requests. Isolated servers stopped after verification.
+
 ## Limits
 
 Local desktop access is trusted. Browser approval requires same-origin POST and HttpOnly SameSite cookie. Previews expire after five minutes and disappear on restart. Network failure after PATCH reports unknown outcome and consumes preview; no write retry. Read-back failure reports `applied_unverified`. Twitch offers no conditional title update, so another channel editor can race the preflight read.
