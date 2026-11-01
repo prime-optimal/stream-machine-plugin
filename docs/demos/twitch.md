@@ -19,12 +19,12 @@ Add exact callback to existing Twitch application:
 
 `http://localhost:4017/api/twitch/callback`
 
-Inject existing `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`, and `TWITCH_TOKEN_ENCRYPTION_KEY` through fnox. Existing production callback stays registered. Local runtime uses fixed local callback without changing production secret configuration.
+`fnox.toml` references paired client ID and client secret items titled `twitch stream machine` in Developer vault. Local token encryption uses a distinct new Developer item, `Stream Machine local Twitch token encryption`. Secret values remain in 1Password. Existing production callback stays registered. Local runtime uses fixed local callback without changing production secret configuration.
 
 From this checkout:
 
 ```sh
-fnox -c /Users/prime/Documents/ChatGPT/twitchcon/fnox.toml exec -- mise exec -- bun scripts/twitch-demo.ts
+fnox exec -- mise exec -- bun scripts/twitch-demo.ts
 ```
 
 Open returned `connectUrl`, authorize creator account, return to terminal. Driver accepts one JSON command per line:
