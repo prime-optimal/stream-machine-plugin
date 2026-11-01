@@ -1,0 +1,20 @@
+<!doctype html><html lang="en"><meta charset="UTF-8"><title>Stream Machine HTML playback QA</title>
+<style>body{margin:24px;background:#f4f5f7;color:#17202a;font:16px Arial,sans-serif}h1{font-size:24px}button{padding:9px;margin:3px;border:1px solid #bcc4cd;border-radius:5px;background:white}#view{width:960px;height:540px;overflow:hidden;background:repeating-conic-gradient(#e2e5e9 0% 25%,#fff 0% 50%) 0/32px 32px}iframe{border:0;width:1920px;height:1080px;transform:scale(.5);transform-origin:top left}output{display:block;max-width:960px;padding:16px;background:white;white-space:pre-wrap;font:13px monospace}</style>
+<h1>Stream Machine HTML playback QA</h1><p>Real stored HTML. TwitchCon live driver, system fonts, pinned GSAP.</p>
+<div id="buttons"></div><div id="view"><iframe title="Stored playable HTML" src="/artifact.html"></iframe></div><output id="state">Loading HTML…</output>
+<script>
+const frame=document.querySelector('iframe');
+function capture(changed){const w=frame.contentWindow,o=w.overlay;if(!o){document.querySelector('output').textContent=JSON.stringify({ready:false});return}document.querySelector('output').textContent=JSON.stringify({ready:true,time:o.timeline.time(),paused:o.timeline.paused(),repeat:o.timeline.repeat(),progress:o.timeline.progress(),title:w.document.querySelector('#title').textContent,primary:o.variables().primary,background:w.getComputedStyle(w.document.body).backgroundColor,injectedImages:w.document.querySelectorAll('img').length,injectedBold:w.document.querySelectorAll('b').length,changed:changed||[]},null,2)}
+const actions={
+'Capture state':()=>capture(),
+'Pause':()=>{frame.contentWindow.overlay.pause();capture()},
+'Play':()=>{frame.contentWindow.overlay.play();capture()},
+'Replay':()=>{frame.contentWindow.overlay.replay();capture()},
+'Hold visible frame':()=>{frame.contentWindow.overlay.timeline.pause(1.5);capture()},
+'Set title/accent':()=>capture(frame.contentWindow.overlay.update({title:'SAFE <b>TEXT</b>',primary:'#7da4ff'})),
+'Reject invalid color':()=>capture(frame.contentWindow.overlay.update({primary:'not-a-color'})),
+'Single play URL':()=>{frame.src='/artifact.html?loop=0&title=URL%20TITLE'}
+};
+for(const [label,action]of Object.entries(actions)){const b=document.createElement('button');b.textContent=label;b.onclick=action;document.querySelector('#buttons').append(b)}
+frame.addEventListener('load',()=>capture());
+</script></html>

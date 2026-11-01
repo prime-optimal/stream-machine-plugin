@@ -1,0 +1,27 @@
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { resolve } from "node:path";
+import { z } from "zod";
+import { strict as assert } from "node:assert";
+
+const root = resolve(process.argv[2] ?? "artifacts/package/stream-machine");
+const manifest = await Bun.file(`${root}/plugin.json`).json();
+const legacy = await Bun.file(`${root}/.codex-plugin/plugin.json`).json();
+assert.equal(manifest.version, legacy.version);
+assert.deepEqual(manifest.extensions["com.openai"].interface.defaultPrompt, legacy.interface.defaultPrompt);
+const launch = z.object({ command: z.string(), args: z.array(z.string()), cwd: z.string() });
+const config = z.object({ mcpServers: z.object({ "stream-machine": launch }) }).parse(await Bun.file(`${root}/mcp.json`).json());
+const selected = config.mcpServers["stream-machine"];
+const client = new Client({ name: "stream-machine-package-check", version: "0.2.0" });
+try {
+  await client.connect(new StdioClientTransport({
+    command: selected.command,
+    args: selected.args.map(value => value.replaceAll("${PLUGIN_ROOT}", root)),
+    cwd: selected.cwd.replaceAll("${PLUGIN_ROOT}", root), stderr: "pipe",
+  }), { timeout: 60_000 });
+  assert.equal((await client.listTools()).tools.length, 27);
+  const result = await client.callTool({ name: "stream_machine_open", arguments: {} });
+  assert.ok(!result.isError);
+  const status = await client.callTool({ name: "stream_machine_twitch_status", arguments: {} });
+  process.stdout.write(JSON.stringify({ packageVersion: manifest.version, tools: 27, fnoxLaunch: "passed", twitchConfigured: !status.isError }) + "\n");
+} finally { await client.close(); }

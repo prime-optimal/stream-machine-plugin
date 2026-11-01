@@ -1,0 +1,22 @@
+{
+  "requestId": "effe35e3-0bc9-4a5a-b97e-4c3021de3a2d",
+  "project": "stream-machine-html-20261101",
+  "recipe": "hyperframes-html",
+  "status": "succeeded",
+  "source": "creative-html/effe35e3-0bc9-4a5a-b97e-4c3021de3a2d/source.html",
+  "file": "creative-html/effe35e3-0bc9-4a5a-b97e-4c3021de3a2d/index.html",
+  "files": [
+    {
+      "entry": "creative-html/effe35e3-0bc9-4a5a-b97e-4c3021de3a2d/index.html",
+      "local": "hyperframes-html.html",
+      "sha256": "633bd629189c60b610a264bc96355556d6d4919983da39e36095c026a8a6674b",
+      "truncated": false
+    },
+    {
+      "entry": "creative-html/effe35e3-0bc9-4a5a-b97e-4c3021de3a2d/source.html",
+      "local": "hyperframes-source.html",
+      "sha256": "5cdc926f78aed8873d4f66e0ca1a24f94308324051f48d26397e44bc22fd7e5a",
+      "truncated": false
+    }
+  ]
+}

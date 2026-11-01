@@ -1,0 +1,34 @@
+{
+  "checkedAt": "2026-11-01",
+  "mode": "live",
+  "contract": "editable/playable HTML only",
+  "serviceVersion": "0.25.1",
+  "mcpTools": 22,
+  "deploymentImage": "harbor.usw-1.sealos.io/ns-sjkkuwc0/stream-machine@sha256:a3aa28203c12996188a2e9ad9037392e1207e719ef33a708abaa8ed7dfc0b50b",
+  "overlay": {
+    "project": "stream-machine-creative-20261101",
+    "runId": "145dd920-d844-4961-b239-2322467e9ced",
+    "status": "succeeded",
+    "entry": "weekend-camera-v1/index.html",
+    "source": "weekend-camera-v1/source.json",
+    "modelRequested": "gpt-6.1-sol",
+    "browserProof": "overlay-browser.png"
+  },
+  "hyperframesHtml": {
+    "project": "stream-machine-html-20261101",
+    "requestId": "effe35e3-0bc9-4a5a-b97e-4c3021de3a2d",
+    "status": "succeeded",
+    "entry": "creative-html/effe35e3-0bc9-4a5a-b97e-4c3021de3a2d/index.html",
+    "source": "creative-html/effe35e3-0bc9-4a5a-b97e-4c3021de3a2d/source.html",
+    "browserProof": "html-browser-proof.json",
+    "serviceProof": "html-service-proof.json",
+    "sourceReadbackExact": true,
+    "driverSourceSha256": "94b01676edd95c0f47cf968ae5d17842a1a8300ee7c2fbbd2555c422683ccf5b"
+  },
+  "testsPassed": 16,
+  "typecheckPassed": true,
+  "buildPassed": true,
+  "obsChanged": false,
+  "ownedPendingRenderTasks": 0,
+  "runtimeTrial": "superseded; original image restored; issue5 closed NOT_PLANNED"
+}

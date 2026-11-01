@@ -9,8 +9,10 @@ const transport = new StdioClientTransport({ command: process.execPath, args: [s
 try {
   await client.connect(transport);
   const { tools } = await client.listTools();
-  assert.equal(tools.length, 6);
-  assert.ok(!tools.some(tool => /apply|execute|broadcast/.test(tool.name)));
+  assert.equal(tools.length, 27);
+  assert.ok(tools.some(tool => tool.name === "stream_machine_obs_show_alert"));
+  assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_apply_title"));
+  assert.ok(!tools.some(tool => /start_broadcast|stop_broadcast/.test(tool.name)));
   const open = await client.callTool({ name: "stream_machine_open", arguments: {} });
   assert.equal((open.structuredContent as { connection: { status: string } }).connection.status, "disconnected");
   const input = { recipeId: "prepare-channel", title: "Friday ranked sets", categoryId: "demo-street-fighter" };
@@ -25,5 +27,5 @@ try {
   assert.ok("text" in resource.contents[0] && resource.contents[0].text.includes("Stream Machine"));
   await client.callTool({ name: "stream_machine_reset", arguments: {} });
   assert.equal((await client.callTool({ name: "stream_machine_preview", arguments: input })).isError, true);
-  console.log("PASS: stdio discovery, six tools, demo lifecycle, preview rejection, UI resource, reset");
+  console.log("PASS: 27 tools, isolated mock lifecycle, UI resource, and explicit real adapters");
 } finally { await client.close(); }

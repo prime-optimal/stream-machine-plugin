@@ -23,9 +23,30 @@ depends = ["build"]
 run = "bun run smoke"
 
 [tasks.preview]
-description = "Open loopback-only mock UI preview"
+description = "Open loopback demo UI against the real MCP server"
 depends = ["build"]
-run = "bun run preview"
+run = "fnox --if-missing ignore exec -- bun run preview"
+
+[tasks."worker:start"]
+description = "Start the independent Twitch-to-OBS worker, paused"
+depends = ["build"]
+run = "fnox exec -- bun dist/worker.js start --adapter {{config_root}}/dist/demo-worker.js"
+
+[tasks."worker:status"]
+description = "Read independent worker status"
+run = "bun dist/worker.js status"
+
+[tasks."worker:arm"]
+description = "Arm the configured Twitch-to-OBS alert rule"
+run = "bun dist/worker.js arm"
+
+[tasks."worker:pause"]
+description = "Pause new worker actions"
+run = "bun dist/worker.js pause"
+
+[tasks."worker:stop"]
+description = "Stop the independent local worker"
+run = "bun dist/worker.js stop"
 
 [tasks.package]
 description = "Build private desktop plugin archive"

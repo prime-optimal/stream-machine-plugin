@@ -1,0 +1,8 @@
+{
+  "image": "harbor.usw-1.sealos.io/ns-sjkkuwc0/stream-machine@sha256:9edea53714c49b24044e2e6857d38be36a802d5c5550d961aa1a35fc4f6ca80b",
+  "nonImageSpecSha256": "393d8ae9a96e24e984ec613a7ea316f6d5c5732eadd09fd44f56744baa5a0c5e",
+  "anonymousRoot": 401,
+  "authenticatedRoot": 200,
+  "mcpTools": 22,
+  "overlaySourcePreserved": true
+}

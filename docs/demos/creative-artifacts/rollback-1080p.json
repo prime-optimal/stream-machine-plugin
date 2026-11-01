@@ -1,0 +1,9 @@
+{
+  "image": "harbor.usw-1.sealos.io/ns-sjkkuwc0/stream-machine@sha256:a3aa28203c12996188a2e9ad9037392e1207e719ef33a708abaa8ed7dfc0b50b",
+  "nonImageSpecSha256": "393d8ae9a96e24e984ec613a7ea316f6d5c5732eadd09fd44f56744baa5a0c5e",
+  "health": 200,
+  "anonymous": 401,
+  "authenticated": 200,
+  "mcpTools": 22,
+  "rollbackReason": "1080p full-service render exceeded 1Gi memory; no resource increase"
+}

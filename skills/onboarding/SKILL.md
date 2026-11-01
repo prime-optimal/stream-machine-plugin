@@ -1,52 +1,56 @@
 ---
 name: onboarding
-description: Set up Stream Machine after installation or when the user asks to connect streaming tools and try a first recipe.
+description: Set up Stream Machine, check existing streaming tools, and start one local live demo or the separate mock preview.
 ---
 
-# Set up Stream Machine
+# Start a Stream Machine demo
 
-Guide the user through the mock account connection and a recipe preview. The release does not connect real accounts, control broadcasts, or change Stream Deck profiles.
+Open `stream_machine_open`. Explain that real controls and the fictional sample are separate. Use the user's requested demo when clear. Otherwise, ask which demo they want.
 
-Never request tokens in chat. Do not start `obs-twitch-mcp` during onboarding. Its inspected startup code enables chat automation and requires changes before adoption.
+## Check the selected connection
 
-## Open the demo
+Use the relevant read tool before an action:
 
-1. Explain that the current release uses a fictional Twitch account and mock recipe data.
-2. Discover the Stream Machine tools through the host.
-3. If the tools are absent, explain that the package requires a desktop host with local stdio MCP and Bun on `PATH`. Stop setup until the tools are available. Do not claim that installation succeeded.
-4. Call `stream_machine_open`.
-5. Offer the demo connection.
-6. If the user chooses demo setup, call `stream_machine_connect_demo`.
-7. Name the returned fictional account. Identify the account as demo data.
+- Twitch: `stream_machine_twitch_status`, then `stream_machine_twitch_channel`.
+- OBS: `stream_machine_obs_preflight`.
+- Stream Deck: `stream_machine_streamdeck_inventory`.
+- OpenDesign: `stream_machine_creative_list`.
+- Background worker: `stream_machine_worker_status`.
 
-## Preview the first recipe
+A missing connection does not block unrelated demos. Never substitute mock results for a failed real check. Never request tokens or passwords in chat. The private package uses fnox references to the owner's 1Password items.
 
-1. Call `stream_machine_list_recipes`.
-2. Help the user choose an available recipe.
-3. Ask for the title and category if the user has not provided them. If you use demo defaults, identify those values.
-4. Call `stream_machine_preview` with the selected recipe ID and exact input values.
-5. Show the target account and the current and proposed values. Do not describe the preview as an applied change.
+## Connect Twitch
 
-## Explain optional connections
+If the user requests a title update and the account is disconnected, call `stream_machine_twitch_connect` with `manageBroadcast: true`. Open the returned URL for Twitch consent. The registered callback is `http://localhost:4017/api/twitch/callback`.
 
-When a recipe needs an external provider, discover the provider through the host tools. Discuss only relevant providers, such as OpenDesign service, Canva, OBS, Stream Deck, or HyperFrames. Never invent app IDs or install every provider automatically.
+Read the account after consent. Use `preview-recipe` for the exact title preview and browser approval. OAuth consent does not approve an arbitrary title.
 
-Explain that desktop MCP hosts can call local OBS and Stream Deck servers directly. Web and mobile use require a hosted core, which this release does not provide. Treat unattended cloud-to-desktop workflows as separate work.
+## Use local devices
 
-Before any future integration, address its startup side effects and credential handling. Do not treat a repository's presence as proof that its provider is connected.
+OBS controls target the running local WebSocket server. Showing an alert selects the Stream Machine demo scene. Never start or stop broadcasting or recording.
 
-For later recipe previews after setup, use the `preview-recipe` skill.
+The Stream Deck demo uses the original 15-key USB device. Preview the exact button and URL. Apply only when the user has authorized the setup. Keep one USB owner running. Release the current demo before another process claims the device. USB pages are separate from Elgato profiles.
+
+## Use existing creative tools
+
+Use the existing OpenDesign service. Select an exact project or create an isolated `stream-machine-` test project. Supported recipes are `overlay` and `hyperframes-html`.
+
+HyperFrames produces editable, playable HTML. Do not request MP4 rendering or install a separate renderer. Keep the request ID after submission and poll that request. A failed or unknown result does not authorize an automatic resubmission.
+
+## Keep the worker explicit
+
+The worker starts separately through the trusted packaged CLI and starts paused. Arm only the configured account, event, and OBS action requested by the user. Pause prevents new alerts. Keep the desktop awake.
+
+For a fictional sample, use `stream_machine_connect_demo`, `stream_machine_list_recipes`, and `stream_machine_preview`. Label its results as mock data. `stream_machine_reset` resets only that sample.
 
 ## Examples
 
 <example>
-Context: The plugin was just installed.
-user: "Set up Stream Machine and preview my first streaming recipe."
-assistant: "I'll open Stream Machine, offer the demo connection, and preview a recipe. Everything here is mock data; nothing changes on Twitch."
+user: "Show an OBS alert."
+assistant: "I'll check OBS, then show the requested message in the Stream Machine demo scene. Broadcasting and recording stay unchanged."
 </example>
 
 <example>
-Context: The user asks to connect their real Twitch account.
-user: "Connect my Twitch channel."
-assistant: "Live Twitch authorization isn't implemented in this release. I can connect the demo account so you can try recipe previews."
+user: "Connect my Twitch account."
+assistant: "I'll open the existing local authorization flow, then verify which account connected."
 </example>

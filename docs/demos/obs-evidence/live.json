@@ -1,0 +1,173 @@
+{
+  "before": {
+    "mode": "live",
+    "endpoint": "localhost:4455",
+    "scenes": [
+      {
+        "sceneName": "cam mask",
+        "sceneUuid": "2073cc73-7328-47b0-a333-f22282f80dcf",
+        "sceneIndex": 0
+      },
+      {
+        "sceneName": "05 - Reboot Cover",
+        "sceneUuid": "3d1e0089-b4ef-4533-95f8-8e188dfdf1d4",
+        "sceneIndex": 1
+      },
+      {
+        "sceneName": "04 - Phone Footage",
+        "sceneUuid": "2d951761-5629-4cd0-bf54-d80f2eee955e",
+        "sceneIndex": 2
+      },
+      {
+        "sceneName": "03 - PC (No Cam)",
+        "sceneUuid": "38f57775-234f-470c-8f0a-9a3f94c00771",
+        "sceneIndex": 3
+      },
+      {
+        "sceneName": "revision-1",
+        "sceneUuid": "eb141261-3582-4775-b15c-362afc4b01cb",
+        "sceneIndex": 4
+      },
+      {
+        "sceneName": "StreamKit HTML Test",
+        "sceneUuid": "293ca851-658b-4fb7-9551-589ccf519121",
+        "sceneIndex": 5
+      },
+      {
+        "sceneName": "Stream Machine Demo",
+        "sceneUuid": "fb5e2fb5-985b-4396-8e19-129db5fac46b",
+        "sceneIndex": 6
+      },
+      {
+        "sceneName": "fal-test",
+        "sceneUuid": "c7786aa1-d586-4bba-82d0-958902a61e28",
+        "sceneIndex": 7
+      },
+      {
+        "sceneName": "klab-test",
+        "sceneUuid": "0f946bf8-71ba-49f0-8b9a-1bd95345898f",
+        "sceneIndex": 8
+      },
+      {
+        "sceneName": "02 - PC Fullscreen",
+        "sceneUuid": "5801f25e-f726-4d30-897f-205d1d9d7634",
+        "sceneIndex": 9
+      },
+      {
+        "sceneName": "01 - Talking Head Intro",
+        "sceneUuid": "d290553e-41cf-4842-a9a1-0b4d103d4179",
+        "sceneIndex": 10
+      }
+    ],
+    "observedAt": "2026-11-01T14:05:46.077Z",
+    "provider": "obs-cli",
+    "obsVersion": "33.0.0",
+    "websocketVersion": "5.7.5",
+    "resolution": "1920x1080",
+    "currentProgramScene": "Stream Machine Demo",
+    "streaming": false,
+    "recording": false
+  },
+  "played": {
+    "mode": "live",
+    "action": "play",
+    "scene": "Stream Machine Demo",
+    "source": "Stream Machine Alert",
+    "artifactPath": "/Users/prime/Library/Application Support/Stream Machine/obs/alert.html",
+    "text": "Stream Machine connected",
+    "refreshAcknowledged": true,
+    "visibility": "unverified",
+    "durationMs": 4000,
+    "previousProgramScene": "Stream Machine Demo",
+    "observedAt": "2026-11-01T14:05:46.236Z"
+  },
+  "replayed": {
+    "mode": "live",
+    "action": "replay",
+    "scene": "Stream Machine Demo",
+    "source": "Stream Machine Alert",
+    "artifactPath": "/Users/prime/Library/Application Support/Stream Machine/obs/alert.html",
+    "text": "Stream Machine connected",
+    "refreshAcknowledged": true,
+    "visibility": "unverified",
+    "durationMs": 4000,
+    "previousProgramScene": "Stream Machine Demo",
+    "observedAt": "2026-11-01T14:05:50.742Z"
+  },
+  "after": {
+    "mode": "live",
+    "endpoint": "localhost:4455",
+    "scenes": [
+      {
+        "sceneName": "cam mask",
+        "sceneUuid": "2073cc73-7328-47b0-a333-f22282f80dcf",
+        "sceneIndex": 0
+      },
+      {
+        "sceneName": "05 - Reboot Cover",
+        "sceneUuid": "3d1e0089-b4ef-4533-95f8-8e188dfdf1d4",
+        "sceneIndex": 1
+      },
+      {
+        "sceneName": "04 - Phone Footage",
+        "sceneUuid": "2d951761-5629-4cd0-bf54-d80f2eee955e",
+        "sceneIndex": 2
+      },
+      {
+        "sceneName": "03 - PC (No Cam)",
+        "sceneUuid": "38f57775-234f-470c-8f0a-9a3f94c00771",
+        "sceneIndex": 3
+      },
+      {
+        "sceneName": "revision-1",
+        "sceneUuid": "eb141261-3582-4775-b15c-362afc4b01cb",
+        "sceneIndex": 4
+      },
+      {
+        "sceneName": "StreamKit HTML Test",
+        "sceneUuid": "293ca851-658b-4fb7-9551-589ccf519121",
+        "sceneIndex": 5
+      },
+      {
+        "sceneName": "Stream Machine Demo",
+        "sceneUuid": "fb5e2fb5-985b-4396-8e19-129db5fac46b",
+        "sceneIndex": 6
+      },
+      {
+        "sceneName": "fal-test",
+        "sceneUuid": "c7786aa1-d586-4bba-82d0-958902a61e28",
+        "sceneIndex": 7
+      },
+      {
+        "sceneName": "klab-test",
+        "sceneUuid": "0f946bf8-71ba-49f0-8b9a-1bd95345898f",
+        "sceneIndex": 8
+      },
+      {
+        "sceneName": "02 - PC Fullscreen",
+        "sceneUuid": "5801f25e-f726-4d30-897f-205d1d9d7634",
+        "sceneIndex": 9
+      },
+      {
+        "sceneName": "01 - Talking Head Intro",
+        "sceneUuid": "d290553e-41cf-4842-a9a1-0b4d103d4179",
+        "sceneIndex": 10
+      }
+    ],
+    "observedAt": "2026-11-01T14:05:55.308Z",
+    "provider": "obs-cli",
+    "obsVersion": "33.0.0",
+    "websocketVersion": "5.7.5",
+    "resolution": "1920x1080",
+    "currentProgramScene": "Stream Machine Demo",
+    "streaming": false,
+    "recording": false
+  },
+  "screenshots": [
+    "play.png",
+    "program.png",
+    "idle.png",
+    "replay.png",
+    "replay-idle.png"
+  ]
+}
