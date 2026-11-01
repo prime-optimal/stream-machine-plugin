@@ -2,7 +2,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { LocalConnectionStore } from "./local-store";
 import { TwitchClient, TwitchError } from "./upstream/client";
-import { TwitchService } from "./upstream/service";
+import { CLIP_SCOPE, TwitchService } from "./upstream/service";
 import { TwitchFault, type TwitchAccountProvider } from "./twitch";
 import { TwitchTitleService } from "../adapters/twitch/service";
 import { TwitchChannelClient } from "../adapters/twitch/client";
@@ -42,7 +42,7 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
       try {
         if (url.pathname === "/connect" && request.method === "GET") {
           titles.clear();
-          const started = await oauth.begin(OWNER, false, url.searchParams.get("manage") === "1");
+          const started = await oauth.begin(OWNER, false, url.searchParams.get("manage") === "1", url.searchParams.get("clips") === "1");
           return response("", 302, { Location: started.url, "Set-Cookie": `sm_twitch_state=${started.state}; HttpOnly; SameSite=Lax; Path=/api/twitch; Max-Age=600` });
         }
         if (url.pathname === "/api/twitch/callback" && request.method === "GET") {
@@ -87,6 +87,20 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
     } });
     server.unref();
   }
-  return { accounts, titles, diagnostics() { return failures.map(failure => ({ ...failure })); }, connect(manage = false) { listen(); return { mode: "live", connectUrl: `${ORIGIN}/connect${manage ? "?manage=1" : ""}`, callbackUrl, requiredScope: manage ? "channel:manage:broadcast" : "profile" }; }, approvalUrl(id: string) { listen(); return `${ORIGIN}/approve?id=${encodeURIComponent(id)}`; }, close() { server?.stop(true); store.close(); } };
+  return {
+    accounts, titles,
+    diagnostics() { return failures.map(failure => ({ ...failure })); },
+    connect(manage = false, manageClips = false) {
+      listen();
+      const additionalScopes = [...(manage ? ["channel:manage:broadcast"] : []), ...(manageClips ? [CLIP_SCOPE] : [])];
+      const query = new URLSearchParams({ ...(manage ? { manage: "1" } : {}), ...(manageClips ? { clips: "1" } : {}) });
+      return {
+        mode: "live", connectUrl: `${ORIGIN}/connect${query.size ? `?${query}` : ""}`, callbackUrl,
+        requiredScope: manageClips ? CLIP_SCOPE : manage ? "channel:manage:broadcast" : "profile", additionalScopes,
+      };
+    },
+    approvalUrl(id: string) { listen(); return `${ORIGIN}/approve?id=${encodeURIComponent(id)}`; },
+    close() { server?.stop(true); store.close(); },
+  };
 }
 export type LocalTwitchRuntime = NonNullable<ReturnType<typeof createLocalTwitchRuntime>>;
