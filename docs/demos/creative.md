@@ -32,7 +32,11 @@ Private SQLite journal preserves UUID/hash duplicate protection. Same request ne
 
 Fresh installed overlay handoff: project `stream-machine-creative-20261101`, run `145dd920-d844-4961-b239-2322467e9ced`, entry `weekend-camera-v1/index.html`. [Offline HTML](creative-artifacts/overlay.html) and [browser screenshot](creative-artifacts/overlay-browser.png) preserve proof. Transparent body, no external scripts, no browser console errors. No new OBS verification.
 
-Corrected HTML-only live artifact/browser proof is recorded after final verification. TypeScript/build and fifteen tests pass before service writes.
+Corrected HTML-only request `effe35e3-0bc9-4a5a-b97e-4c3021de3a2d` succeeded in isolated project `stream-machine-html-20261101`. [Actual stored playable HTML](creative-artifacts/hyperframes-html.html), [editable source](creative-artifacts/hyperframes-source.html), [provenance](creative-artifacts/hyperframes-provenance.json), and [service hashes](creative-artifacts/html-service-proof.json) preserve exact files. Readback was complete, without truncation.
+
+[Browser proof](creative-artifacts/html-browser-proof.json) records autoplay, default loop, stable pause, resumed play, replay, safe live updates, invalid-color rejection, URL variables, and single-play completion. Native Brave loaded the real retrieved file. Body remained transparent. Console showed zero errors and one expected invalid-color warning. [Screenshot](creative-artifacts/html-browser.png) shows a held visible frame. Temporary QA tab closed. OBS untouched.
+
+TypeScript/build pass. Sixteen tests pass, including real in-memory MCP registration, credential derivation/override, HTML roundtrip, duplicate suppression, safe text, exact scenario provenance, and retired journal records. [Verification record](creative-artifacts/verification.json) links current proofs.
 
 ## Historical correction
 

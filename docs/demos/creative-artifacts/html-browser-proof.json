@@ -1,0 +1,25 @@
+{
+  "browser": "Brave Browser, native CUA",
+  "artifact": "hyperframes-html.html",
+  "source": "actual OpenDesign stored artifact; see html-service-proof.json",
+  "autoplay": { "time": 0.688, "paused": false, "repeat": -1 },
+  "pause": { "time": 3.465, "paused": true, "subsequentCaptureUnchanged": true },
+  "replay": { "time": 0, "paused": false },
+  "play": { "fromTime": 1.5, "paused": false, "laterTime": 4 },
+  "liveUpdate": {
+    "title": "SAFE <b>TEXT</b>",
+    "primary": "#7da4ff",
+    "changed": ["title", "primary"],
+    "injectedBold": 0,
+    "injectedImages": 0
+  },
+  "invalidColor": { "changed": [], "primaryRetained": "#7da4ff" },
+  "urlOverrides": { "title": "URL TITLE", "repeat": 0, "terminalTime": 4, "terminalProgress": 1 },
+  "bodyBackground": "rgba(0, 0, 0, 0)",
+  "consoleErrors": 0,
+  "consoleWarnings": 1,
+  "expectedWarning": "[overlay] ignoring invalid value for primary not-a-color",
+  "screenshot": "html-browser.png",
+  "qaTabClosed": true,
+  "obsChanged": false
+}

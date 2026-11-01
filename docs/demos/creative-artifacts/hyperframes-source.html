@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en" data-composition-variables="[{&quot;id&quot;:&quot;title&quot;,&quot;type&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Title&quot;,&quot;default&quot;:&quot;STREAM MACHINE&quot;,&quot;maxLength&quot;:48},{&quot;id&quot;:&quot;primary&quot;,&quot;type&quot;:&quot;color&quot;,&quot;label&quot;:&quot;Accent&quot;,&quot;default&quot;:&quot;#ffb76b&quot;}]">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=1920, height=1080">
+<title>Stream Machine HTML overlay</title>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0}html,body{width:1920px;height:1080px;overflow:hidden;background:transparent;font-family:Arial,system-ui,sans-serif}
+#card{position:absolute;left:96px;bottom:96px;min-width:620px;max-width:1500px;padding:32px 48px;background:#111b20;border-left:8px solid var(--primary,#ffb76b);color:#f4f7ef}
+#title{font-size:56px;line-height:1.15;overflow-wrap:anywhere}#label{font-size:22px;letter-spacing:3px;color:var(--primary,#ffb76b);margin-bottom:12px}
+</style></head><body>
+<div id="root" data-composition-id="stream-machine-html" data-width="1920" data-height="1080" data-start="0" data-duration="4">
+<section id="card"><p id="label">STREAM MACHINE / HTML DEMO</p><h1 id="title" data-var-text="title">STREAM MACHINE</h1></section>
+</div>
+<script>
+var tl=gsap.timeline({paused:true});
+tl.fromTo("#card",{opacity:0,y:32},{opacity:1,y:0,duration:0.5,ease:"power3.out"},0.1).to("#card",{opacity:0,y:-16,duration:0.4},3.5);
+window.__timelines=window.__timelines||{};window.__timelines["stream-machine-html"]=tl;
+</script></body></html>
