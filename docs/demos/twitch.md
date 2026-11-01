@@ -57,6 +57,8 @@ Live creator verification on 2026-11-01: validated `KLabFM` (`klabfm`), broadcas
 
 Browser displayed callback error despite successful grant and storage. Historical error was not captured. Replaying a completed callback reproduced the same false failure in a failing test. Runtime now shares one completion per hashed, validated browser-cookie-bound state, preventing duplicate exchanges while preserving wrong-cookie and wrong-state rejection. Driver `diagnostics` command returns only sanitized error class, code, and status. Tests prove retry succeeds, exchange runs once, and wrong browser/state still fails. Historical browser error cause remains an inference.
 
+Approval form initially inherited `Referrer-Policy: no-referrer`. For navigation POST, the [Fetch standard](https://fetch.spec.whatwg.org/#append-a-request-origin-header) serializes Origin as `null` under this policy, which conflicts with the same-origin approval guard. Approval GET now uses `same-origin`; OAuth pages retain `no-referrer`. Failing-first regression verifies this header boundary. Tests retain rejection for null Origin with valid cookie, wrong Origin, and missing cookie. Rejection diagnostics expose only origin-match, null-origin, and matching-cookie booleans.
+
 ## Limits
 
 Local desktop access is trusted. Browser approval requires same-origin POST and HttpOnly SameSite cookie. Previews expire after five minutes and disappear on restart. Network failure after PATCH reports unknown outcome and consumes preview; no write retry. Read-back failure reports `applied_unverified`. Twitch offers no conditional title update, so another channel editor can race the preflight read.

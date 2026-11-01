@@ -94,6 +94,7 @@ test("local OAuth callback and human approval form preserve trusted boundary", a
     const { connectUrl } = runtime.connect(true);
     const start = await fetch(connectUrl, { redirect: "manual" });
     expect(start.status).toBe(302);
+    expect(start.headers.get("referrer-policy")).toBe("no-referrer");
     const location = start.headers.get("location"); if (!location) throw new Error("OAuth redirect missing");
     const state = new URL(location).searchParams.get("state");
     expect(new URL(location).searchParams.get("scope")).toBe(TITLE_SCOPE);
@@ -112,8 +113,12 @@ test("local OAuth callback and human approval form preserve trusted boundary", a
     expect(JSON.stringify(status)).not.toContain("LOCAL_TOKEN_SENTINEL");
     const p = await runtime.titles.preview("Proposed"), approvalUrl = runtime.approvalUrl(p.previewId);
     const page = await fetch(approvalUrl); const html = await page.text();
+    expect(page.headers.get("referrer-policy")).toBe("same-origin");
     expect(html).toContain("Original"); expect(html).toContain("Proposed"); expect(writes).toBe(0);
     const cookie = page.headers.get("set-cookie")?.split(";")[0] ?? "";
+    expect((await fetch(approvalUrl, { method: "POST", headers: { origin: "null", cookie } })).status).toBe(403);
+    expect(runtime.diagnostics().at(-1)).toMatchObject({ class: "ApprovalGuard", originIsSameOrigin: false, originIsNull: true, cookiePresent: true });
+    expect((await fetch(approvalUrl, { method: "POST", headers: { origin: `http://localhost:${port}` } })).status).toBe(403);
     expect((await fetch(approvalUrl, { method: "POST", headers: { origin: "https://evil.example", cookie } })).status).toBe(403);
     await expect(runtime.titles.apply(p.previewId)).rejects.toThrow("BROWSER_APPROVAL_REQUIRED");
     expect((await fetch(approvalUrl, { method: "POST", headers: { origin: `http://localhost:${port}`, cookie } })).status).toBe(200);
