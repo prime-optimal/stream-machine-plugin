@@ -19,6 +19,7 @@ The following checks passed:
 - Real temporary repositories covered clean branches, ignored files, tracked edits, staged edits, untracked files, unpushed commits, upstream-only commits, detached HEAD, deleted upstream refs, missing tracking configuration, and local upstream branches.
 - Each fixture check compared file bytes, index bytes, refs, HEAD, and working-tree status before and after the command.
 - The actual shell command rejected the unfinished task worktree before commit.
+- Pre-push exposed inherited Git hook variables in the temporary-repository fixture. The fixture now clears inherited Git variables before creating its repositories.
 - `mise run hooks:check`, `mise run check`, ShellCheck, and all 69 tests passed.
 
 ## Review findings

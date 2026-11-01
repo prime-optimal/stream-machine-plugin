@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const script = fileURLToPath(new URL("../scripts/check-handoff.sh", import.meta.url));
 const env = {
-  ...process.env,
+  ...Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith("GIT_"))),
   GIT_CONFIG_GLOBAL: "/dev/null",
   GIT_CONFIG_NOSYSTEM: "1",
   GIT_OPTIONAL_LOCKS: "0",
