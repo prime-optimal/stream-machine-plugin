@@ -24,7 +24,9 @@ Unbounded upstream Python MCP dependency selected incompatible MCP v2. Adapter p
 
 Verified local source: `/Users/prime/Documents/ChatGPT/streamdeck-mcp-demo-reference` at revision above. Default source is same pinned fork revision through `uv tool run --from git+https://github.com/prime-optimal/streamdeck-mcp.git@<revision>`.
 
-Initial keeper: exec session `66421`, provider PIDs `13711` and `13712`. Keeper has sole intended USB ownership. Parent must stop keeper before starting integrated USB demo. Do not run Elgato concurrently.
+Initial keeper used exec session `66421`, provider PIDs `13711` and `13712`. Keeper stopped before integrated demo ownership. Group SIGINT terminated child before graceful page cleanup. Removed only owned saved page through upstream `streamdeck_delete_page`; no USB connection required. Inventory then returned only blank `main`. Do not run Elgato concurrently.
+
+Default pinned Git source verified twice with `mise exec -- bun scripts/streamdeck-demo.ts inventory`, without local source override. Device and blank main page returned successfully. Earlier integrated inventory failure did not reproduce with same SDK inherited environment. Root cause remains unproven. Provider now retains last 4,000 diagnostic characters and includes them in transport failures. Tool errors include structured `error.code` and `error.message` for UI display.
 
 ## API
 
@@ -61,10 +63,10 @@ mise exec -- bun scripts/streamdeck-demo.ts apply AL29G1A04274 https://github.co
 
 Local source override: `STREAM_MACHINE_STREAMDECK_SOURCE=/Users/prime/Documents/ChatGPT/streamdeck-mcp-demo-reference`.
 
-Press top-left **OPEN DEMO**. Expected result: GitHub Project 18 opens in default browser. Keep process running. Ctrl-C removes owned page and releases USB. Abrupt termination can leave saved test page; provider restart does not resume it automatically.
+Press top-left **OPEN DEMO**. Expected result: GitHub Project 18 opens in default browser. Keep process running. Prefer integrated `stream_machine_streamdeck_release` for graceful cleanup. Process-group termination can kill child before cleanup and leave saved test page; provider restart does not resume it automatically.
 
 ## Checks and limits
 
-`mise run check`: passed. `mise run test`: eight tests passed, including three Stream Deck tests. Tests cover read-only preview, key bounds, URL validation, single write, readback, one-shot preview, cleanup call, and command quoting.
+`mise run check`: passed. Initial full test run: eight tests passed. Follow-up Stream Deck tests: four passed. Tests cover structured provider errors, read-only preview, key bounds, URL validation, single write, readback, one-shot preview, cleanup call, and command quoting.
 
 Literal older issue criteria for native profile backup, configured action reuse, and native profile restoration remain inapplicable to fresh USB fallback. Existing native profiles were absent and unchanged. Native profile verification remains outside this USB result.

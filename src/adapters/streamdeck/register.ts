@@ -2,16 +2,21 @@ import type { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { StreamDeckWorkspace, buttonInput } from "./workspace";
 
+export async function streamDeckResult(run: () => Promise<unknown>) {
+  try {
+    const data = await run();
+    return { content: [{ type: "text" as const, text: JSON.stringify(data) }], structuredContent: { provider: "streamdeck", data } };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Stream Deck operation failed";
+    return { isError: true, content: [{ type: "text" as const, text: message }], structuredContent: {
+      provider: "streamdeck", error: { code: "STREAMDECK_PROVIDER_ERROR", message },
+    } };
+  }
+}
+
 export function registerStreamDeckTools(server: McpServer) {
   const workspace = new StreamDeckWorkspace();
-  const result = async (run: () => Promise<unknown>) => {
-    try {
-      const data = await run();
-      return { content: [{ type: "text" as const, text: JSON.stringify(data) }], structuredContent: { provider: "streamdeck", data } };
-    } catch (error) {
-      return { isError: true, content: [{ type: "text" as const, text: error instanceof Error ? error.message : "Stream Deck operation failed" }] };
-    }
-  };
+  const result = streamDeckResult;
   server.registerTool("stream_machine_streamdeck_inventory", {
     description: "Read local USB Stream Deck inventory and saved USB pages. Does not claim USB or change profiles.", inputSchema: z.strictObject({}),
     annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },

@@ -13,6 +13,7 @@ export interface DeckProvider {
 export class UsbProvider implements DeckProvider {
   private client: Client | undefined;
   private connecting: Promise<Client> | undefined;
+  private diagnostics = "";
 
   private connect() {
     if (!this.connecting) this.connecting = this.start();
@@ -25,7 +26,10 @@ export class UsbProvider implements DeckProvider {
       `git+https://github.com/prime-optimal/streamdeck-mcp.git@${STREAMDECK_REVISION}`;
     const transport = new StdioClientTransport({
       command: "uv", args: ["tool", "run", "--python", "3.11", "--with", "mcp==1.25.0", "--from", source, "streamdeck-mcp-usb"],
-      stderr: "inherit",
+      stderr: "pipe",
+    });
+    transport.stderr?.on("data", (chunk: Buffer) => {
+      this.diagnostics = (this.diagnostics + chunk.toString()).slice(-4000);
     });
     try {
       await client.connect(transport, { timeout: 120_000 });
@@ -34,13 +38,19 @@ export class UsbProvider implements DeckProvider {
     } catch (error) {
       await transport.close();
       this.connecting = undefined;
-      throw error;
+      throw this.withDiagnostics(error);
     }
+  }
+
+  private withDiagnostics(error: unknown) {
+    const message = error instanceof Error ? error.message : "Provider failed";
+    return new Error(`${message}${this.diagnostics ? `\nProvider diagnostics:\n${this.diagnostics.trim()}` : ""}`);
   }
 
   async call(name: string, args: Record<string, unknown> = {}) {
     const client = await this.connect();
-    const result = resultSchema.parse(await client.callTool({ name, arguments: args }, undefined, { timeout: 20_000 }));
+    const result = resultSchema.parse(await client.callTool({ name, arguments: args }, undefined, { timeout: 20_000 })
+      .catch((error: unknown) => { throw this.withDiagnostics(error); }));
     const text = result.content.flatMap((item) => item.type === "text" && item.text ? [item.text] : []).join("\n");
     if (result.isError || text.startsWith("❌") || text.startsWith("⚠️")) throw new Error(text);
     return text;
