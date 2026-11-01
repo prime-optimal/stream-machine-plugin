@@ -2,6 +2,8 @@
 
 This record describes the decisions for the initial demo and the questions deferred to later work. It does not report current installation or integration status.
 
+The [implementation roadmap](roadmap.md) records later priorities confirmed on 2026-11-01. Twitch account and channel updates, OBS, and Stream Deck proceed in parallel. The first personal release includes a local background worker that triggers an OBS alert from a Twitch event while chat is closed. That requirement advances unattended execution from the initial deferred work into the first release. Invited-user hosting remains a separate decision.
+
 The repository is [prime-optimal/stream-machine-plugin](https://github.com/prime-optimal/stream-machine-plugin).
 
 The project board is [Stream Machine #18](https://github.com/users/prime-optimal/projects/18).

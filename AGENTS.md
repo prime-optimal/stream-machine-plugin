@@ -7,7 +7,8 @@ Follow these development rules:
 - Create an issue before implementation.
 - Create branches from `main`.
 - Use conventional commits.
-- Apply `feat`, `fix`, or `chore`, plus `phase:architecture` and one of `priority:p0`, `priority:p1`, or `priority:p2`.
+- Apply `feat`, `fix`, or `chore`, one phase label, and one priority label. Phase labels are `phase:architecture`, `phase:build`, `phase:integration`, and `phase:release`. Priority labels are `priority:p0`, `priority:p1`, and `priority:p2`.
+- Use the [implementation roadmap](docs/roadmap.md) for track ownership and completion dependencies. Start each implementation issue in its own worktree from `origin/main`.
 - Use mise for runtimes and tasks.
 - Run `mise run install` to install dependencies.
 - Use `mise run check` for TypeScript checks and `mise run test` for domain tests.

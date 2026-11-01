@@ -1,0 +1,430 @@
+{
+  "issues": {
+    "epic-core": {
+      "issue_number": 12,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/12",
+      "title": "epic: Core and recipes",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJgHE"
+    },
+    "contracts": {
+      "issue_number": 13,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/13",
+      "title": "feat: Define versioned capability, account, event, asset, and recipe interfaces",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJgHw"
+    },
+    "epic-twitch": {
+      "issue_number": 14,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/14",
+      "title": "epic: Twitch accounts and API",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJir8"
+    },
+    "epic-obs": {
+      "issue_number": 15,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/15",
+      "title": "epic: OBS",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJitU"
+    },
+    "epic-deck": {
+      "issue_number": 16,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/16",
+      "title": "epic: Stream Deck",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJivE"
+    },
+    "epic-automation": {
+      "issue_number": 17,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/17",
+      "title": "epic: Events and background automation",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiw8"
+    },
+    "epic-media": {
+      "issue_number": 18,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/18",
+      "title": "epic: Clips game data and analytics",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiy0"
+    },
+    "epic-creative": {
+      "issue_number": 19,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/19",
+      "title": "epic: Creative tools",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi0c"
+    },
+    "epic-experience": {
+      "issue_number": 20,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/20",
+      "title": "epic: Native UI and onboarding",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi14"
+    },
+    "epic-release": {
+      "issue_number": 21,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/21",
+      "title": "epic: Release and distribution",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi3k"
+    },
+    "providers": {
+      "issue_number": 22,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/22",
+      "title": "feat: resolve capabilities across optional MCP servers and connected plugins",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJh2E"
+    },
+    "planner": {
+      "issue_number": 23,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/23",
+      "title": "feat: load reusable recipes and generate target-bound action previews",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiGE"
+    },
+    "executor": {
+      "issue_number": 24,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/24",
+      "title": "feat: execute approved recipes with durable runs and idempotent steps",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiFo"
+    },
+    "oauth": {
+      "issue_number": 25,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/25",
+      "title": "feat: connect a Twitch account and manage grants and token lifecycle",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJisk"
+    },
+    "helix": {
+      "issue_number": 26,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/26",
+      "title": "feat: add the minimal read-only Twitch channel and category tools",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiss"
+    },
+    "channel": {
+      "issue_number": 27,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/27",
+      "title": "feat: preview and apply a reviewed Twitch channel update",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJisw"
+    },
+    "obs-read": {
+      "issue_number": 28,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/28",
+      "title": "feat: select the OBS provider and implement read-only preflight",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiuQ"
+    },
+    "obs-isolate": {
+      "issue_number": 29,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/29",
+      "title": "chore: audit and isolate useful obs-twitch-mcp capabilities before adoption",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJius"
+    },
+    "obs-write": {
+      "issue_number": 30,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/30",
+      "title": "feat: preview and verify isolated OBS source changes and alert output",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiu0"
+    },
+    "deck-read": {
+      "issue_number": 31,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/31",
+      "title": "feat: discover Stream Deck devices profiles and reusable actions",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiv8"
+    },
+    "deck-plan": {
+      "issue_number": 32,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/32",
+      "title": "feat: preview a Stream Deck page from configured actions",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiwU"
+    },
+    "deck-apply": {
+      "issue_number": 33,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/33",
+      "title": "feat: apply and restore one dedicated Stream Deck test profile",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiwc"
+    },
+    "subscriptions": {
+      "issue_number": 34,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/34",
+      "title": "feat: manage EventSub subscription intent and connection lifecycle",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJix8"
+    },
+    "delivery": {
+      "issue_number": 35,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/35",
+      "title": "feat: receive normalize and deduplicate EventSub WebSocket events",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiyk"
+    },
+    "worker": {
+      "issue_number": 36,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/36",
+      "title": "feat: run a local background worker independently of chat",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJizA"
+    },
+    "automation-policy": {
+      "issue_number": 37,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/37",
+      "title": "feat: authorize bounded unattended recipes and support pause and revocation",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJizI"
+    },
+    "event-obs": {
+      "issue_number": 38,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/38",
+      "title": "feat: prove a Twitch event triggers an OBS alert while chat is closed",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJizU"
+    },
+    "clips": {
+      "issue_number": 39,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/39",
+      "title": "feat: download an authorized Twitch clip through the official API",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJizs"
+    },
+    "metadata": {
+      "issue_number": 40,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/40",
+      "title": "feat: add optional media metadata transcripts and search",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi0A"
+    },
+    "igdb": {
+      "issue_number": 41,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/41",
+      "title": "feat: resolve IGDB game metadata and Twitch category mappings",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi0Q"
+    },
+    "analytics": {
+      "issue_number": 42,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/42",
+      "title": "feat: expose named analytics datasets with source and coverage",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi0s"
+    },
+    "opendesign": {
+      "issue_number": 43,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/43",
+      "title": "feat: coordinate the existing OpenDesign Cloud plugin and MCP connection",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi1M"
+    },
+    "hyperframes": {
+      "issue_number": 44,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/44",
+      "title": "feat: render one portable HyperFrames alert overlay",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi1Y"
+    },
+    "canva": {
+      "issue_number": 45,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/45",
+      "title": "feat: add optional Canva artwork workflow through its existing plugin",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi1o"
+    },
+    "native-verify": {
+      "issue_number": 46,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/46",
+      "title": "chore: verify the installed Stream Machine plugin in the native host",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi28"
+    },
+    "onboarding": {
+      "issue_number": 47,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/47",
+      "title": "feat: make onboarding resumable and provider-aware",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi3Q"
+    },
+    "extensions": {
+      "issue_number": 48,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/48",
+      "title": "feat: add native settings mentions deep links and context fallbacks",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi3U"
+    },
+    "personal-release": {
+      "issue_number": 49,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/49",
+      "title": "feat: verify and package the first personal release",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi34"
+    },
+    "hosted": {
+      "issue_number": 50,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/50",
+      "title": "feat: decide and implement invited-user identity and hosted MCP access",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi4E"
+    },
+    "invited": {
+      "issue_number": 51,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/51",
+      "title": "feat: validate installation onboarding and upgrades with invited streamers",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi4M"
+    },
+    "distribution": {
+      "issue_number": 52,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/52",
+      "title": "feat: prepare public plugin submission and reusable recipe catalog",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi4U"
+    },
+    "twitch-expanded": {
+      "issue_number": 53,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/53",
+      "title": "feat: extend Twitch read tools to streams clips videos and chat metadata",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJitM"
+    },
+    "access-model": {
+      "issue_number": 54,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/54",
+      "title": "chore: choose invited-user access account ownership and hosting scope",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi4c"
+    }
+  },
+  "milestones": {
+    "M1": {
+      "number": 1,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/milestone/1",
+      "title": "M1 — Personal streaming and unattended alerts"
+    },
+    "M2": {
+      "number": 2,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/milestone/2",
+      "title": "M2 — Invited streamers and creative workflows"
+    },
+    "M3": {
+      "number": 3,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/milestone/3",
+      "title": "M3 — Analytics recipe catalog and distribution"
+    }
+  },
+  "fields": {
+    "Track": {
+      "id": "PVTSSF_lAHOBWW-584BpquvzhoGr-I",
+      "name": "Track",
+      "options": [
+        {
+          "id": "f492fee7",
+          "name": "Core and recipes"
+        },
+        {
+          "id": "3cebbc3a",
+          "name": "Twitch accounts and API"
+        },
+        {
+          "id": "e3d7b99c",
+          "name": "OBS"
+        },
+        {
+          "id": "d298f3e8",
+          "name": "Stream Deck"
+        },
+        {
+          "id": "a4fcb7c8",
+          "name": "Events and background automation"
+        },
+        {
+          "id": "816803dc",
+          "name": "Clips game data and analytics"
+        },
+        {
+          "id": "e6b71cb3",
+          "name": "Creative tools"
+        },
+        {
+          "id": "44330db1",
+          "name": "Native UI and onboarding"
+        },
+        {
+          "id": "ab920d92",
+          "name": "Release and distribution"
+        }
+      ],
+      "type": "ProjectV2SingleSelectField"
+    },
+    "Priority": {
+      "id": "PVTSSF_lAHOBWW-584BpquvzhoGr_E",
+      "name": "Priority",
+      "options": [
+        {
+          "id": "2b8778c2",
+          "name": "P0"
+        },
+        {
+          "id": "5e08cf25",
+          "name": "P1"
+        },
+        {
+          "id": "ea7c1df6",
+          "name": "P2"
+        }
+      ],
+      "type": "ProjectV2SingleSelectField"
+    },
+    "Start": {
+      "id": "PVTSSF_lAHOBWW-584BpquvzhoGr_c",
+      "name": "Start",
+      "options": [
+        {
+          "id": "ff7347ab",
+          "name": "Independent now"
+        },
+        {
+          "id": "2ac5654a",
+          "name": "Fixtures now"
+        },
+        {
+          "id": "a9ea3a2b",
+          "name": "After prerequisites"
+        },
+        {
+          "id": "6c77e781",
+          "name": "Later"
+        },
+        {
+          "id": "83891486",
+          "name": "Epic"
+        }
+      ],
+      "type": "ProjectV2SingleSelectField"
+    }
+  },
+  "views": {
+    "All work": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWH1g",
+      "number": 1,
+      "name": "All work",
+      "layout": "TABLE_LAYOUT",
+      "filter": "",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/1"
+    },
+    "First release": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWRo8",
+      "number": 2,
+      "name": "First release",
+      "layout": "BOARD_LAYOUT",
+      "filter": "is:open -label:epic milestone:\"M1 — Personal streaming and unattended alerts\"",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/2"
+    },
+    "Parallel starts": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWRpE",
+      "number": 3,
+      "name": "Parallel starts",
+      "layout": "TABLE_LAYOUT",
+      "filter": "is:open -label:epic -start:\"After prerequisites\" -start:Later",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/3"
+    },
+    "Twitch": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWRpQ",
+      "number": 4,
+      "name": "Twitch",
+      "layout": "BOARD_LAYOUT",
+      "filter": "is:open label:track:twitch -label:epic",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/4"
+    },
+    "OBS": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWRpU",
+      "number": 5,
+      "name": "OBS",
+      "layout": "BOARD_LAYOUT",
+      "filter": "is:open label:track:obs -label:epic",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/5"
+    },
+    "Stream Deck": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWRpc",
+      "number": 6,
+      "name": "Stream Deck",
+      "layout": "BOARD_LAYOUT",
+      "filter": "is:open label:track:deck -label:epic",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/6"
+    },
+    "Background automation": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWRpk",
+      "number": 7,
+      "name": "Background automation",
+      "layout": "BOARD_LAYOUT",
+      "filter": "is:open label:track:automation -label:epic",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/7"
+    }
+  },
+  "planningIssue": 9,
+  "planningItemId": "PVTI_lAHOBWW-584BpquvzhFJjcA"
+}

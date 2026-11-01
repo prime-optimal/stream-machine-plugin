@@ -8,6 +8,7 @@ The prototype uses mock data. It does not authorize Twitch accounts, change chan
 
 The project documentation covers these topics:
 
+- [Implementation roadmap and parallel work](docs/roadmap.md)
 - [Run the demo and build the package](docs/setup.md)
 - [Package reference](docs/package-reference.md)
 - [Architecture and embedded diagrams](docs/architecture.md#how-a-demo-request-moves)
