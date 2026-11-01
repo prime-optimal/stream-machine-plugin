@@ -1,6 +1,7 @@
 version: 1
 exclude:
   - docs/CHANGELOG.md
+  - docs/archive/**
 nouns:
   plugin:
     - canonical: demo
