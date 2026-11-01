@@ -1,0 +1,197 @@
+[
+  {
+    "kind": "tracked",
+    "path": "AGENTS.md",
+    "sha256": "22045fb2bdf72c47e5e108be663c69a873f419096481ea27909f6dc47ea9413d"
+  },
+  {
+    "kind": "tracked",
+    "path": "README.md",
+    "sha256": "395fc9f796626ec8db4878b9a685e5471b5516c74950ffbcd6f043a07b8cc68e"
+  },
+  {
+    "kind": "tracked",
+    "path": "docs/architecture.md",
+    "sha256": "199ab4d47cec47d0cf8e6eb54aecfc5cc58d02132b81ab99a8cb3828ef6702c7"
+  },
+  {
+    "kind": "tracked",
+    "path": "docs/decisions.md",
+    "sha256": "62835ae0b089540cf13b265e716fac44b1ce2016552e27fcffc6ce06964353fd"
+  },
+  {
+    "kind": "tracked",
+    "path": "docs/integrations.md",
+    "sha256": "96f6807672a72c13aa8ea9c17a29e358d38279fb507c045fb45c06f91f915842"
+  },
+  {
+    "kind": "tracked",
+    "path": "docs/setup.md",
+    "sha256": "832dd89ec060acd20e3ba41f79a9f0714537956febbd1f2b2347e65332ffd0eb"
+  },
+  {
+    "kind": "tracked",
+    "path": "docs/verification.md",
+    "sha256": "441031baef0886dd1e77cd1afe5f710a64efe70d96c45feca82ea697d1a58624"
+  },
+  {
+    "kind": "tracked",
+    "path": "skills/onboarding/SKILL.md",
+    "sha256": "ff06ccd47429ef766275f03bdd901dc792607428f606c0db4bc6e13e079d8096"
+  },
+  {
+    "kind": "tracked",
+    "path": "skills/preview-recipe/SKILL.md",
+    "sha256": "6b02639b8ccadbe1ad56880d6a6904a135f2dac8eaa51486428c29c3bba2e098"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/package-reference.md",
+    "sha256": "f9c22383e103610b6ada2aee6ba88c6ec3cdc8d777bd869117153324048b9a47"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/archived-epics-after.json",
+    "sha256": "f4c914d4dcc793d5eda830bd100f91120e65bbe1668d81ddfcff7eb84a4e1d02"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/fields-before.json",
+    "sha256": "29a5942d35c1cbbede4644b735f029296302d81b76957928929c6798af2363ad"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/issue-14.md",
+    "sha256": "ca7a7d98071b64542941166d68ad560700036233403840a965c805362fc897dd"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/issue-15.md",
+    "sha256": "b4f23de89a0aaca99bb71dfb190cf385e081bc3c7e79040891ecd2957545c7dd"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/issue-16.md",
+    "sha256": "0ac4c4b428d424909742d2dcf199959c036a3d9321f1b0d607b551dc58827850"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/issue-17.md",
+    "sha256": "7b2d923013fe8043271c24a8adb823e61a300c492c23bc3fb553ae833932bc70"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/issue-19.md",
+    "sha256": "7813671fde9662c8f7f359e4788f18dd75b815de237b5ebc5925832a63af328c"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/issue-20.md",
+    "sha256": "63e022ec258ee129e574fea2c63efdfe35bc152a9e3957f16de5b73db23ede9c"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/issue-47.md",
+    "sha256": "4bbb58a48e81be5c204df9d47eb91d0846bdd05311a1615faeb6a834947af13e"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/issue-49.md",
+    "sha256": "b70235d64f32274ebace090965c48fdfc7916a0cddfa9ba1beb1fee11b8187ac"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/issue-9.md",
+    "sha256": "86acd1e53a01bfb5ff97f43c4521d6a5b486c19fe2057773f6aff5f5f6dc0048"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/issues-after.json",
+    "sha256": "ead82e5d18b5c70bd3828262b8e41e943cc6cbc53d1667d8345cddfc8efbfd55"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/issues-before.json",
+    "sha256": "c766cbef5454aba5ee7108a9d84d2679447f5a93910813c9601c6affa9ca249c"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/items-before.json",
+    "sha256": "53f25894f0455c9e4f8fdfce27d1a3f1d5e95b5e9cb9ed719527ab0eceff1536"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/project-after.json",
+    "sha256": "355a3ff51f948190e0c501642475e52905ca6fbb64d7d37350e33707b7c3299d"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/project-before.json",
+    "sha256": "5a15047156aefe008bac2c9f1a2aa38f46953bc1372313561bdf0e3dc37502c3"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/project-readme.md",
+    "sha256": "a0bb39064af99dabfaae5d7e96eff2a0bc7361185dc71e7ed74d58a83e295e3b"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/report.md",
+    "sha256": "d6372c1580a47ab463c4f7155257c68ab18178fd579aaf7675a6da0064273a44"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/reviews/project-audit-2026-11-01/verification.json",
+    "sha256": "ff0b682e7adc153f482e5b549d31e3c4cde0da295a78bd89f7e5082c0aec5da8"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/statechart/README.md",
+    "sha256": "f1b3cefab7a4b7aa18cc00279b6b2bd76ac8da71188d0f07ef96857e0b1db6c2"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/statechart/StreamMachine.cfg",
+    "sha256": "98e6ae6eac7b6c2292e312c53ebafef3e00017a5c3b933fd310b00b850965ee0"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/statechart/StreamMachine.tla",
+    "sha256": "0c6c219dd1469cfbeb50ef0ab0412da6e99ea23a61a433f1fe725f75bace1fe9"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/statechart/chart.mmd",
+    "sha256": "4b20ebab20c07cc65266e009b6f1f496e8ffb7154e4f7d27cafc6c3913832913"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/statechart/chart.svg",
+    "sha256": "8db266f0d2b84d2c4577d430285061f9b136962d176ad881f5a1b6b40deb1b69"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/statechart/report.md",
+    "sha256": "8759808e83ed19a4f7211d1ecb1990eed7089f08e18520e8646b1e790ddc30dd"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/statechart/reproduce.md",
+    "sha256": "599a3924f5737fac5b521c5b19744753bd859a8a1a9a566cb824aeadf238bdda"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/statechart/view.js",
+    "sha256": "c9e3dec50407fc5172bcb86f03cd56ba0a7b1863a8b4bebb88d4ef8674e69d34"
+  },
+  {
+    "kind": "untracked",
+    "path": "docs/writing-review.md",
+    "sha256": "c270dc24035cc6d0142709c4034861806d2d862f304534f7f8419f2b8a1f2b97"
+  },
+  {
+    "kind": "untracked",
+    "path": "skills-lock.json",
+    "sha256": "02b6b0b774df887ce867844b32f03296c97cec25ed0b90fd3af8e266b25f82e3"
+  }
+]
