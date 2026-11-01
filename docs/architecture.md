@@ -13,7 +13,7 @@ Default labels: `feat`, `phase:architecture`, `priority:p1`.
 ## First usable slice
 
 1. Open Stream Machine onboarding.
-2. Choose demo Twitch connection; clearly display simulated account and data.
+2. Choose demo Twitch connection; clearly mark the account and data as demo.
 3. Choose reusable recipe.
 4. Inspect required integrations, scopes, inputs, and proposed actions.
 5. Preview mock results. Unavailable integrations remain unavailable; fixtures never imply installation or permission.
@@ -45,7 +45,7 @@ Recipes describe outcomes rather than upstream implementation details. Proposed 
 - Run result: run ID, step results, status, artifact references, provenance, timestamps, retry guidance.
 - Adapter result: success, unavailable, missing connection, missing grant, invalid input, rate limited, failed, or cancelled.
 
-These are architecture contracts; implementation may introduce them incrementally. Never label a simulated connection as real. Preview must not perform provider writes. Future live execution must revalidate target, grants, and plan freshness server-side.
+These are architecture contracts; implementation may introduce them incrementally. Never label a demo connection as real. Preview must not perform provider writes. Future live execution must revalidate target, grants, and plan freshness server-side.
 
 Use narrow capability names such as channel read, channel update, clip download, scene list, and deck page preview. Do not expose arbitrary shell execution or unrestricted upstream tool forwarding as recipe execution.
 
