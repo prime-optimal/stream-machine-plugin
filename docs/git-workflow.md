@@ -74,6 +74,29 @@ If the handoff check fails, resolve the reported changes or commits, then run th
 
 The task reads local tracking refs. It does not fetch, contact the remote, or change the index, worktree, or refs. Run the fetch command first so those refs are current.
 
+## Finish the issue
+
+Publish verification where issue readers can see it before the final handoff:
+
+1. Write a new issue comment with completed work, the tested host and version when relevant, commands and results, PR or commit links, and limitations. Identify acceptance criteria that remain unmet.
+2. For visual work, check screenshots for secrets and unrelated personal data. Attach the relevant images to the comment and give each a caption that explains what it proves. Documentation-only changes do not need a screenshot.
+3. Use GitHub CLI attachment support or the GitHub comment composer. The installed CLI supports `--attach`. Replace the placeholders in this command with the issue number and real local paths:
+
+```sh
+gh issue comment <issue-number> \
+	--repo prime-optimal/stream-machine-plugin \
+	--body-file <comment-file> \
+	--attach '<screenshot-path>#Caption describing the verified result'
+```
+
+GitHub CLI uploads the image and embeds it in the comment. If the body already references that local image, the CLI replaces the reference with its uploaded URL. Repeat `--attach` for additional images. See [GitHub's attachment instructions](https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli).
+
+A report link, PR link, local file path, or bare screenshot-file link does not replace an image displayed in the comment. Link committed reports as supporting detail. If the installed tool cannot upload attachments, use a supported upload method or report the blocker. Do not move verification results into the issue description.
+
+4. Open the published comment and confirm images display with useful captions and access for intended collaborators. Read back the text to verify results and limitations. Keep the original issue body for scope and acceptance criteria, updating only checklist items supported by verification.
+5. Update the issue and its Board item. The current status options are `Todo`, `In Progress`, `Done`, and `Not planned`. Query the current field options before changing status. Keep required but unmerged work open and `In Progress`. Close and mark `Done` only after acceptance criteria are met and required changes are merged. A verification-only task with no merge requirement can finish once verified evidence is published.
+6. Read back both the issue state and board status. Include the evidence-comment link and confirmed states in the final handoff. A successful push alone does not establish issue completion.
+
 ## Finish the handoff
 
 Inspect other worktrees and running processes before the final reply:
@@ -85,6 +108,8 @@ git worktree list
 For each retained worktree, inspect its status and local-only commits. Check ignored files and any processes or configured paths that use the worktree. `git:handoff` checks only the current worktree. It does not inspect ignored files.
 
 Name each remaining dirty worktree, local-only commit, or running process. Give the owner, the reason it stays, and the next step. Link any cleanup record under `docs/reviews/`.
+
+Complete [the issue evidence procedure](#finish-the-issue). Link the posted verification comment and confirm the issue and board status. Report any missing attachment or publication blocker.
 
 If a completion check fails, report the path and blocker. Do not claim completion until completed task work is committed and pushed.
 

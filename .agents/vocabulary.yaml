@@ -32,6 +32,18 @@ nouns:
       deprecated: [that sample account]
     - canonical: demo data
       deprecated: [sample data]
+    - canonical: board status
+      deprecated: ['Project #18 status']
+    - canonical: board item
+      deprecated: ['Project #18 item']
+    - canonical: board field
+      deprecated: ['Project #18 field']
+    - canonical: commands and results
+      deprecated: [commands and outcomes]
+    - canonical: stop a worker
+      deprecated: [stop a dependency]
+    - canonical: stopping the worker
+      deprecated: [stopping the dependency]
 rejected:
   - term: mock
     reason: Names the mock data layer and status value (status "mock" in catalog.ts); demo names the user-facing account.
