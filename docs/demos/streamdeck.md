@@ -12,7 +12,7 @@
 - Wrote dedicated USB page `sm-demo-5bae6af4-b245-46d7-b0e3-3b63588e8d52`.
 - Top-left key: `OPEN DEMO`. Action: `/usr/bin/open 'https://github.com/users/prime-optimal/projects/18/views/1'`.
 - Upstream `streamdeck_get_button` confirmed exact label and action after physical device write.
-- Physical press verification pending user. Readback does not prove press behavior.
+- User physically pressed top-left **OPEN DEMO** and confirmed GitHub board opened. Physical action verified by user confirmation, separate from provider readback.
 
 USB server resets display on connection. Existing hardware was blank. USB pages live under `~/.streamdeck-mcp/`; these are separate from Elgato profiles. Provider remains running for physical key callbacks. No generated scripts. Upstream executes fixed native command with parsed argv and `shell=False`.
 
@@ -67,4 +67,4 @@ Press top-left **OPEN DEMO**. Expected result: GitHub Project 18 opens in defaul
 
 `mise run check`: passed. `mise run test`: eight tests passed, including three Stream Deck tests. Tests cover read-only preview, key bounds, URL validation, single write, readback, one-shot preview, cleanup call, and command quoting.
 
-Literal older issue criteria for native profile backup, configured action reuse, and native profile restoration remain inapplicable to fresh USB fallback. Existing native profiles were absent and unchanged. No claim of native profile verification or completed physical press.
+Literal older issue criteria for native profile backup, configured action reuse, and native profile restoration remain inapplicable to fresh USB fallback. Existing native profiles were absent and unchanged. Native profile verification remains outside this USB result.
