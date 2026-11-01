@@ -32,6 +32,8 @@ fnox.local.toml
 !.agents/skills/unslop/
 !.agents/skills/technical-writing/
 !.agents/skills/git-surgeon/
+!.agents/skills/statechart/
+!.agents/skills/statechart/scripts/test/**/*.out
 .omp/
 .claude/
 .codex/
