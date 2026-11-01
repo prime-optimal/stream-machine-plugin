@@ -98,7 +98,7 @@ The MCP App displays connection status, recipe choices, and action previews. Ser
 
 The proposed recipe contracts describe inputs, required capabilities, action plans, and the source of each result. They remain independent of provider tool names. Integration adapters would map those capabilities to verified tools and convert results into a common format. Each adapter would preserve the provider's authentication and execution location.
 
-Existing plugins, including OpenDesign Cloud and Canva, would retain their connections. Stream Machine would refer to verified app IDs rather than copy credentials or invent IDs. OBS and Stream Deck MCP processes would run on the streamer's computer through local tooling supported by the host. Optional rendering tools would follow the same local execution boundary.
+Existing plugins, including OpenDesign service and Canva, would retain their connections. Stream Machine would refer to verified app IDs rather than copy credentials or invent IDs. OBS and Stream Deck MCP processes would run on the streamer's computer through local tooling supported by the host. Optional rendering tools would follow the same local execution boundary.
 
 A desktop agent can coordinate several local MCP processes directly, so this design does not require a custom connection from the cloud to the desktop. Access from mobile devices or web clients is a separate capability. Installing the package does not establish that access.
 

@@ -29,7 +29,7 @@ Never request tokens in chat. Do not start `obs-twitch-mcp` during onboarding. I
 
 ## Explain optional connections
 
-When a recipe needs an external provider, discover the provider through the host tools. Discuss only relevant providers, such as OpenDesign Cloud, Canva, OBS, Stream Deck, or HyperFrames. Never invent app IDs or install every provider automatically.
+When a recipe needs an external provider, discover the provider through the host tools. Discuss only relevant providers, such as OpenDesign service, Canva, OBS, Stream Deck, or HyperFrames. Never invent app IDs or install every provider automatically.
 
 Explain that desktop MCP hosts can call local OBS and Stream Deck servers directly. Web and mobile use require a hosted core, which this release does not provide. Treat unattended cloud-to-desktop workflows as separate work.
 

@@ -6,7 +6,7 @@ The board checks completed on 2026-11-01. [Verification data](roadmap-verificati
 
 The default [Demo roadmap view](https://github.com/users/prime-optimal/projects/18/views/1) shows six visible outcomes. Each card has a Reuse note and a short Done when checklist.
 
-The four core demonstrations remain Twitch title update, OBS alert, Stream Deck button, and a Twitch-triggered alert with chat closed. OpenDesign and its HyperFrames workflow are parallel V1 reuse tasks.
+The four core demos remain Twitch title update, OBS alert, Stream Deck button, and a Twitch-triggered alert with chat closed. OpenDesign and its HyperFrames workflow are parallel V1 reuse tasks.
 
 The board now separates V1 demos, V2 clips and artwork, V3 useful additions, and later polish or sharing. It does not treat V3 as a production-release requirement.
 
@@ -45,7 +45,7 @@ gh issue list --repo prime-optimal/stream-machine-plugin --state all --label dem
 gh project item-list 18 --owner prime-optimal --limit 100 --format json
 ```
 
-The [source plan](roadmap-plan.json) and [issue map](project-state.json) retain the original issue IDs. The [roadmap](roadmap.md) explains the small demonstrations and parallel ownership.
+The [source plan](roadmap-plan.json) and [issue map](project-state.json) retain the original issue IDs. The [roadmap](roadmap.md) explains the small demos and parallel ownership.
 
 ## Writing change
 

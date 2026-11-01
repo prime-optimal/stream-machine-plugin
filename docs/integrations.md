@@ -51,7 +51,7 @@ Tool groups cannot enforce the required permissions. The Core group combines rea
 
 The `LICENSE` file specifies MIT, although the README contains an outdated license placeholder. The module and installation examples retain the upstream identity. An explicit source version is needed to select the intended fork. [MIT license](https://github.com/prime-optimal/agentic-obs/blob/main/LICENSE).
 
-## OpenDesign Cloud
+## OpenDesign service
 
 For this prototype, the existing Sealos deployment is the chosen starting point. Its authenticated remote MCP path is documented in the [reuse evidence](reuse-evidence.md#sealos-opendesign-service). The upstream-only observations below explain why a repository inspection alone did not establish that deployed behavior.
 

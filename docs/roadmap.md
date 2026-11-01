@@ -2,7 +2,7 @@
 
 We are connecting working pieces into Stream Machine. TwitchCon already has Twitch OAuth, a deployed OpenDesign service, accepted alert and overlay workflows, and OpenDesign's HyperFrames integration.
 
-The first goal is four demonstrations. OpenDesign and HyperFrames also start now because they are reuse tasks, not new infrastructure.
+The first goal is four demos. OpenDesign and HyperFrames also start now because they are reuse tasks, not new infrastructure.
 
 Repository: [stream-machine-plugin](https://github.com/prime-optimal/stream-machine-plugin). Project: [Stream Machine #18](https://github.com/users/prime-optimal/projects/18). Planning record: [#9](https://github.com/prime-optimal/stream-machine-plugin/issues/9).
 
@@ -19,7 +19,7 @@ The [Demo roadmap view](https://github.com/users/prime-optimal/projects/18/views
 | Make an OpenDesign asset | Sealos deployment and installed authoring scenarios | Stream Machine submits a brief and returns the artifact from an isolated test project. | [#43](https://github.com/prime-optimal/stream-machine-plugin/issues/43) |
 | Render with OpenDesign HyperFrames | Integrated composition and render workflow | Stream Machine returns one short MP4 that plays with the expected duration and dimensions. | [#44](https://github.com/prime-optimal/stream-machine-plugin/issues/44) |
 
-The four core demonstrations are checked together in [#49](https://github.com/prime-optimal/stream-machine-plugin/issues/49). The two creative demonstrations proceed in parallel. They do not delay the four core results.
+The four core demos are checked together in [#49](https://github.com/prime-optimal/stream-machine-plugin/issues/49). The two creative demos proceed in parallel. They do not delay the four core results.
 
 ## Start from existing work
 
@@ -46,13 +46,13 @@ The following groups can start independently:
 
 These are ownership suggestions, not directories that must all be created. Each task uses its own worktree. Changes to the same manifest or shared file are coordinated before editing.
 
-Issue [#13](https://github.com/prime-optimal/stream-machine-plugin/issues/13) is optional cleanup after two demos need the same helper. It blocks no demonstration. Separate provider-registry, planner, and general runner tasks [#22](https://github.com/prime-optimal/stream-machine-plugin/issues/22), [#23](https://github.com/prime-optimal/stream-machine-plugin/issues/23), and [#24](https://github.com/prime-optimal/stream-machine-plugin/issues/24) remain shelved. Their small necessary pieces belong in the demos that use them.
+Issue [#13](https://github.com/prime-optimal/stream-machine-plugin/issues/13) is optional cleanup after two demos need the same helper. It blocks no demo. Separate provider-registry, planner, and general runner tasks [#22](https://github.com/prime-optimal/stream-machine-plugin/issues/22), [#23](https://github.com/prime-optimal/stream-machine-plugin/issues/23), and [#24](https://github.com/prime-optimal/stream-machine-plugin/issues/24) remain shelved. Their small necessary pieces belong in the demos that use them.
 
 ## How an issue becomes Done
 
 Each implementation issue has a short **Done when** checklist. Completion means the described result works on the intended setup, its evidence and limits are recorded, and its implementation PR is merged. Relevant existing tests still pass.
 
-A sample response alone does not complete a real-device or real-account demonstration. Conversely, the prototype does not need every possible failure case solved. Secrets, account ownership, and protection of existing devices remain basic requirements.
+A sample response alone does not complete a real-device or real-account demo. Conversely, the prototype does not need every possible failure case solved. Secrets, account ownership, and protection of existing devices remain basic requirements.
 
 A group issue organizes child tasks. It is not a framework that must be implemented first. Shelved issues are marked **Not planned**, not Done.
 
@@ -84,11 +84,11 @@ Shared frameworks, broad recovery systems, invited-user hosting, and public dist
 - [#51](https://github.com/prime-optimal/stream-machine-plugin/issues/51) Try the selected demos with one invited streamer.
 - [#52](https://github.com/prime-optimal/stream-machine-plugin/issues/52) Prepare a public release of the useful subset.
 
-No calendar dates are promised. V1, V2, and V3 describe small sets of demonstrations, not production-readiness levels.
+No calendar dates are promised. V1, V2, and V3 describe small sets of demos, not production-readiness levels.
 
 ## Use the board
 
-The default view contains the six demonstrations. The task views expose their supporting work. **Start now** and **Build alongside** identify work that can proceed in parallel. **Waiting for another task** identifies an integrated check. **Later** is outside the current demo work.
+The default view contains the six demos. The task views expose their supporting work. **Start now** and **Build alongside** identify work that can proceed in parallel. **Waiting for another task** identifies an integrated check. **Later** is outside the current demo work.
 
 Native blocked-by links now represent only concrete prerequisites. No demo waits for the broad shared-code issue. The worker owns its own OBS or MCP connection, because a closed chat cannot supply its tools.
 
