@@ -7,22 +7,22 @@ const id = "34687798-1fa0-4a69-ae35-631a44a286c5";
 function fixture() {
   const calls: string[] = [];
   const provider: CreativeProvider = {
-    async call(name) {
+    async call(name, args) {
       calls.push(name);
       if (name === "list_projects") return { projects: [{ id: "test-project", name: "Test" }] };
       if (name === "list_plugins") return { plugins: [{ id: "stream-overlay-authoring" }] };
       if (name === "start_run") return { runId: "real-run" };
       if (name === "get_run") return { status: "succeeded" };
       if (name === "list_files") return { files: [{ name: "weekend-camera-v1/index.html", size: 100 }, { name: "stream-machine-proof.mp4", size: 500 }, { name: "creative-video-task.json", size: 100 }] };
-      if (name === "get_file") return JSON.stringify({ taskId: "real-task", status: "done" });
+      if (name === "get_file") return args.path === "creative-video-task.json" ? JSON.stringify({ taskId: "real-task", status: "done" }) : '<script src="./gsap.min.js"></script><div data-duration="10"\n    ></div><script>window.__timelines["main"] = tl;</script>';
       if (name === "write_file") return { ok: true };
       throw new Error("Unexpected provider operation");
     },
     async api(path) {
       calls.push(path);
-      if (path.endsWith("/scaffold")) return { files: [] };
+      if (path.endsWith("/scaffold")) return { files: ["index.html", "gsap.min.js", "hyperframes.json", "meta.json"] };
       if (path.endsWith("/generate")) return { taskId: "real-task" };
-      return { tasks: [{ taskId: "real-task", status: "done", file: { name: "proof.mp4" } }] };
+      return { tasks: [{ taskId: "real-task", status: "done", file: { name: "stream-machine-proof.mp4" } }] };
     },
   };
   const journal = new CreativeJournal(":memory:");
@@ -66,13 +66,23 @@ describe("creative provider boundary", () => {
       expect((await f.controller.start(input)).status).toBe("unknown");
     } finally { f.journal.close(); }
   });
-  test("video commissions existing skill and preserves its render task receipt", async () => {
+  test("video uses supported motion-source root and daemon task without authoring process", async () => {
     const f = fixture();
     try {
       const result = await f.controller.start({ requestId: id, project: "test-project", recipe: "video" });
-      expect(result).toMatchObject({ runId: "real-run", source: `.hyperframes-cache/${id}/index.html` });
-      expect(f.calls.filter(name => name === "start_run")).toHaveLength(1);
-      expect(await f.controller.run(id)).toMatchObject({ status: "succeeded", taskId: "real-task" });
+      expect(result).toMatchObject({ taskId: "real-task", source: `motion-source/${id}/index.html` });
+      expect(f.calls).not.toContain("start_run");
+      expect(f.calls.indexOf("write_file")).toBeLessThan(f.calls.findIndex(name => name.endsWith("/generate")));
+      expect(await f.controller.run(id)).toMatchObject({ status: "succeeded", taskId: "real-task", file: "stream-machine-proof.mp4" });
+    } finally { f.journal.close(); }
+  });
+  test("done task cannot claim missing or unrelated MP4", async () => {
+    const f = fixture();
+    const original = f.provider.api;
+    f.provider.api = async (path, body) => path.includes("/media/tasks?") ? { tasks: [{ taskId: "real-task", status: "done", file: { name: "unrelated.mp4" } }] } : original(path, body);
+    try {
+      await f.controller.start({ requestId: id, project: "test-project", recipe: "video" });
+      await expect(f.controller.run(id)).rejects.toThrow("expected nonempty MP4");
     } finally { f.journal.close(); }
   });
   test("outer run success cannot hide failed render receipt or claim MP4", async () => {
@@ -82,7 +92,7 @@ describe("creative provider boundary", () => {
       ? JSON.stringify({ taskId: "failed-task", status: "failed", result: { error: { message: "Open Design desktop frame renderer is unavailable" } } })
       : original(name, args);
     try {
-      await f.controller.start({ requestId: id, project: "test-project", recipe: "video" });
+      f.journal.reserve({ requestId: id, project: "test-project", recipe: "video", status: "queued", runId: "real-run" }, "legacy");
       const result = await f.controller.run(id);
       expect(result).toMatchObject({ status: "failed", failureCode: "RENDERER_UNAVAILABLE", taskId: "failed-task" });
       expect(result.file).toBeUndefined();
@@ -93,7 +103,7 @@ describe("creative provider boundary", () => {
     const original = f.provider.call;
     f.provider.call = async (name, args) => name === "list_files" ? { files: [] } : original(name, args);
     try {
-      await f.controller.start({ requestId: id, project: "test-project", recipe: "video" });
+      f.journal.reserve({ requestId: id, project: "test-project", recipe: "video", status: "queued", runId: "real-run" }, "legacy");
       expect(await f.controller.run(id)).toMatchObject({ status: "failed", failureCode: "AUTHORING_INCOMPLETE" });
       expect(f.calls).not.toContain("get_file");
     } finally { f.journal.close(); }
