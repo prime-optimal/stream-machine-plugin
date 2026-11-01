@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "recipe": "hyperframes-html",
+  "project": "stream-machine-html-20261101",
+  "requestId": "effe35e3-0bc9-4a5a-b97e-4c3021de3a2d",
+  "title": "STREAM MACHINE",
+  "width": 1920,
+  "height": 1080,
+  "duration": 4,
+  "fonts": "system",
+  "provenance": {
+    "repository": "https://github.com/prime-optimal/stream-makeover",
+    "revision": "4e2bff85969550e3b2e94aed2fab7a6b8f2f62db",
+    "driver": "overlays/live/driver.js",
+    "driverSha256": "94b01676edd95c0f47cf968ae5d17842a1a8300ee7c2fbbd2555c422683ccf5b",
+    "build": "overlays/scripts/build-overlay.mjs",
+    "gsap": "3.14.2"
+  }
+}
