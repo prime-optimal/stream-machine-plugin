@@ -3,6 +3,9 @@ amends "package://github.com/jdx/hk/releases/download/v2.0.1/hk@2.0.1#/Config.pk
 exclude = List("node_modules", "dist", "artifacts", ".agents", ".claude", "docs/packages")
 
 steps {
+  ["secrets"] {
+    check = "mise run secrets:check"
+  }
   ["markdown"] {
     glob = List("**/*.md")
     check = "mdsmith check {{files}}"

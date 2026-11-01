@@ -9,6 +9,9 @@ prompt-exports/
 .claude/nlpm-history.json
 .claude/nlpm-reports/
 
+!/docs/plans/
+!/docs/plans/**
+
 # repo-init protections (keep at end so prior negations cannot undo them)
 # Local secrets, credentials, and encrypted-cache material
 .env

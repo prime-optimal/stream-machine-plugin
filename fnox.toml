@@ -4,6 +4,12 @@ default_provider = "onepass"
 type = "1password"
 vault = "Developer"
 
+[providers.plain]
+type = "plain"
+
+[providers.sync-age]
+type = "age"
+recipients = ["age1t0czu858kfs3wvwjv3qw200cnc7vuuk6w20z633097dhd8yyjezsffjnru"]
 [secrets]
 TWITCH_CLIENT_ID = { provider = "onepass", value = "op://Developer/fcoscbzu6xbz5vf5sducj2u73e/credential" }
 TWITCH_CLIENT_SECRET = { provider = "onepass", value = "op://Developer/zbv55k6yhs7cnwil6amzcox6za/credential" }
