@@ -31,7 +31,7 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
   const titles = new TwitchTitleService(accounts, new TwitchChannelClient(fetcher));
   const approvalSession = crypto.randomUUID();
   const completions = new Map<string, { expiresAt: number; result: Promise<unknown> }>();
-  const failures: { class: string; code: string; status: number }[] = [];
+  const failures: ({ class: "TwitchError" | "Error"; code: string; status: number } | { class: "ApprovalGuard"; code: "approval_rejected"; status: 403; originIsSameOrigin: boolean; originIsNull: boolean; cookiePresent: boolean })[] = [];
   let server: ReturnType<typeof Bun.serve> | undefined;
   const response = (body: string, status = 200, headers: Record<string, string> = {}) => new Response(body, { status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "Content-Security-Policy": "default-src 'none'; form-action 'self'; frame-ancestors 'none'", ...headers } });
   function listen() {
@@ -64,13 +64,19 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
         if (url.pathname === "/approve") {
           const id = url.searchParams.get("id") ?? "";
           if (request.method === "POST") {
-            if (request.headers.get("origin") !== ORIGIN || !request.headers.get("cookie")?.split(";").some(c => c.trim() === `sm_approval=${approvalSession}`)) return response("Approval rejected", 403);
+            const originIsSameOrigin = request.headers.get("origin") === ORIGIN;
+            const cookiePresent = request.headers.get("cookie")?.split(";").some(c => c.trim() === `sm_approval=${approvalSession}`) ?? false;
+            if (!originIsSameOrigin || !cookiePresent) {
+              failures.push({ class: "ApprovalGuard", code: "approval_rejected", status: 403, originIsSameOrigin, originIsNull: request.headers.get("origin") === "null", cookiePresent });
+              if (failures.length > 10) failures.shift();
+              return response("Approval rejected", 403);
+            }
             titles.approve(id);
             return response("<h1>Title approved</h1><p>Return to Stream Machine to apply this exact preview.</p>");
           }
           if (request.method !== "GET") return response("Method rejected", 405);
           const p = titles.approvalDetails(id);
-          return response(`<h1>Approve Twitch title</h1><p>Account: ${htmlEscape(p.account)}</p><p>Current: ${htmlEscape(p.before)}</p><p>Proposed: ${htmlEscape(p.after)}</p><form method="post"><button type="submit">Approve exact title change</button></form>`, 200, { "Set-Cookie": `sm_approval=${approvalSession}; HttpOnly; SameSite=Strict; Path=/approve; Max-Age=300` });
+          return response(`<h1>Approve Twitch title</h1><p>Account: ${htmlEscape(p.account)}</p><p>Current: ${htmlEscape(p.before)}</p><p>Proposed: ${htmlEscape(p.after)}</p><form method="post"><button type="submit">Approve exact title change</button></form>`, 200, { "Referrer-Policy": "same-origin", "Set-Cookie": `sm_approval=${approvalSession}; HttpOnly; SameSite=Strict; Path=/approve; Max-Age=300` });
         }
         return response("Not found", 404);
       } catch (error) {
