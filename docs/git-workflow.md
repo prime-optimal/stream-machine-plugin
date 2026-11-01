@@ -18,7 +18,7 @@ The last command installs hk launchers through mise. If global hk launchers alre
 
 ## Commit one change
 
-Read the `git-surgeon` skill before selecting hunks. Inspect the working tree and the index:
+Read the `git-surgeon` skill before selecting hunks. The Git index holds the staged version of each file for the next commit. Inspect the working files and their staged versions:
 
 ```sh
 git status --short --branch
@@ -38,11 +38,21 @@ git commit -m "chore: describe the change (#issue)"
 git status --short --branch
 ```
 
-The pre-commit hook checks Markdown and staged whitespace. It does not fix files, stage files, or stash edits. Markdown checks read current file contents, so inspect the staged diff when a file also has unstaged edits.
+The pre-commit hook checks Markdown, staged whitespace, and staged secrets. It does not fix files, stage files, or stash edits. Markdown checks read current file contents, so inspect the staged diff when a file also has unstaged edits.
 
 The Markdown config accepts existing table alignment and skill frontmatter spacing. It also preserves a bare URL in the historical verification report. Other Markdown rules still apply.
 
 The commit-message hook runs Commitizen. A message such as `update stuff` fails. A message such as `fix: reject expired previews` passes.
+
+## Check staged secrets
+
+Run `mise run secrets:check` after staging the intended change. The check uses [Gitleaks](https://github.com/gitleaks/gitleaks) to scan complete staged file contents, not just added patch lines or unstaged working files. It rejects staged local secret files, including `fnox.local.toml`, even when someone force-adds an ignored file. It does not fix files or change the index.
+
+Keep reference-only `fnox.toml` updates committable. Do not replace references with credential literals. See [secret setup and refresh](secrets.md) for the required age cache and global helper prerequisites.
+
+A successful check reports no detected secrets, not proof that every password is absent. Default scanner rules have limits. Review the staged diff yourself without copying secrets into logs or chat.
+
+If the check reports a finding, remove the credential from the staged content and rotate it if exposed. If verification cannot complete, fix the missing tool or reported prerequisite and rerun the check. Do not bypass the hook or enable verbose secret output. Use synthetic fixtures for scanner tests, never real credentials.
 
 ## Push a completed change
 

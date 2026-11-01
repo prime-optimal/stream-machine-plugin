@@ -19,7 +19,9 @@ Follow these development rules:
 - Use `mise run package` to create the plugin archive.
 - Use Bun for JavaScript packages.
 - Use uv for Python.
-- Store secrets with fnox and 1Password. Never put credentials in source, logs, chat, or `.env` files.
+- Store source secrets in 1Password. Use fnox with the required encrypted local age cache. Follow [secret setup and refresh](docs/secrets.md). Never put credentials in source, logs, chat, command arguments, or `.env` files. Keep `fnox.local.toml` ignored and age private identities outside the repository.
+- Preserve committable references in `fnox.toml`. Refresh cached credentials intentionally with `mise run fnox-sync` after setup, expiry, or rotation. Do not run init repeatedly or create 1Password items without authorization.
+- Review staged content even when the secret scanner passes. Default rules cannot detect every password.
 - Keep each source file under 500 lines.
 - Write artifacts under `docs/`.
 - Keep mock data clearly marked and separate from real provider actions. Claim a real account connection or action only after verifying it.
