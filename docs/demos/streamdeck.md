@@ -12,7 +12,7 @@
 - Wrote dedicated USB page `sm-demo-5bae6af4-b245-46d7-b0e3-3b63588e8d52`.
 - Top-left key: `OPEN DEMO`. Action: `/usr/bin/open 'https://github.com/users/prime-optimal/projects/18/views/1'`.
 - Upstream `streamdeck_get_button` confirmed exact label and action after physical device write.
-- User physically pressed top-left **OPEN DEMO** and confirmed GitHub board opened. Physical action verified by user confirmation, separate from provider readback.
+- User physically pressed top-left **OPEN DEMO** and confirmed GitHub board opened. Physical action verified by user confirmation, separate from provider read-back.
 
 USB server resets display on connection. Existing hardware was blank. USB pages live under `~/.streamdeck-mcp/`; these are separate from Elgato profiles. Provider remains running for physical key callbacks. No generated scripts. Upstream executes fixed native command with parsed argv and `shell=False`.
 
@@ -36,7 +36,7 @@ Default pinned Git source verified twice with `mise exec -- bun scripts/streamde
 | --- | --- | --- |
 | `stream_machine_streamdeck_inventory` | `{}` | Enumerates USB metadata and saved USB pages. Does not connect or reset display. |
 | `stream_machine_streamdeck_preview` | `{serial, key?: 0..14, url}` | Checks Original geometry, validates HTTP URL, returns expiring preview ID and exact action. No writes. |
-| `stream_machine_streamdeck_apply` | `{previewId}` | Consumes preview once, claims USB, creates unique test page, writes one button, checks readback. |
+| `stream_machine_streamdeck_apply` | `{previewId}` | Consumes preview once, claims USB, creates unique test page, writes one button, checks read-back. |
 | `stream_machine_streamdeck_release` | `{}` | Restores main page, deletes owned test page, disconnects provider. |
 
 Preview lifetime: five minutes. Invalid positions, missing serial, non-Original geometry, non-HTTP URLs, reused previews, concurrent apply, and running Elgato app reject. Arbitrary commands unsupported. URL passed to fixed `/usr/bin/open` command.
@@ -67,6 +67,6 @@ Press top-left **OPEN DEMO**. Expected result: GitHub Project 18 opens in defaul
 
 ## Checks and limits
 
-`mise run check`: passed. Initial full test run: eight tests passed. Follow-up Stream Deck tests: four passed. Tests cover structured provider errors, read-only preview, key bounds, URL validation, single write, readback, one-shot preview, cleanup call, and command quoting.
+`mise run check`: passed. Initial full test run: eight tests passed. Follow-up Stream Deck tests: four passed. Tests cover structured provider errors, read-only preview, key bounds, URL validation, single write, read-back, one-shot preview, cleanup call, and command quoting.
 
 Literal older issue criteria for native profile backup, configured action reuse, and native profile restoration remain inapplicable to fresh USB fallback. Existing native profiles were absent and unchanged. Native profile verification remains outside this USB result.

@@ -18,7 +18,7 @@ Overlay invokes installed `stream-overlay-authoring`, preserving actual run ID a
 
 HyperFrames HTML uses a fixed system-font composition with a paused GSAP timeline. TwitchCon live driver is copied byte-for-byte from `overlays/live/driver.js`, SHA256 `94b01676edd95c0f47cf968ae5d17842a1a8300ee7c2fbbd2555c422683ccf5b`, at Stream Makeover revision `4e2bff85969550e3b2e94aed2fab7a6b8f2f62db`. Injection follows `overlays/scripts/build-overlay.mjs`. No private fonts or assets copied.
 
-Existing OpenDesign MCP stores three versioned files under `creative-html/<requestId>/`: paused authoring `source.html`, source/provenance `source.json`, and playable `index.html`. Exact readback is required before success. Playback fetches only pinned GSAP3.14.2 from jsDelivr. No HyperFrames CLI/runtime required.
+Existing OpenDesign MCP stores three versioned files under `creative-html/<requestId>/`: paused authoring `source.html`, source/provenance `source.json`, and playable `index.html`. Exact read-back is required before success. Playback fetches only pinned GSAP3.14.2 from jsDelivr. No HyperFrames CLI/runtime required.
 
 Live controls match TwitchCon: `window.overlay.pause()`, `play()`, `replay()`, `update({title,primary})`, URL variables, default loop, and `?loop=0`. Title updates write text.
 
@@ -32,7 +32,7 @@ Private SQLite journal preserves UUID/hash duplicate protection. Same request ne
 
 Fresh installed overlay handoff: project `stream-machine-creative-20261101`, run `145dd920-d844-4961-b239-2322467e9ced`, entry `weekend-camera-v1/index.html`. [Offline HTML](creative-artifacts/overlay.html) and [browser screenshot](creative-artifacts/overlay-browser.png) preserve proof. Transparent body, no external scripts, no browser console errors. No new OBS verification.
 
-Corrected HTML-only request `effe35e3-0bc9-4a5a-b97e-4c3021de3a2d` succeeded in isolated project `stream-machine-html-20261101`. [Actual stored playable HTML](creative-artifacts/hyperframes-html.html), [editable source](creative-artifacts/hyperframes-source.html), [provenance](creative-artifacts/hyperframes-provenance.json), and [service hashes](creative-artifacts/html-service-proof.json) preserve exact files. Readback was complete, without truncation.
+Corrected HTML-only request `effe35e3-0bc9-4a5a-b97e-4c3021de3a2d` succeeded in isolated project `stream-machine-html-20261101`. [Actual stored playable HTML](creative-artifacts/hyperframes-html.html), [editable source](creative-artifacts/hyperframes-source.html), [provenance](creative-artifacts/hyperframes-provenance.json), and [service hashes](creative-artifacts/html-service-proof.json) preserve exact files. Read-back was complete, without truncation.
 
 [Browser proof](creative-artifacts/html-browser-proof.json) records autoplay, default loop, stable pause, resumed play, replay, safe live updates, invalid-color rejection, URL variables, and single-play completion. Native Brave loaded the real retrieved file. Body remained transparent. Console showed zero errors and one expected invalid-color warning. [Screenshot](creative-artifacts/html-browser.png) shows a held visible frame. Temporary QA tab closed. OBS untouched.
 
