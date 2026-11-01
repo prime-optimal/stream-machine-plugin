@@ -43,7 +43,7 @@ export function remoteProvider(authorization: string): CreativeProvider {
       try {
         const response = await fetch(`${DESIGN_ORIGIN}${path}`, {
           method: body === undefined ? "GET" : "POST", redirect: "error", signal: AbortSignal.timeout(30_000),
-          headers: { Authorization: authorization, "Content-Type": "application/json" },
+          headers: { Authorization: authorization, Origin: DESIGN_ORIGIN, "Content-Type": "application/json" },
           ...(body === undefined ? {} : { body: JSON.stringify(body) }),
         });
         if (!response.ok) throw new CreativeError(response.status === 401 ? "AUTHENTICATION_REQUIRED" : "PROVIDER_FAILURE", `Existing media service returned HTTP ${response.status}; response withheld.`);
