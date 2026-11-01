@@ -73,6 +73,10 @@ run = "hk install --mise"
 description = "Check eligible files without fixing or staging"
 run = "hk check --all"
 
+[tasks."git:handoff"]
+description = "Check clean worktree and matching upstream without changing Git state"
+run = "bash scripts/check-handoff.sh"
+
 [tasks.changelog]
 description = "Generate unreleased changelog from conventional commits"
 run = "uv run --no-project --with commitizen==4.19.3 cz changelog"

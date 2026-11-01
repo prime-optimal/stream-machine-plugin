@@ -18,6 +18,10 @@ nouns:
       deprecated: [OpenDesign Cloud]
     - canonical: read-back
       deprecated: [readback]
+    - canonical: running processes
+      deprecated: [running dependencies]
+    - canonical: running process
+      deprecated: [running dependency]
 rejected:
   - term: mock
     reason: Names the mock data layer and status value (status "mock" in catalog.ts); demo names the user-facing account.
@@ -49,3 +53,7 @@ rejected:
     reason: Credential covers tokens, files, bearer auth; secret names scanner and fnox values.
   - term: child
     reason: Child is RepoPrompt run terminology and also means child issues; not a synonym.
+  - term: checkout
+    reason: Checkout means a clone or primary directory; worktree is a linked checkout.
+  - term: session
+    reason: Session is an agent session; writer is the actor editing files. Different meanings.
