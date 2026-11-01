@@ -1,45 +1,56 @@
-# Project board verification
+# Demo roadmap verification
 
-The GitHub API checks completed on 2026-11-01. The [verification data](roadmap-verification.json) contains the UTC timestamp, view URLs, counts, and check results.
+The board checks completed on 2026-11-01. [Verification data](roadmap-verification.json) records the exact timestamp and saved view configuration.
 
-## Created work
+## What changed
 
-The roadmap contains 9 parent epics and 34 build issues. A separate planning issue, #9, tracks the board and documentation work. The project retains completed issues #1, #3, and #5.
+The default [Demo roadmap view](https://github.com/users/prime-optimal/projects/18/views/1) shows six visible outcomes. Each card has a Reuse note and a short Done when checklist.
 
-Every build issue has a native parent, a release milestone, a track label, a priority label, and project fields for Track, Priority, and Start. The 56 native blocked-by links match the plan. The dependency graph has no cycles.
+The four core demonstrations remain Twitch title update, OBS alert, Stream Deck button, and a Twitch-triggered alert with chat closed. OpenDesign and its HyperFrames workflow are parallel V1 reuse tasks.
 
-The first release milestone contains 20 build issues. The second contains 12. The third contains 2. No milestone has a committed date.
+The board now separates V1 demos, V2 clips and artwork, V3 useful additions, and later polish or sharing. It does not treat V3 as a production-release requirement.
 
-The Start field identifies 14 independent tasks, 16 tasks that can begin with fixtures, and 4 integrated acceptance tasks. Completion dependencies do not prohibit fixture development. The Start field requires manual updates as work progresses.
+## Checks completed
 
-## Saved views
+The live GitHub checks confirmed these results:
 
-The project has these saved views:
+- Six demo cards have reuse notes and match the roadmap.
+- Thirty unfinished build issues are open and marked Todo.
+- Issues #22, #23, #24, and #29 remain closed as Not planned. They are shelved, not implemented.
+- The nine groups retain their existing child issues.
+- The 25 prerequisite links match the revised plan and have no cycles.
+- Issue #13 blocks no other task.
+- OpenDesign #43 and HyperFrames #44 are in V1 at priority P0.
+- Historical completed issues #1, #3, and #5 remain closed and Done.
+- The project remains private. Saved view names and filters match the revised configuration.
 
-| View | Purpose |
-| --- | --- |
-| [All work](https://github.com/users/prime-optimal/projects/18/views/1) | Complete project history and roadmap. |
-| [First release](https://github.com/users/prime-optimal/projects/18/views/2) | Open implementation work for personal streaming and unattended alerts. |
-| [Parallel starts](https://github.com/users/prime-optimal/projects/18/views/3) | Independent and fixture-based work across milestones. |
-| [Twitch](https://github.com/users/prime-optimal/projects/18/views/4) | Twitch account and API work. |
-| [OBS](https://github.com/users/prime-optimal/projects/18/views/5) | OBS provider and isolated action work. |
-| [Stream Deck](https://github.com/users/prime-optimal/projects/18/views/6) | Device inventory, page previews, and test-profile writes. |
-| [Background automation](https://github.com/users/prime-optimal/projects/18/views/7) | EventSub, worker lifecycle, authorization, and the event-to-OBS proof. |
+The user confirmed that unfinished work should be reset. When #35 and #44 were marked completed again during the edit, the user confirmed that both remain hookup and verification work. Their final checked state is open and Todo.
 
-## Verification scope
+The API checks verify saved view configuration, not browser rendering. No provider process, account change, container operation, or creative job ran during this revision.
 
-The checks compared live GitHub state with [roadmap-plan.json](roadmap-plan.json) and [project-state.json](project-state.json). They verified the following properties:
+## Reuse evidence
 
-- Native parent and child relationships match the plan.
-- Native blocked-by links match the plan and form an acyclic graph.
-- Each build issue has the expected milestone, labels, and project fields.
-- Every new issue belongs to Project #18.
-- Completed history remains closed and marked Done.
-- The project remains private.
-- Saved view names, layouts, and filters match the requested configuration.
+The [reuse audit](reuse-evidence.md) identifies the existing Twitch OAuth code, authenticated Sealos OpenDesign service, accepted authoring scenarios, and integrated HyperFrames workflow.
 
-The API checks verify saved view configuration, not browser rendering. No implementation task, provider process, credential flow, or device action ran during board setup.
+The current OpenDesign tool calls returned `Transport closed`. That result identifies a connection check for #43. It does not establish that the deployed service is down.
 
-The board uses GitHub's [native issue dependencies](https://docs.github.com/en/rest/issues/issue-dependencies) and [Projects API](https://docs.github.com/en/graphql/reference/projects). Each issue contains acceptance criteria, proposed file ownership, parallel-start guidance, and source links where applicable.
+Prior HTML alert acceptance does not prove a HyperFrames MP4 render. Issue #44 verifies that existing render path through Stream Machine rather than replacing it.
 
-The [implementation roadmap](roadmap.md) records the confirmed priorities and explains how to use the board.
+## Inspect the current board
+
+The issue list can be refreshed from the repository root:
+
+```sh
+gh issue list --repo prime-optimal/stream-machine-plugin --state all --label demo --json number,title,state
+gh project item-list 18 --owner prime-optimal --limit 100 --format json
+```
+
+The [source plan](roadmap-plan.json) and [issue map](project-state.json) retain the original issue IDs. The [roadmap](roadmap.md) explains the small demonstrations and parallel ownership.
+
+## Writing change
+
+The revision replaces broad framework language with visible results, existing work, and concrete prerequisites. The proposed addition below belongs in unslop rule 26. The shared skill was not edited.
+
+```diff
++ gate in a project plan (prerequisite or completion check)
+```

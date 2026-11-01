@@ -2,7 +2,9 @@
 
 This record describes the decisions for the initial demo and the questions deferred to later work. It does not report current installation or integration status.
 
-The [implementation roadmap](roadmap.md) records later priorities confirmed on 2026-11-01. Twitch account and channel updates, OBS, and Stream Deck proceed in parallel. The first personal release includes a local background worker that triggers an OBS alert from a Twitch event while chat is closed. That requirement advances unattended execution from the initial deferred work into the first release. Invited-user hosting remains a separate decision.
+The [demo roadmap](roadmap.md) records the revised priorities from 2026-11-01. The goal is a quick prototype, not a complete platform. Twitch title updates, OBS alerts, Stream Deck buttons, and a chat-closed event-to-alert demonstration proceed in parallel where possible.
+
+The existing Twitch OAuth, Sealos OpenDesign service, and OpenDesign HyperFrames workflow are reuse work. OpenDesign and HyperFrames move into V1 alongside the four core demos. Shared frameworks, broad recovery, hosted multi-user access, and public distribution do not block those demonstrations. The [reuse record](reuse-evidence.md) separates prior acceptance from the remaining Stream Machine hookup.
 
 The repository is [prime-optimal/stream-machine-plugin](https://github.com/prime-optimal/stream-machine-plugin).
 
