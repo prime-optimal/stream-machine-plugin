@@ -17,4 +17,5 @@ for await (const line of lines) {
     if (input.action === "apply") console.log(JSON.stringify(await runtime.titles.apply(input.previewId)));
   } catch (error) { console.log(JSON.stringify({ error: error instanceof TwitchFault ? error.code : "TWITCH_REQUEST_FAILED" })); }
 }
+lines.close();
 runtime.close();
