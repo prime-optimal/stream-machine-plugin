@@ -16,7 +16,7 @@ The following checks passed:
 
 - GitHub CLI 2.103.3 help confirms `gh issue comment --attach`, image alt text, and body-file support.
 - [GitHub's attachment documentation](https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli) confirms uploads render inline and local image references are replaced with uploaded URLs.
-- Project #18 field inspection confirmed `Todo`, `In Progress`, `Done`, and `Not planned`. Issue #73 is open and its board item is `In Progress` while this PR awaits merge.
+- Board field inspection confirmed `Todo`, `In Progress`, `Done`, and `Not planned`. Issue #73 is open and its board item is `In Progress` while this PR awaits merge.
 - `mise run hooks:check` and `git diff --check` passed.
 
 This change has no visual feature to capture, so no screenshot is needed. Attachment upload itself was not exercised. Issue #46 was read as context and remains unchanged by this task.

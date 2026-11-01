@@ -99,11 +99,11 @@ Follow these rules throughout the task:
 
 Before the final handoff, follow [the issue evidence procedure](docs/git-workflow.md#finish-the-issue):
 
-- Post verification results as a new comment on the linked issue. Include completed work, the tested host and version when relevant, commands and outcomes, PR or commit links, and remaining limitations.
+- Post verification results as a new comment on the linked issue. Include completed work, the tested host and version when relevant, commands and results, PR or commit links, and remaining limitations.
 - When visual evidence is relevant, upload screenshots as attachments to that comment and display them inline with captions. A link to a report, PR, or screenshot file alone does not satisfy this requirement. Check images for secrets and unrelated personal data before uploading.
 - Keep the original issue body for the problem, scope, and acceptance criteria. Update verified checklist items, but do not append verification logs or a "Verification result" section.
 - Read back the published comment. Confirm attachments render and intended collaborators can access them. Report publication or attachment failures as blockers instead of claiming that evidence was attached.
-- Update the issue and Project #18 status to match actual progress. Keep the issue open and the board at `In Progress` while required changes await merge. Close the issue and mark `Done` only after acceptance criteria are met and required changes are merged.
+- Update the issue and Board status to match actual progress. Keep the issue open and the board at `In Progress` while required changes await merge. Close the issue and mark `Done` only after acceptance criteria are met and required changes are merged.
 - A verification-only task with no required merge can close after successful verification and publication of its evidence comment.
 - Link the evidence comment in the final handoff and confirm the issue and board states after reading them back. If work remains blocked, state the next step and leave the issue open.
 
@@ -120,4 +120,4 @@ After GitHub confirms the PR is merged, follow these steps:
 
 Use the `safe-git-worktree-prune` skill for batch cleanup. Test cleanup on one worktree before continuing. Never use forced removal, broad directory deletion, or `git clean` to bypass these checks. If a squash merge prevents ordinary branch deletion, verify the changes reached `main` before deleting the branch.
 
-Do not automatically stop workers to remove a worktree. Get the owner's approval to move or stop a dependency, then verify the replacement before removing its source worktree.
+Do not automatically stop workers to remove a worktree. Get the owner's approval to move or stop a worker, then verify the replacement before removing its source worktree.
