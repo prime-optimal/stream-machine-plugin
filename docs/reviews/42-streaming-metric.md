@@ -13,7 +13,7 @@ Initial sandboxed mise calls exited 1 because mise could not write its trusted-c
 
 On Bun 1.4.4, `bun test tests/broadcast-duration.test.ts tests/analytics-registration.test.ts` exited 0: 18 tests passed. Real in-memory MCP exercised registration, invocation, structured content, and invalid-input rejection. Independent reviewer repeated this command with exit 0.
 
-`mise run check`, `mise run test`, `mise run build`, and `mise run hooks:check` exited 0. The test task reported 99 tests across 14 files and did not enumerate the new analytics files, so that result alone is not analytics evidence. Direct targeted tests above verify the new module. No UI screenshot applies to this calculation-only module.
+`mise run check`, `mise run test`, `mise run build`, and `mise run hooks:check` exited 0. The test task reported 99 tests across 14 files, including both analytics files. Direct targeted tests above also verify the new module. No UI screenshot applies to this calculation-only module.
 
 No bug report preceded this feature. Tests were added with implementation, not claimed as a pre-fix failing reproduction. Tests cover the 6,300-second sample, gaps, empty inputs, union boundaries, offsets, DST, duplicates, strict input, invalid dates, invalid timezone, and bounds.
 
