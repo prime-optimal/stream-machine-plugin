@@ -1,0 +1,115 @@
+{
+  "verifiedAt": "2026-11-01T13:07:24.635Z",
+  "repository": "prime-optimal/stream-machine-plugin",
+  "project": 18,
+  "visibleDemos": [
+    {
+      "number": 27,
+      "title": "Change my Twitch title after preview"
+    },
+    {
+      "number": 30,
+      "title": "Show one alert in OBS"
+    },
+    {
+      "number": 33,
+      "title": "Add one working Stream Deck button"
+    },
+    {
+      "number": 38,
+      "title": "Show an OBS alert from Twitch while chat is closed"
+    },
+    {
+      "number": 43,
+      "title": "Make an asset with the existing OpenDesign service"
+    },
+    {
+      "number": 44,
+      "title": "Render a short video with OpenDesign HyperFrames"
+    }
+  ],
+  "openBuildIssues": 30,
+  "shelvedIssues": [
+    22,
+    23,
+    24,
+    29
+  ],
+  "nativeDependencyEdges": 25,
+  "sharedCodeIssueBlocks": 0,
+  "groups": 9,
+  "views": [
+    {
+      "name": "Demo roadmap",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/1",
+      "filter": "is:open label:demo"
+    },
+    {
+      "name": "V1 tasks",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/2",
+      "filter": "is:open -label:epic milestone:\"V1 Working demos\""
+    },
+    {
+      "name": "Start V1 work",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/3",
+      "filter": "is:open -label:epic milestone:\"V1 Working demos\" -start:\"Waiting for another task\""
+    },
+    {
+      "name": "Twitch title",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/4",
+      "filter": "is:open label:\"track:twitch\" -label:epic"
+    },
+    {
+      "name": "OBS alert",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/5",
+      "filter": "is:open label:\"track:obs\" -label:epic"
+    },
+    {
+      "name": "Stream Deck button",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/6",
+      "filter": "is:open label:\"track:deck\" -label:epic"
+    },
+    {
+      "name": "Chat-closed alert",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/7",
+      "filter": "is:open label:\"track:automation\" -label:epic"
+    },
+    {
+      "name": "Creative reuse",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/8",
+      "filter": "is:open label:\"track:creative\" milestone:\"V1 Working demos\" -label:epic"
+    },
+    {
+      "name": "Next demos",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/9",
+      "filter": "is:open label:next -label:epic"
+    },
+    {
+      "name": "Later",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/10",
+      "filter": "is:open start:Later -label:epic"
+    },
+    {
+      "name": "All tasks",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/11",
+      "filter": ""
+    }
+  ],
+  "milestones": {
+    "V1 Working demos": 18,
+    "V2 Clips games and artwork": 5,
+    "V3 More streamer workflows": 2,
+    "Later Polish and sharing": 5
+  },
+  "checks": [
+    "Visible demos have reuse notes",
+    "Unfinished work open and Todo",
+    "Shelved work closed as Not planned",
+    "Titles and Done when checklists match plan",
+    "Native parents and prerequisites match acyclic plan",
+    "Issue 13 blocks nothing",
+    "OpenDesign and HyperFrames are V1 P0",
+    "Historical completed issues unchanged",
+    "Project private and view configurations verified"
+  ]
+}

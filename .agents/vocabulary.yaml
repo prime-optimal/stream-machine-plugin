@@ -2,9 +2,17 @@ version: 1
 nouns:
   plugin:
     - canonical: demo
-      deprecated: [simulated]
+      deprecated: [simulated, demonstration]
     - canonical: prototype
       deprecated: [scaffold]
+    - canonical: channel updates
+      deprecated: [channel changes]
+    - canonical: channel update
+      deprecated: [channel change]
+    - canonical: demos
+      deprecated: [demonstrations]
+    - canonical: OpenDesign service
+      deprecated: [OpenDesign Cloud]
 rejected:
   - term: mock
     reason: Names the mock data layer and status value (status "mock" in catalog.ts); demo names the user-facing account.
@@ -18,3 +26,11 @@ rejected:
     reason: Integration inventory and risk, distinct from a provider.
   - term: apply
     reason: Names the absent apply tool.
+  - term: hardware
+    reason: Hardware also means physical-test category; not interchangeable with device.
+  - term: task
+    reason: Task also names mise tasks and generic work; not a synonym for issue.
+  - term: invited streamer
+    reason: Streamer is the role in milestone and issue titles; user is the account concept.
+  - term: title update
+    reason: Title update is one specific channel update; channel updates also cover other fields.

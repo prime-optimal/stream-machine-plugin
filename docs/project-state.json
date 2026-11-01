@@ -1,0 +1,492 @@
+{
+  "issues": {
+    "epic-core": {
+      "issue_number": 12,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/12",
+      "title": "Group: Shared code later",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJgHE"
+    },
+    "contracts": {
+      "issue_number": 13,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/13",
+      "title": "Extract shared code only when two demos need it",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJgHw"
+    },
+    "epic-twitch": {
+      "issue_number": 14,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/14",
+      "title": "Group: Twitch title",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJir8"
+    },
+    "epic-obs": {
+      "issue_number": 15,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/15",
+      "title": "Group: OBS alert",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJitU"
+    },
+    "epic-deck": {
+      "issue_number": 16,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/16",
+      "title": "Group: Stream Deck button",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJivE"
+    },
+    "epic-automation": {
+      "issue_number": 17,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/17",
+      "title": "Group: Event to OBS",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiw8"
+    },
+    "epic-media": {
+      "issue_number": 18,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/18",
+      "title": "Group: Clips and games",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiy0"
+    },
+    "epic-creative": {
+      "issue_number": 19,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/19",
+      "title": "Group: OpenDesign and HyperFrames",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi0c"
+    },
+    "epic-experience": {
+      "issue_number": 20,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/20",
+      "title": "Group: Use Stream Machine",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi14"
+    },
+    "epic-release": {
+      "issue_number": 21,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/21",
+      "title": "Group: Sharing later",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi3k"
+    },
+    "providers": {
+      "issue_number": 22,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/22",
+      "title": "Shelved: automatic provider selection",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJh2E"
+    },
+    "planner": {
+      "issue_number": 23,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/23",
+      "title": "Shelved: generic recipe planner",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiGE"
+    },
+    "executor": {
+      "issue_number": 24,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/24",
+      "title": "Shelved: general-purpose recipe runner",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiFo"
+    },
+    "oauth": {
+      "issue_number": 25,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/25",
+      "title": "Use the existing Twitch login in Stream Machine",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJisk"
+    },
+    "helix": {
+      "issue_number": 26,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/26",
+      "title": "Read my current Twitch title and category",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiss"
+    },
+    "channel": {
+      "issue_number": 27,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/27",
+      "title": "Change my Twitch title after preview",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJisw"
+    },
+    "obs-read": {
+      "issue_number": 28,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/28",
+      "title": "Connect Stream Machine to the running OBS instance",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiuQ"
+    },
+    "obs-isolate": {
+      "issue_number": 29,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/29",
+      "title": "Shelved: add another OBS server only for a missing feature",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJius"
+    },
+    "obs-write": {
+      "issue_number": 30,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/30",
+      "title": "Show one alert in OBS",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiu0"
+    },
+    "deck-read": {
+      "issue_number": 31,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/31",
+      "title": "Read my Stream Deck profiles and actions",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiv8"
+    },
+    "deck-plan": {
+      "issue_number": 32,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/32",
+      "title": "Preview one Stream Deck test button",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiwU"
+    },
+    "deck-apply": {
+      "issue_number": 33,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/33",
+      "title": "Add one working Stream Deck button",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiwc"
+    },
+    "subscriptions": {
+      "issue_number": 34,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/34",
+      "title": "Subscribe to one Twitch event",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJix8"
+    },
+    "delivery": {
+      "issue_number": 35,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/35",
+      "title": "Log Twitch events and ignore duplicate messages",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJiyk"
+    },
+    "worker": {
+      "issue_number": 36,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/36",
+      "title": "Keep the alert worker running after chat closes",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJizA"
+    },
+    "automation-policy": {
+      "issue_number": 37,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/37",
+      "title": "Arm and pause the one event-to-alert rule",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJizI"
+    },
+    "event-obs": {
+      "issue_number": 38,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/38",
+      "title": "Show an OBS alert from Twitch while chat is closed",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJizU"
+    },
+    "clips": {
+      "issue_number": 39,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/39",
+      "title": "Download one Twitch clip",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJizs"
+    },
+    "metadata": {
+      "issue_number": 40,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/40",
+      "title": "Show details or a transcript for one clip",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi0A"
+    },
+    "igdb": {
+      "issue_number": 41,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/41",
+      "title": "Find a game and its artwork",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi0Q"
+    },
+    "analytics": {
+      "issue_number": 42,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/42",
+      "title": "Show one useful streaming metric with its source",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi0s"
+    },
+    "opendesign": {
+      "issue_number": 43,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/43",
+      "title": "Make an asset with the existing OpenDesign service",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi1M"
+    },
+    "hyperframes": {
+      "issue_number": 44,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/44",
+      "title": "Render a short video with OpenDesign HyperFrames",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi1Y"
+    },
+    "canva": {
+      "issue_number": 45,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/45",
+      "title": "Make one artwork draft with the Canva plugin",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi1o"
+    },
+    "native-verify": {
+      "issue_number": 46,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/46",
+      "title": "Open and use Stream Machine in the native app",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi28"
+    },
+    "onboarding": {
+      "issue_number": 47,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/47",
+      "title": "Help me choose and start a working demo",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi3Q"
+    },
+    "extensions": {
+      "issue_number": 48,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/48",
+      "title": "Add one native shortcut that improves a demo",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi3U"
+    },
+    "personal-release": {
+      "issue_number": 49,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/49",
+      "title": "Show the four core demos end to end",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi34"
+    },
+    "hosted": {
+      "issue_number": 50,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/50",
+      "title": "Add shared hosting only if invited testers need it",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi4E"
+    },
+    "invited": {
+      "issue_number": 51,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/51",
+      "title": "Try the working demos with one invited streamer",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi4M"
+    },
+    "distribution": {
+      "issue_number": 52,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/52",
+      "title": "Prepare a public release after the demos are useful",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi4U"
+    },
+    "twitch-expanded": {
+      "issue_number": 53,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/53",
+      "title": "Add the next Twitch read needed by a demo",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJitM"
+    },
+    "access-model": {
+      "issue_number": 54,
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/issues/54",
+      "title": "Choose how one invited streamer will connect",
+      "itemId": "PVTI_lAHOBWW-584BpquvzhFJi4c"
+    }
+  },
+  "milestones": {
+    "M1": {
+      "number": 1,
+      "title": "V1 Working demos",
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/milestone/1"
+    },
+    "M2": {
+      "number": 2,
+      "title": "V2 Clips games and artwork",
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/milestone/2"
+    },
+    "M3": {
+      "number": 3,
+      "title": "V3 More streamer workflows",
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/milestone/3"
+    },
+    "LATER": {
+      "number": 4,
+      "title": "Later Polish and sharing",
+      "url": "https://github.com/prime-optimal/stream-machine-plugin/milestone/4"
+    }
+  },
+  "fields": {
+    "Track": {
+      "id": "PVTSSF_lAHOBWW-584BpquvzhoGr-I",
+      "name": "Work",
+      "options": [
+        {
+          "id": "f492fee7",
+          "name": "Shared code later"
+        },
+        {
+          "id": "3cebbc3a",
+          "name": "Twitch title"
+        },
+        {
+          "id": "e3d7b99c",
+          "name": "OBS alert"
+        },
+        {
+          "id": "d298f3e8",
+          "name": "Stream Deck button"
+        },
+        {
+          "id": "a4fcb7c8",
+          "name": "Event to OBS"
+        },
+        {
+          "id": "816803dc",
+          "name": "Clips and games"
+        },
+        {
+          "id": "e6b71cb3",
+          "name": "OpenDesign and HyperFrames"
+        },
+        {
+          "id": "44330db1",
+          "name": "Use Stream Machine"
+        },
+        {
+          "id": "ab920d92",
+          "name": "Sharing later"
+        }
+      ]
+    },
+    "Priority": {
+      "id": "PVTSSF_lAHOBWW-584BpquvzhoGr_E",
+      "name": "Priority",
+      "options": [
+        {
+          "id": "2b8778c2",
+          "name": "P0"
+        },
+        {
+          "id": "5e08cf25",
+          "name": "P1"
+        },
+        {
+          "id": "ea7c1df6",
+          "name": "P2"
+        }
+      ],
+      "type": "ProjectV2SingleSelectField"
+    },
+    "Start": {
+      "id": "PVTSSF_lAHOBWW-584BpquvzhoGr_c",
+      "name": "Start",
+      "options": [
+        {
+          "id": "ff7347ab",
+          "name": "Start now"
+        },
+        {
+          "id": "2ac5654a",
+          "name": "Build alongside"
+        },
+        {
+          "id": "a9ea3a2b",
+          "name": "Waiting for another task"
+        },
+        {
+          "id": "6c77e781",
+          "name": "Later"
+        },
+        {
+          "id": "83891486",
+          "name": "Group"
+        }
+      ]
+    },
+    "Status": {
+      "id": "PVTSSF_lAHOBWW-584BpquvzhoFSZw",
+      "name": "Status",
+      "options": [
+        {
+          "id": "f75ad846",
+          "name": "Todo"
+        },
+        {
+          "id": "47fc9ee4",
+          "name": "In Progress"
+        },
+        {
+          "id": "98236657",
+          "name": "Done"
+        },
+        {
+          "id": "0a18b634",
+          "name": "Not planned"
+        }
+      ]
+    },
+    "Reuse": {
+      "id": "PVTF_lAHOBWW-584BpquvzhoHEEk",
+      "name": "Reuse",
+      "type": "ProjectV2Field"
+    }
+  },
+  "views": {
+    "Demo roadmap": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWH1g",
+      "number": 1,
+      "name": "Demo roadmap",
+      "layout": "TABLE_LAYOUT",
+      "filter": "is:open label:demo",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/1"
+    },
+    "V1 tasks": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWRo8",
+      "number": 2,
+      "name": "V1 tasks",
+      "layout": "BOARD_LAYOUT",
+      "filter": "is:open -label:epic milestone:\"V1 Working demos\"",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/2"
+    },
+    "Start V1 work": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWRpE",
+      "number": 3,
+      "name": "Start V1 work",
+      "layout": "TABLE_LAYOUT",
+      "filter": "is:open -label:epic milestone:\"V1 Working demos\" -start:\"Waiting for another task\"",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/3"
+    },
+    "Twitch title": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWRpQ",
+      "number": 4,
+      "name": "Twitch title",
+      "layout": "BOARD_LAYOUT",
+      "filter": "is:open label:\"track:twitch\" -label:epic",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/4"
+    },
+    "OBS alert": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWRpU",
+      "number": 5,
+      "name": "OBS alert",
+      "layout": "BOARD_LAYOUT",
+      "filter": "is:open label:\"track:obs\" -label:epic",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/5"
+    },
+    "Stream Deck button": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWRpc",
+      "number": 6,
+      "name": "Stream Deck button",
+      "layout": "BOARD_LAYOUT",
+      "filter": "is:open label:\"track:deck\" -label:epic",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/6"
+    },
+    "Chat-closed alert": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWRpk",
+      "number": 7,
+      "name": "Chat-closed alert",
+      "layout": "BOARD_LAYOUT",
+      "filter": "is:open label:\"track:automation\" -label:epic",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/7"
+    },
+    "Creative reuse": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWTpw",
+      "number": 8,
+      "name": "Creative reuse",
+      "layout": "TABLE_LAYOUT",
+      "filter": "is:open label:\"track:creative\" milestone:\"V1 Working demos\" -label:epic",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/8"
+    },
+    "Next demos": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWTp0",
+      "number": 9,
+      "name": "Next demos",
+      "layout": "TABLE_LAYOUT",
+      "filter": "is:open label:next -label:epic",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/9"
+    },
+    "Later": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWTp4",
+      "number": 10,
+      "name": "Later",
+      "layout": "TABLE_LAYOUT",
+      "filter": "is:open start:Later -label:epic",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/10"
+    },
+    "All tasks": {
+      "id": "PVTV_lAHOBWW-584BpquvzgMWTqE",
+      "number": 11,
+      "name": "All tasks",
+      "layout": "TABLE_LAYOUT",
+      "filter": "",
+      "url": "https://github.com/users/prime-optimal/projects/18/views/11"
+    }
+  },
+  "planningIssue": 9,
+  "planningItemId": "PVTI_lAHOBWW-584BpquvzhFJjcA"
+}

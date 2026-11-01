@@ -2,6 +2,10 @@
 
 This record describes the decisions for the initial demo and the questions deferred to later work. It does not report current installation or integration status.
 
+The [demo roadmap](roadmap.md) records the revised priorities from 2026-11-01. The goal is a quick prototype, not a complete platform. Twitch title updates, OBS alerts, Stream Deck buttons, and a chat-closed event-to-alert demo proceed in parallel where possible.
+
+The existing Twitch OAuth, Sealos OpenDesign service, and OpenDesign HyperFrames workflow are reuse work. OpenDesign and HyperFrames move into V1 alongside the four core demos. Shared frameworks, broad recovery, hosted multi-user access, and public distribution do not block those demos. The [reuse record](reuse-evidence.md) separates prior acceptance from the remaining Stream Machine hookup.
+
 The repository is [prime-optimal/stream-machine-plugin](https://github.com/prime-optimal/stream-machine-plugin).
 
 The project board is [Stream Machine #18](https://github.com/users/prime-optimal/projects/18).
@@ -21,7 +25,7 @@ The following decisions define the initial demo.
 | The first demo connects a demo account, selects a recipe, and previews actions. | The demo tests the architecture without live integrations. | Every demo account, action, and result is labeled. |
 | The first MCP server uses local stdio. | The desktop agent can already call local MCP tools. | The demo requires no custom bridge or public endpoint and makes no hosted authentication claim. |
 | The MCP App has a separate browser preview. | Native host testing and local browser testing verify different behavior. | A successful browser preview does not prove that the host renders the app. |
-| Existing plugins are preferred. | They retain their authentication, hosting, and maintenance ownership. | OpenDesign Cloud and Canva remain external dependencies. App IDs require verification. |
+| Existing plugins are preferred. | They retain their authentication, hosting, and maintenance ownership. | OpenDesign service and Canva remain external dependencies. App IDs require verification. |
 | OBS and Stream Deck remain local dependencies. | Their processes need access to the streamer's machine. | Mobile and web access requires a separately verified transport. |
 | Recipes name capabilities, and adapters map those capabilities to tools. | Upstream tool names and availability vary. | A provider change need not change the recipe catalog. |
 | Native Extensions are optional. | Platform support differs. | The app detects available capabilities and retains a chat fallback. |

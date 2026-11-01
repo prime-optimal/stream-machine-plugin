@@ -2,7 +2,7 @@
 
 Stream Machine uses existing plugins and local MCP servers to avoid maintaining copies of their authentication and device controls. This document explains the proposed integrations and the constraints found during source review.
 
-The review did not install, connect, or run external servers. The user reported an existing OpenDesign Cloud deployment and plugin, plus Stream Deck hardware. The review did not verify that deployment or the device state. Version numbers below describe the inspected source, not current releases.
+The initial review inspected source without running external servers. The later [reuse audit](reuse-evidence.md) found recorded acceptance for Twitch OAuth and the Sealos OpenDesign service. It also identified OpenDesign's integrated HyperFrames workflow. These existing implementations are the starting points for V1. Version numbers below describe inspected source, not current releases.
 
 The repository is [prime-optimal/stream-machine-plugin](https://github.com/prime-optimal/stream-machine-plugin).
 
@@ -24,12 +24,12 @@ The proposed choices reflect each integration's execution and authentication req
 
 | Integration | Source review finding | Proposed choice |
 | --- | --- | --- |
-| Twitch | Stream Makeover has user OAuth code. The review established no reusable EventSub delivery implementation. | Extract the authentication code later and expose specific Helix actions through an adapter. |
+| Twitch | Stream Makeover has merged OAuth code and recorded real-account verification. EventSub delivery remains separate work. | Connect Stream Machine to the existing flow now. Add only the permission and API call needed for the title demo. |
 | Stream Deck | A Python stdio server writes native profiles. A separate server controls USB devices. | Use an optional local dependency, starting with inventory and previews. |
 | OBS | A Go stdio MCP server connects to OBS WebSocket. Separate HTTP endpoints provide a dashboard and screenshots. | Use an optional local dependency with an adapter that permits specific actions. |
-| OpenDesign Cloud | The user reports an existing deployment and plugin. The upstream repository includes a local stdio project API. | Reuse the plugin after verifying its deployed tools and authentication. |
+| OpenDesign service | The Sealos deployment has recorded authenticated MCP checks and accepted alert and overlay scenarios. | Restore or verify the existing connection and return one artifact through Stream Machine. Do not redeploy the service. |
 | Canva | This review did not verify the plugin's tools or authentication. | Prefer an existing plugin connection after those checks. |
-| HyperFrames | The existing project uses its CLI to author portable HTML. A directory search found no dedicated plugin. | Use an optional local renderer unless a suitable plugin is verified. |
+| OpenDesign HyperFrames | OpenDesign already defines its composition and daemon-render workflow. | Use that workflow for one short MP4. Do not start with a separate vanilla renderer. |
 
 ## Stream Deck
 
@@ -51,7 +51,9 @@ Tool groups cannot enforce the required permissions. The Core group combines rea
 
 The `LICENSE` file specifies MIT, although the README contains an outdated license placeholder. The module and installation examples retain the upstream identity. An explicit source version is needed to select the intended fork. [MIT license](https://github.com/prime-optimal/agentic-obs/blob/main/LICENSE).
 
-## OpenDesign Cloud
+## OpenDesign service
+
+For this prototype, the existing Sealos deployment is the chosen starting point. Its authenticated remote MCP path is documented in the [reuse evidence](reuse-evidence.md#sealos-opendesign-service). The upstream-only observations below explain why a repository inspection alone did not establish that deployed behavior.
 
 The existing deployment and plugin avoid the need for a second server. The inspected [nexu-io/open-design](https://github.com/nexu-io/open-design) package declares version `0.25.1`. Its local stdio MCP process forwards project operations to the daemon. Tools collect briefs, manage projects and artifacts, read and write files, and control design runs. [Package definition](https://github.com/nexu-io/open-design/blob/main/package.json), [tool declarations](https://github.com/nexu-io/open-design/blob/main/apps/daemon/src/mcp.ts#L365), [transport implementation](https://github.com/nexu-io/open-design/blob/main/apps/daemon/src/mcp.ts#L2059).
 
