@@ -80,9 +80,14 @@ export class CreativeController {
       return this.journal.save({ ...operation, status: result.status, ...(previewUrl ? { previewUrl } : {}) });
     }
     if (operation.taskId) {
-      const result = z.object({ tasks: z.array(z.object({ taskId: z.string(), status: z.enum(["queued", "running", "done", "failed", "interrupted"]), file: z.object({ name: z.string() }).nullable().optional() })) }).parse(await this.provider.api(`/api/projects/${encodeURIComponent(operation.project)}/media/tasks?includeDone=1`));
+      const result = z.object({ tasks: z.array(z.object({ taskId: z.string(), status: z.enum(["queued", "running", "done", "failed", "interrupted"]), file: z.object({ name: z.string() }).nullable().optional(), error: z.object({ message: z.string() }).nullable().optional() })) }).parse(await this.provider.api(`/api/projects/${encodeURIComponent(operation.project)}/media/tasks?includeDone=1`));
       const task = result.tasks.find(item => item.taskId === operation.taskId);
       if (!task) throw new CreativeError("CONTRACT_MISMATCH", "Returned media task missing from project; keep original task ID.");
+      if (task.status === "done") {
+        const files = z.object({ files: z.array(z.object({ name: z.string(), size: z.number() })) }).parse(await this.provider.call("list_files", { project: operation.project }));
+        if (task.file?.name !== VIDEO_FILE || !files.files.some(file => file.name === VIDEO_FILE && file.size > 0)) throw new CreativeError("ARTIFACT_MISSING", "Completed task did not return expected nonempty MP4.");
+      }
+      if (["failed", "interrupted"].includes(task.status)) return this.journal.save({ ...operation, status: "failed", failureCode: task.error?.message.includes("desktop frame renderer is unavailable") ? "RENDERER_UNAVAILABLE" : "RENDER_FAILED" });
       return this.journal.save({ ...operation, status: task.status === "done" ? "succeeded" : task.status === "interrupted" ? "failed" : task.status, ...(task.file ? { file: task.file.name } : {}) });
     }
     return operation.status === "submitting" ? this.journal.save({ ...operation, status: "unknown" }) : operation;
