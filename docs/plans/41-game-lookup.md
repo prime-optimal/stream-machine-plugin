@@ -9,3 +9,5 @@ Expose `registerGameTools(server)` without changing `src/server.ts` or shared sm
 Verify injected-fetch tests, MCP registration, TypeScript checks, repository tests, build, and hooks. Attempt one real category lookup only with configured credentials. Record missing access honestly. Commit and push the module, publish issue evidence, and await the shared integration slot. Keep the issue open.
 
 The supplied epic export remains the approved plan. Exclude #39 auth, #40 media, and #42 analytics files.
+
+The user granted the integration slot after independent verification of `03254f4`. Add game registration to this branch's server and update this branch's smoke counts and tool-name checks. Verify the live tool through bundled stdio, publish a focused PR and new issue evidence, and leave merging to the coordinator. Preserve #40's cleanup contract when the coordinator combines changes. This branch does not contain #40 code.

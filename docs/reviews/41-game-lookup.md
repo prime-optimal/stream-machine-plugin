@@ -31,4 +31,20 @@ Other worktrees had no tracked or untracked edits at inspection. The native veri
 
 The demo worktree still hosted Bun worker PID 91601. Installed plugin server processes also remained. These belong to existing demo and host sessions; their owners control shutdown. This task started no persistent worker. The coordinator's RepoPrompt wait process remained active.
 
-Issue #41 and its board item were read as open and In Progress. Integration and merge remain outstanding. Evidence is published separately in the issue comment.
+Issue #41 and its board item were read as open and In Progress at the module handoff.
+
+## Integration review
+
+The user independently verified unchanged `03254f4` and granted the integration slot. This follow-up adds two lines to `src/server.ts:8,46`: the game-registration import and call. The existing shutdown handler is untouched. No sibling commits were copied.
+
+Simplification: registration is a direct call, with no lifecycle owner because the game module holds no persistent transport. The coordinator can retain #40's `Promise.allSettled` cleanup unchanged when combining branches.
+
+Documentation: the demo now records bundled host text and an artwork reference, while explicitly excluding graphical verification. `tests/igdb-stdio.ts` reproduces the real lookup with credentials passed only in the child environment. The sanitized result is stored in `docs/verification/41-game-lookup.json`.
+
+Statechart: no broadcast, worker, approval, or persistent state transition changed. No chart update is needed.
+
+Check, 110 tests, build, smoke, package, packaged stdio launch, and real bundled lookup all exited 0. Branch-specific smoke expects 28 tools and checks the game tool name. This is not the final combined feature count.
+
+For #42's next slot, retain the import from `./adapters/igdb/register` and the `registerGameTools(server)` call after worker registration. Add analytics registration separately and recompute combined smoke counts. Do not replace #40's media cleanup with this branch's older baseline handler.
+
+The PR remains unmerged. Issue #41 remains open and In Progress. No graphical evidence was produced; no screenshot is required for this text and URL output.

@@ -1,0 +1,25 @@
+{
+  "host": "MCP SDK Client over bundled stdio",
+  "runtime": "1.4.4",
+  "toolCount": 28,
+  "twitchCategoryId": "33214",
+  "twitchCategoryName": "Fortnite",
+  "igdbId": "1905",
+  "game": {
+    "name": "Fortnite",
+    "summary": "Fortnite is a free-to-play online game where you and your friends can create, play and battle. Be the last player standing in Battle Royale and Zero Build, experience a concert or live event, or discover over a million creator-made games, including racing, parkour, zombie survival and more.",
+    "releaseDate": "2020-06-29T00:00:00.000Z",
+    "genres": [
+      "Shooter",
+      "Simulator"
+    ],
+    "artworkUrl": "https://images.igdb.com/igdb/image/upload/t_cover_big/cocxbi.jpg",
+    "sourceUrl": "https://www.igdb.com/games/fortnite"
+  },
+  "providers": [
+    "id.twitch.tv",
+    "api.twitch.tv",
+    "api.igdb.com"
+  ],
+  "retrievedAt": "2026-11-01T22:19:26.012Z"
+}

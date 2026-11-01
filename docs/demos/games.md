@@ -1,6 +1,6 @@
 # Game lookup module reference
 
-Issue #41 adds a read-only module. Server assembly and shared smoke tests are unchanged. The module is ready for the integration slot, not yet available through the plugin server.
+Issue #41 adds a read-only game lookup to the plugin server. The bundled MCP stdio host exposes game text and an artwork reference. No graphical view was added.
 
 ## Tool contract
 
@@ -57,4 +57,22 @@ Tool errors contain codes, not upstream response bodies or credentials. Codes di
 
 The task worktree had no local credential cache. Verification explicitly selected the existing primary checkout's encrypted overlay. No cache was copied or refreshed. Normal runtime setup still requires the [secret setup procedure](../secrets.md).
 
-Remaining acceptance work is server registration, bundled stdio smoke coverage, and host-visible output after the integration slot. Keep #41 open while required changes await merge.
+## Bundled host verification
+
+After the integration slot opened, `src/server.ts` added only the `registerGameTools` import and call. No sibling code or shutdown changes were copied. The branch contains 28 tools, not the combined sibling count.
+
+On November 1, 2026 at 22:19:26 UTC, `tests/igdb-stdio.ts` launched `dist/server.js` through the MCP SDK stdio client. It discovered the tool and called category `33214`. The host received Fortnite text and `https://images.igdb.com/igdb/image/upload/t_cover_big/cocxbi.jpg`. [Sanitized host result](../verification/41-game-lookup.json) records the mapping and public metadata.
+
+The host was the MCP SDK Client on macOS, running Bun 1.4.4. This is bundled protocol-host proof, not a ChatGPT graphical view. No image was rendered or downloaded, so no graphical screenshot is claimed.
+
+Integration verification results:
+
+- `mise run check`: exit 0.
+- `mise run test`: exit 0, 110 tests.
+- `mise run build`: exit 0.
+- `mise run smoke`: exit 0, 28 tools and invalid game input rejected.
+- `mise run package`: exit 0, 112 archive entries inspected.
+- `FNOX_NON_INTERACTIVE=1 mise exec -- bun scripts/package-smoke.ts`: exit 0, 28 tools through the packaged launch.
+- `mise exec -- fnox --non-interactive -c /Users/prime/Documents/ChatGPT/stream-machine-plugin/fnox.local.toml exec -- bun tests/igdb-stdio.ts`: exit 0.
+
+The last command used the existing primary checkout's age-encrypted cache. It did not copy credentials into the package. Keep #41 open and In Progress until the required PR merges. Cross-feature composition belongs to the coordinator; no sibling feature was cherry-picked.
