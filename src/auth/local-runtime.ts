@@ -44,8 +44,9 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
         if (url.pathname === "/api/twitch/callback" && request.method === "GET") {
           const cookie = request.headers.get("cookie")?.split(";").map(s => s.trim()).find(s => s.startsWith("sm_twitch_state="))?.slice(16) ?? null;
           await oauth.complete(OWNER, url.searchParams.get("state") ?? "", cookie, url.searchParams.get("code"), url.searchParams.get("error"));
-          return response("<h1>Twitch connected</h1><p>Return to Stream Machine. No channel changes made.</p>", 200, { "Set-Cookie": "sm_twitch_state=; HttpOnly; SameSite=Lax; Path=/api/twitch; Max-Age=0" });
+          return response("", 302, { Location: `${ORIGIN}/connected`, "Set-Cookie": "sm_twitch_state=; HttpOnly; SameSite=Lax; Path=/api/twitch; Max-Age=0" });
         }
+        if (url.pathname === "/connected" && request.method === "GET") return response("<h1>Twitch connected</h1><p>Return to Stream Machine. No channel changes made.</p>");
         if (url.pathname === "/approve") {
           const id = url.searchParams.get("id") ?? "";
           if (request.method === "POST") {
