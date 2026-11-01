@@ -1,0 +1,31 @@
+---
+title: "Connections: verify access and resume the task"
+---
+stateDiagram-v2
+  s0: Connections overview
+  s1: Provider needs a check
+  s2: Check the required capability
+  s3: Follow setup or authorization
+  s4: Unavailable in this host
+  s5: Check failed
+  s6: Setup paused
+  s7: Connection verified
+  s8: Return to the chosen task
+  [*] --> s0
+  s0 --> s1: choose a provider
+  s1 --> s3: open or resume setup
+  s1 --> s4: host cannot reach this provider
+  s1 --> s2: check connection [saved setup exists]
+  s2 --> s5: check fails or access is insufficient
+  s2 --> s6: pause setup
+  s2 --> s7: authenticated capability read succeeds
+  s3 --> s2: save setup or return from authorization
+  s3 --> s6: pause setup
+  s4 --> s8: return with setup still needed
+  s5 --> s3: open or resume setup
+  s5 --> s6: pause setup
+  s6 --> s3: open or resume setup
+  s6 --> s8: return with setup still needed
+  s7 --> s1: access expires or is revoked
+  s7 --> s2: check connection [saved setup exists]
+  s7 --> s8: resume with verified access

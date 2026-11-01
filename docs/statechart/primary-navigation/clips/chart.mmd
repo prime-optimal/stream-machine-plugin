@@ -1,0 +1,37 @@
+---
+title: "Clips workspace"
+---
+stateDiagram-v2
+  s0: Connect or recheck account
+  s1: Load clips
+  s2: No clips found
+  s3: Browse clips
+  s4: Clip lookup failed
+  s5: Inspect selected clip
+  s6: Download requested
+  s7: Preview ready
+  s8: Playing clip
+  s9: Download refused
+  s10: File verified
+  s11: Download outcome unknown
+  [*] --> s0
+  s0 --> s1: account check succeeds
+  s1 --> s2: no matching clips
+  s1 --> s3: clips found
+  s1 --> s4: lookup fails
+  s2 --> s1: change lookup and retry
+  s3 --> s5: select a clip
+  s4 --> s1: change lookup and retry
+  s5 --> s3: back to clips
+  s5 --> s6: request download
+  s5 --> s7: load preview and verify media
+  s6 --> s9: request rejected with known reason
+  s6 --> s10: completed file verified
+  s6 --> s11: acknowledgment lost after dispatch
+  s7 --> s5: close preview
+  s7 --> s8: press Play
+  s8 --> s0: account changes or access expires
+  s8 --> s7: pause playback
+  s9 --> s5: review result and return
+  s10 --> s5: review result and return
+  s11 --> s5: review result and return

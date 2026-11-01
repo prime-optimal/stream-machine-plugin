@@ -1,0 +1,35 @@
+---
+title: "Assets: create, inspect, and export"
+---
+stateDiagram-v2
+  s0: Browse assets and recipes
+  s1: Review asset draft
+  s2: Asset ready
+  s3: Asset exported
+  s4: Preview open
+  s5: Generation running
+  s6: Connect design service
+  s7: Generation failed
+  s8: Outcome unknown
+  s9: Check original job
+  [*] --> s0
+  s0 --> s1: choose a recipe
+  s0 --> s2: open a completed asset
+  s1 --> s6: set up connection [connection needed]
+  s1 --> s5: choose Generate [connection ready]
+  s2 --> s1: start a revised draft
+  s2 --> s3: choose Export
+  s2 --> s4: open safe preview
+  s3 --> s1: start a revised draft
+  s4 --> s1: start a revised draft
+  s4 --> s3: choose Export
+  s5 --> s7: generation fails
+  s5 --> s2: artifact confirmed
+  s5 --> s8: response is lost
+  s6 --> s1: connection verified
+  s7 --> s1: start a revised draft
+  s8 --> s9: check original job
+  s9 --> s5: job still running
+  s9 --> s7: job failed
+  s9 --> s2: artifact confirmed
+  s9 --> s8: status unavailable
