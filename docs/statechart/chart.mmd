@@ -1,0 +1,18 @@
+---
+title: "Stream Machine demo: recipe preview"
+---
+stateDiagram-v2
+  s0: Demo account disconnected
+  s1: Recipe unavailable
+  s2: Demo account selected
+  s3: Mock preview shown
+  [*] --> s0
+  s0 --> s1: choose unavailable recipe
+  s0 --> s2: select demo account
+  s1 --> s0: return to workspace
+  s2 --> s0: reset demo
+  s2 --> s1: choose unavailable recipe
+  s2 --> s3: preview available recipe
+  s1 --> s2: return to workspace
+  s3 --> s0: reset demo
+  s3 --> s1: choose unavailable recipe

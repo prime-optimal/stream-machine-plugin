@@ -5,15 +5,27 @@ description: Preview a Stream Machine streaming recipe, inspect required capabil
 
 # Preview a recipe
 
-Read state with `stream_machine_open`, then list recipes with `stream_machine_list_recipes`. Respect returned availability and required capabilities. A provider being installed elsewhere does not mean this core can call it.
+Use this procedure to preview a supported recipe without applying changes. Results have `mode: mock` and `executable: false`. No apply tool exists. Never claim that Twitch data changed.
 
-For `prepare-channel`, gather title and category ID from returned categories. Use `stream_machine_preview` and report exact fictional target plus before/after. Results always have `mode: mock` and `executable: false`; no apply tool exists. Never claim Twitch data changed.
+## Prepare the preview
 
-Disconnected demo state: offer `stream_machine_connect_demo`. Unknown recipe/category or missing provider: report structured error, preserve requested intent, and avoid substituting an unrelated action.
+1. Read the workspace state with `stream_machine_open`.
+2. List recipes with `stream_machine_list_recipes`.
+3. Check the returned availability and required capabilities. Do not assume that this server can call a provider installed elsewhere.
+4. If the demo account is disconnected, offer `stream_machine_connect_demo`.
+5. For `prepare-channel`, ask for a title and a category from the returned catalog.
+6. Call `stream_machine_preview` with the recipe ID, title, and category ID.
+7. Report the exact fictional target and its current and proposed values.
 
-Use `stream_machine_reset` only when asked to reset demo. Demo state lasts for current local server process; separate processes do not share accounts or history.
+## Handle errors and resets
 
-Future provider orchestration belongs in explicit typed adapters or host-driven skills. Do not forward arbitrary tool names, URLs, secrets, or user-provided executable commands.
+If the recipe or category is unknown, report the structured error. If a provider is missing, report that requirement. Preserve the user's requested outcome rather than substituting an unrelated action.
+
+If the user asks to reset the demo, call `stream_machine_reset`. Do not reset it for another reason. Explain that demo state lasts for the current local server process. Separate processes do not share accounts or history.
+
+## Keep provider calls explicit
+
+Use typed adapters or host-driven skills for future provider workflows. Do not forward arbitrary tool names, URLs, secrets, or user-provided executable commands.
 
 First-time setup and the demo connection walkthrough belong to the `onboarding` skill.
 
