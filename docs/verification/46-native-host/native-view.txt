@@ -67,7 +67,7 @@
     - button "New request · allow another generation"
     - status: Not checked
   - article:
-    - heading "05 / Local event worker" [level=2]
+    - heading "05 / Local independent worker" [level=2]
     - paragraph: Start worker separately from terminal. Arm enables configured event-to-OBS action. Pause blocks new actions; in-flight action may finish. Keep desktop awake.
     - button "Read worker status"
     - button "Arm configured event → OBS action"

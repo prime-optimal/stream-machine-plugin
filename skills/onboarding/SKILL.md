@@ -15,7 +15,7 @@ Use the relevant read tool before an action:
 - OBS: `stream_machine_obs_preflight`.
 - Stream Deck: `stream_machine_streamdeck_inventory`.
 - OpenDesign: `stream_machine_creative_list`.
-- Background worker: `stream_machine_worker_status`.
+- Independent worker: `stream_machine_worker_status`.
 
 A missing connection does not block unrelated demos. Never substitute mock results for a failed real check. Never request tokens or passwords in chat. The private package uses fnox references to the owner's 1Password items.
 

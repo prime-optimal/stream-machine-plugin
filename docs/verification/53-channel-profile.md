@@ -36,6 +36,6 @@ Extension reads and description updates need separate implementation. Photo and 
 
 Other retained worktrees were clean during inspection. The secrets and demo worktrees were behind their remote branches. The native verification worktree's remote branch was gone. Its local commit `94371ca` is patch-equivalent to a commit in `origin/main`, as confirmed by `git cherry`. They belong to earlier tasks and were retained. The earlier task owners can update or remove them after checking their dependencies.
 
-The existing event worker uses `stream-machine-demo/src/demo-worker.ts`. Installed plugin MCP processes also remain running. These belong to the existing desktop session. Their owner must approve any stop or relocation. The #53 checks started no persistent process and stopped no existing worker.
+The existing independent worker uses `stream-machine-demo/src/demo-worker.ts`. Installed plugin MCP processes also remain running. These belong to the existing desktop session. Their owner must approve any stop or relocation. The #53 checks started no persistent process and stopped no existing worker.
 
 The consumed builder export remains in the ignored task-worktree `prompt-exports/` folder. RepoPrompt returned `Protected physical mutation is unsupported` when asked to delete it. Its coverage is recorded in the plan. It contains no credentials and is not staged.
