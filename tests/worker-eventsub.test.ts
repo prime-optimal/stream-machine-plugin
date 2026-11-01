@@ -99,6 +99,21 @@ test("keepalive resets deadline; silent disconnect opens fresh session and subsc
   expect(h.subscriptions[1].transport.session_id).toBe("session-two");
 });
 
+test("keepalive just beyond advertised boundary tolerates delivery jitter without reconnecting", async () => {
+  const h = setup();
+  await until(() => h.sockets.length === 1);
+  h.sockets[0].send(welcome("boundary", 1));
+  await until(() => h.states.includes("online"));
+  await Bun.sleep(1100);
+  h.sockets[0].send(frame("session_keepalive", {}));
+  await Bun.sleep(30);
+  expect(h.states).toEqual(["connecting", "online"]);
+  expect(h.sockets).toHaveLength(1);
+  h.sockets[0].send(notification("After delayed keepalive", "boundary-update"));
+  await until(() => h.events.length === 1);
+  expect(h.events[0].id).toBe("boundary-update");
+});
+
 test("revocation closes source without reconnect; abort cancels connections and pending retry", async () => {
   const h = setup();
   await until(() => h.sockets.length === 1);

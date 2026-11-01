@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { WorkerDependencies } from "../worker/contracts";
 
 export const TWITCH_EVENTSUB_URL = "wss://eventsub.wss.twitch.tv/ws";
+const KEEPALIVE_GRACE_MS = 2000;
 export type ChannelUpdateSubscription = {
   type: "channel.update";
   version: "2";
@@ -78,7 +79,8 @@ export function createTwitchEventSource(options: {
       }
       function resetTimer(connection: Connection) {
         clearTimeout(connection.timer);
-        connection.timer = setTimeout(() => lost(connection), connection.timeoutMs);
+        const deadline = connection.timeoutMs + (connection.welcomed ? KEEPALIVE_GRACE_MS : 0);
+        connection.timer = setTimeout(() => lost(connection), deadline);
       }
       function current(connection: Connection) { return !stopped && !connection.closed && (connection === active || connection === pending); }
 
