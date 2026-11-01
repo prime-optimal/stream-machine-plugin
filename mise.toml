@@ -1,0 +1,33 @@
+[tools]
+bun = "1.4.4"
+
+[tasks.install]
+description = "Install locked development dependencies"
+run = "bun install --frozen-lockfile"
+
+[tasks.build]
+description = "Bundle MCP server and native UI"
+run = "bun run build"
+
+[tasks.check]
+description = "Check TypeScript contracts"
+run = "bun run check"
+
+[tasks.test]
+description = "Verify recipe and connection boundaries"
+run = "bun test"
+
+[tasks.smoke]
+description = "Exercise bundled server over real stdio MCP"
+depends = ["build"]
+run = "bun run smoke"
+
+[tasks.preview]
+description = "Open loopback-only mock UI preview"
+depends = ["build"]
+run = "bun run preview"
+
+[tasks.package]
+description = "Build private desktop plugin archive"
+depends = ["build"]
+run = "bun run package"
