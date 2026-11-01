@@ -1,13 +1,14 @@
 # Stream Machine
 
-Stream Machine provides reusable workflows for streamers. The prototype lets you select a mock Twitch account, choose a recipe, and preview channel updates.
+Stream Machine provides local Twitch, OBS, Stream Deck, and HTML creative demos. The fictional recipe sample remains separate from real actions.
 
-The plugin includes a local MCP server, onboarding skills, a capability catalog, and a responsive MCP App. It declares native entrypoints for the app.
+The plugin includes a local MCP server, onboarding skills, a responsive MCP App, and an independent event-to-OBS worker.
 
-The prototype uses mock data. It does not authorize Twitch accounts, change channels, subscribe to EventSub, control OBS, or edit Stream Deck profiles.
+The current build reuses TwitchCon OAuth, OBS alert HTML, the USB Stream Deck MCP server, and the existing OpenDesign service. HyperFrames output is HTML. Secrets stay in fnox and 1Password.
 
 The project documentation covers these topics:
 
+- [Run the working demos and inspect evidence](docs/demos/integration.md)
 - [Implementation roadmap and parallel work](docs/roadmap.md)
 - [Run the demo and build the package](docs/setup.md)
 - [Package reference](docs/package-reference.md)

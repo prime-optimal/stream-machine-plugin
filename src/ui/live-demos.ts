@@ -94,9 +94,14 @@ export function createLiveDemos(request: ToolRequest): HTMLElement {
 
   const deck = card("02 / Stream Deck button", "Fresh blank Original 3×5 deck only. Apply claims USB and resets display. Quit Elgato first; keep this server running for presses.");
   const serial = deck.field("Device serial"); const key = deck.field("Key index (0–14)", "0", "number"); key.min = "0"; key.max = "14"; key.step = "1";
-  const destination = deck.field("Button opens HTTP(S) URL", "https://example.com", "url", 2048);
+  const destination = deck.field("Button opens HTTP(S) URL", "http://127.0.0.1:4318/?preview=1", "url", 2048);
   let deckPreview = "";
-  deck.action("Read USB inventory", () => void deck.invoke("streamdeck_inventory"));
+  deck.action("Read USB inventory", () => void (async () => {
+    const data = await deck.invoke("streamdeck_inventory");
+    const devices = z.array(z.object({ serial: z.string() })).safeParse(data?.devices);
+    if (devices.success && devices.data.length === 1) serial.value = devices.data[0]?.serial ?? "";
+    deck.refresh();
+  })());
   deck.action("Preview button · no writes", () => void (async () => {
     deckPreview = "";
     const data = await deck.invoke("streamdeck_preview", { serial: serial.value.trim(), key: Number(key.value), url: destination.value });
@@ -119,14 +124,14 @@ export function createLiveDemos(request: ToolRequest): HTMLElement {
   twitch.action("Apply browser-approved title", () => void (async () => { const id = titlePreview; titlePreview = ""; await twitch.invoke("twitch_apply_title", { previewId: id }, true); twitch.refresh(); })(), () => !!titlePreview);
   title.addEventListener("input", () => { titlePreview = ""; twitch.refresh(); });
 
-  const creative = card("04 / Create overlay or video", "Uses existing OpenDesign service. Start submits one job. Poll checks original request only. Generation may use provider credits.");
+  const creative = card("04 / Create HTML overlays", "Uses the existing OpenDesign service and HyperFrames HTML workflow. Start submits one job. Poll checks the original request only.");
   creative.action("List projects + installed recipes", () => void creative.invoke("creative_list"));
   const project = creative.field("Exact project ID", `stream-machine-${Date.now()}`, "text", 128);
   const projectName = creative.field("New isolated project name", "Stream Machine demo", "text", 100);
   creative.action("Create isolated project", () => void creative.invoke("creative_project", { id: project.value.trim(), name: projectName.value.trim() }, true), () => /^stream-machine-[A-Za-z0-9._-]+$/.test(project.value.trim()) && !!projectName.value.trim());
   const artTitle = creative.field("Overlay heading", "WEEKEND / STUDIO", "text", 48);
   const selectLabel = element("label", "Recipe"); const recipe = element("select");
-  for (const [value, label] of [["overlay", "Static editable HTML overlay"], ["video", "Three-second HyperFrames MP4"]]) { const option = element("option", label); option.value = value; recipe.append(option); }
+  for (const [value, label] of [["overlay", "Static editable HTML overlay"], ["hyperframes-html", "HyperFrames HTML overlay"]]) { const option = element("option", label); option.value = value; recipe.append(option); }
   selectLabel.append(recipe); creative.controls.append(selectLabel);
   let operation: { requestId: string; project: string; recipe: string; title: string } | undefined;
   let artifact: { project: string; entry: string } | undefined;

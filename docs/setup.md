@@ -1,6 +1,6 @@
 # Run the demo and build the package
 
-Use this guide to preview a mock channel update or build a desktop plugin archive. You need mise and Bun 1.4.4 on `PATH`. You do not need Twitch credentials.
+Use this guide for the separate mock sample or package build. For real devices, Twitch, HTML authoring, and the background worker, use the [live demo guide](demos/integration.md). You need mise, Bun 1.4.4, and fnox on `PATH`. The private credential references resolve through 1Password.
 
 ## Prepare the checkout
 
@@ -19,12 +19,13 @@ mise run install
 	mise run preview
 	```
 
-2. Open the [local demo](http://127.0.0.1:4317/?preview=1).
-3. Click **Use demo Twitch account**.
-4. Select **Prepare channel details**.
-5. Enter a stream title.
-6. Choose a category.
-7. Click **Preview channel update**.
+2. Open the [local demo](http://127.0.0.1:4318/?preview=1).
+3. Expand **Mock preview** for the fictional sample.
+4. Click **Use demo Twitch account**.
+5. Select **Prepare channel details**.
+6. Enter a stream title.
+7. Choose a category.
+8. Click **Preview channel update**.
 
 The preview shows the current and proposed values for the fictional account. No change reaches Twitch.
 
@@ -50,7 +51,7 @@ Run the package task:
 mise run package
 ```
 
-The task writes `docs/packages/stream-machine-0.1.0.tar.gz`. It prints the archive path and reports that it inspected the entries.
+The task writes `docs/packages/stream-machine-0.2.0.tar.gz`. It prints the archive path and reports that it inspected the entries.
 
 To install the archive, use your host's supported plugin installation flow. For requirements and package contents, see the [package reference](package-reference.md).
 

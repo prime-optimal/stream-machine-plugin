@@ -1,21 +1,31 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "stream-machine",
-  "version": "0.1.0",
-  "description": "Preview reusable streaming recipes with a mock Twitch account. Architecture prototype; live providers are not connected.",
-  "author": { "name": "prime-optimal" },
+  "version": "0.2.0",
+  "description": "Run local streaming demos with Twitch, OBS, Stream Deck, and existing OpenDesign HTML workflows.",
+  "author": {
+    "name": "prime-optimal"
+  },
   "repository": "https://github.com/prime-optimal/stream-machine-plugin",
-  "keywords": ["twitch", "streaming", "recipes", "obs"],
+  "keywords": [
+    "twitch",
+    "streaming",
+    "recipes",
+    "obs"
+  ],
   "extensions": {
     "com.openai": {
       "onboardingSkill": "./skills/onboarding/SKILL.md",
       "interface": {
         "displayName": "Stream Machine",
-        "shortDescription": "Streaming recipe previews",
-        "longDescription": "Explore Stream Machine's mock account connection, recipe catalog, and channel-change previews. Desktop prototype requires Bun. No real OAuth, channel changes, or hardware control.",
+        "shortDescription": "Run your streaming demos",
+        "longDescription": "Desktop prototype with explicit Twitch title previews, local OBS alerts, a USB Stream Deck button, HTML creative workflows, and a separately started event worker. Requires local provider tools and private credential references.",
         "developerName": "prime-optimal",
-        "capabilities": ["Interactive"],
-        "defaultPrompt": "Set up Stream Machine and preview my first streaming recipe."
+        "capabilities": [
+          "Interactive"
+        ],
+        "defaultPrompt": "Set up Stream Machine and preview my first streaming recipe.",
+        "category": "Other"
       }
     }
   }

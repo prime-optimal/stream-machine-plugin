@@ -16,7 +16,7 @@ type Snapshot = {
 };
 const root = document.querySelector<HTMLDivElement>("#app")!;
 const standalone = new URLSearchParams(location.search).get("preview") === "1";
-const app = new App({ name: "Stream Machine", version: "0.1.0" });
+const app = new App({ name: "Stream Machine", version: "0.2.0" });
 const extensions = new OpenAIExtensions(app);
 const requestTool = createToolRequest({ standalone, native: input => app.callServerTool(input) });
 const liveDemos = createLiveDemos(requestTool);

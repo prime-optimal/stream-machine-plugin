@@ -1,44 +1,48 @@
 ---
 name: preview-recipe
-description: Preview a Stream Machine streaming recipe, inspect required capabilities, or explain which local or cloud integrations a recipe needs.
+description: Preview a Stream Machine Twitch title or Stream Deck button, apply an explicitly authorized preview, or inspect the separate mock sample.
 ---
 
-# Preview a recipe
+# Preview and run a selected demo
 
-Use this procedure to preview a supported recipe without applying changes. Results have `mode: mock` and `executable: false`. No apply tool exists. Never claim that Twitch data changed.
+Read the provider first. Use the account or device returned by that provider, not a guessed identifier.
 
-## Prepare the preview
+## Update a Twitch title
 
-1. Read the workspace state with `stream_machine_open`.
-2. List recipes with `stream_machine_list_recipes`.
-3. Check the returned availability and required capabilities. Do not assume that this server can call a provider installed elsewhere.
-4. If the demo account is disconnected, offer `stream_machine_connect_demo`.
-5. For `prepare-channel`, ask for a title and a category from the returned catalog.
-6. Call `stream_machine_preview` with the recipe ID, title, and category ID.
-7. Report the exact fictional target and its current and proposed values.
+1. Call `stream_machine_twitch_channel`.
+2. Call `stream_machine_twitch_preview_title` with the exact requested title.
+3. Show the returned account and current and proposed titles.
+4. Open the returned URL for the user's exact-title approval.
+5. After approval, call `stream_machine_twitch_apply_title` with the returned preview ID.
+6. Report the read-back result. Do not claim success on an error or an unknown write outcome.
 
-## Handle errors and resets
+An expired preview needs a new preview. A changed account or current title also needs a new review. Never automatically retry an ambiguous write.
 
-If the recipe or category is unknown, report the structured error. If a provider is missing, report that requirement. Preserve the user's requested outcome rather than substituting an unrelated action.
+## Set one Stream Deck button
 
-If the user asks to reset the demo, call `stream_machine_reset`. Do not reset it for another reason. Explain that demo state lasts for the current local server process. Separate processes do not share accounts or history.
+1. Call `stream_machine_streamdeck_inventory`.
+2. Select the user's original 3×5 device.
+3. Call `stream_machine_streamdeck_preview` with its serial, a key index from 0 to 14, and the requested HTTP URL.
+4. Show the exact button and explain that the USB process must remain running.
+5. If the user has authorized setup, call `stream_machine_streamdeck_apply` with the returned preview ID.
+6. Distinguish configuration read-back from a physical press. Ask for one press only when physical proof is still needed.
 
-## Keep provider calls explicit
+Do not claim the device while another demo process or Elgato app owns it. `stream_machine_streamdeck_release` removes this session's demo page and releases USB.
 
-Use typed adapters or host-driven skills for future provider workflows. Do not forward arbitrary tool names, URLs, secrets, or user-provided executable commands.
+## Preview fictional data
 
-First-time setup and the demo connection walkthrough belong to the `onboarding` skill.
+Use `stream_machine_open`, `stream_machine_list_recipes`, and `stream_machine_preview` for the mock sample. Offer `stream_machine_connect_demo` if that sample is disconnected.
+
+Mock results have `mode: mock` and `executable: false`. They cannot update Twitch or a device. Reset the sample only when requested.
 
 ## Examples
 
 <example>
-Context: The demo account is connected.
-user: "Preview changing my stream title to 'Ranked grind' in Street Fighter 6."
-assistant: "I'll call `stream_machine_preview` for `prepare-channel` with that title and the `demo-street-fighter` category, then show the before/after for the fictional demo channel. This is a mock preview; nothing is applied."
+user: "Preview changing my title to Ranked grind."
+assistant: "I'll read your channel, then show the exact preview and its approval link."
 </example>
 
 <example>
-Context: The user asks what a recipe needs.
-user: "What does the prepare-channel recipe need to run?"
-assistant: "I'll list recipes with `stream_machine_list_recipes` and report its required capabilities and which ones this core can call."
+user: "Make a button that opens the demo page."
+assistant: "I'll identify the deck and preview a button for that URL before applying the authorized setup."
 </example>

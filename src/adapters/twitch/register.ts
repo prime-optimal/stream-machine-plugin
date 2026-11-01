@@ -16,7 +16,7 @@ export function registerTwitchTools(server: McpServer, runtime?: LocalTwitchRunt
     stream_machine_twitch_apply_title: { schema: z.object({ previewId: z.string().uuid() }).strict(), description: "Apply browser-approved exact preview to connected broadcaster, recheck scope/current title and read back. Live mutation." },
   };
   for (const [name, definition] of Object.entries(definitions)) {
-    server.registerTool(name, { description: definition.description, inputSchema: definition.schema, annotations: { readOnlyHint: name !== "stream_machine_twitch_apply_title", destructiveHint: name === "stream_machine_twitch_apply_title", openWorldHint: true } }, async (input: unknown): Promise<CallToolResult> => {
+    server.registerTool(name, { description: definition.description, inputSchema: definition.schema, annotations: { readOnlyHint: !["stream_machine_twitch_apply_title", "stream_machine_twitch_connect"].includes(name), destructiveHint: false, openWorldHint: true } }, async (input: unknown): Promise<CallToolResult> => {
       try {
         const args = definition.schema.parse(input);
         let result: object;

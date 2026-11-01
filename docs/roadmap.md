@@ -17,7 +17,7 @@ The [Demo roadmap view](https://github.com/users/prime-optimal/projects/18/views
 | Add a Stream Deck button | Device, profiles, and the supplied MCP server | One button in a test profile performs its expected action. | [#33](https://github.com/prime-optimal/stream-machine-plugin/issues/33) |
 | Alert while chat is closed | Twitch login and the OBS alert action | A real Twitch event triggers the selected OBS alert through a local worker. | [#38](https://github.com/prime-optimal/stream-machine-plugin/issues/38) |
 | Make an OpenDesign asset | Sealos deployment and installed authoring scenarios | Stream Machine submits a brief and returns the artifact from an isolated test project. | [#43](https://github.com/prime-optimal/stream-machine-plugin/issues/43) |
-| Render with OpenDesign HyperFrames | Integrated composition and render workflow | Stream Machine returns one short MP4 that plays with the expected duration and dimensions. | [#44](https://github.com/prime-optimal/stream-machine-plugin/issues/44) |
+| Generate HyperFrames HTML | Existing HTML composition and live driver | Stream Machine returns editable source and playable HTML with working controls. | [#44](https://github.com/prime-optimal/stream-machine-plugin/issues/44) |
 
 The four core demos are checked together in [#49](https://github.com/prime-optimal/stream-machine-plugin/issues/49). The two creative demos proceed in parallel. They do not delay the four core results.
 
@@ -27,7 +27,7 @@ Twitch account hookup is [#25](https://github.com/prime-optimal/stream-machine-p
 
 OpenDesign hookup is [#43](https://github.com/prime-optimal/stream-machine-plugin/issues/43). The Sealos service already supports authenticated MCP and installed alert and overlay scenarios. Stream Machine needs to use that connection and show its output. The current tool connection returned "Transport closed" during this planning pass, so the first task includes restoring or verifying that connection.
 
-HyperFrames reuse is [#44](https://github.com/prime-optimal/stream-machine-plugin/issues/44). OpenDesign already supplies the composition and render workflow. The remaining check is one render through Stream Machine. Existing HTML alert tests do not prove the HyperFrames MP4 path. A separate vanilla renderer is not the default.
+HyperFrames reuse is [#44](https://github.com/prime-optimal/stream-machine-plugin/issues/44). OpenDesign already supplies the composition and render workflow. The remaining check is HTML authoring and playback through Stream Machine. MP4 export and renderer infrastructure are outside this task.
 
 The [reuse evidence](reuse-evidence.md) links the source, recorded checks, and remaining hookup work. Existing service success and new Stream Machine success are recorded separately.
 
@@ -41,7 +41,7 @@ The following groups can start independently:
 | OBS | [#28](https://github.com/prime-optimal/stream-machine-plugin/issues/28) Connect to running OBS | [#30](https://github.com/prime-optimal/stream-machine-plugin/issues/30) Show an alert | `src/adapters/obs/`, `recipes/obs/` |
 | Stream Deck | [#31](https://github.com/prime-optimal/stream-machine-plugin/issues/31) Read profiles and actions | [#32](https://github.com/prime-optimal/stream-machine-plugin/issues/32) Preview a button, then [#33](https://github.com/prime-optimal/stream-machine-plugin/issues/33) add it | `src/adapters/streamdeck/`, `recipes/streamdeck/` |
 | Background alerts | [#36](https://github.com/prime-optimal/stream-machine-plugin/issues/36) Run a worker and [#35](https://github.com/prime-optimal/stream-machine-plugin/issues/35) handle sample events | [#34](https://github.com/prime-optimal/stream-machine-plugin/issues/34) Subscribe, [#37](https://github.com/prime-optimal/stream-machine-plugin/issues/37) arm/pause, then [#38](https://github.com/prime-optimal/stream-machine-plugin/issues/38) prove the alert | `src/events/`, `src/worker/`, `recipes/alerts/` |
-| Creative tools | [#43](https://github.com/prime-optimal/stream-machine-plugin/issues/43) Use existing OpenDesign | [#44](https://github.com/prime-optimal/stream-machine-plugin/issues/44) Render with its HyperFrames workflow | `src/adapters/design/`, `src/adapters/hyperframes/` |
+| Creative tools | [#43](https://github.com/prime-optimal/stream-machine-plugin/issues/43) Use existing OpenDesign | [#44](https://github.com/prime-optimal/stream-machine-plugin/issues/44) Generate HTML with its HyperFrames workflow | `src/adapters/design/`, `src/adapters/hyperframes/` |
 | Plugin experience | [#46](https://github.com/prime-optimal/stream-machine-plugin/issues/46) Open the installed plugin | [#47](https://github.com/prime-optimal/stream-machine-plugin/issues/47) Help the user reach one working demo | `src/ui/`, `skills/` |
 
 These are ownership suggestions, not directories that must all be created. Each task uses its own worktree. Changes to the same manifest or shared file are coordinated before editing.

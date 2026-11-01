@@ -17,10 +17,20 @@ for (const skill of ["onboarding", "preview-recipe"]) {
 const staging = join(root, "artifacts/package/stream-machine");
 await rm(staging, { recursive: true, force: true });
 await mkdir(staging, { recursive: true });
-for (const path of ["plugin.json", "mcp.json", "skills", "dist", "docs"]) {
+for (const path of ["plugin.json", "mcp.json", "fnox.toml", "skills", "dist", "docs"]) {
   await mkdir(dirname(join(staging, path)), { recursive: true });
   await cp(join(root, path), join(staging, path), { recursive: true, filter: source => !source.startsWith(join(root, "docs/packages")) });
 }
+await mkdir(join(staging, ".codex-plugin"), { recursive: true });
+const openai = manifest.extensions["com.openai"];
+await Bun.write(join(staging, ".codex-plugin/plugin.json"), JSON.stringify({
+  name: manifest.name, version: manifest.version, description: manifest.description,
+  author: manifest.author, repository: manifest.repository, keywords: manifest.keywords,
+  interface: { ...openai.interface, category: openai.interface.category ?? "Other" },
+  extensions: { "com.openai": { onboardingSkill: openai.onboardingSkill } },
+  skills: "./skills", mcpServers: "./.mcp.json",
+}, null, 2));
+await Bun.write(join(staging, ".mcp.json"), JSON.stringify({ mcpServers: config.mcpServers }, null, 2));
 const packageDirs: string[] = [];
 for (const name of await readdir("node_modules")) {
   if (name.startsWith(".")) continue;
@@ -41,9 +51,9 @@ for (const name of packageDirs.sort()) {
 await Bun.write(join(staging, "THIRD_PARTY_NOTICES.txt"), notices.join("\n"));
 await mkdir(join(root, "docs/packages"), { recursive: true });
 const archive = join(root, `docs/packages/stream-machine-${manifest.version}.tar.gz`);
-const pack = Bun.spawn(["tar", "-czf", archive, "-C", join(root, "artifacts/package"), "stream-machine"], { stdout: "inherit", stderr: "inherit" });
+const pack = Bun.spawn(["tar", "-czf", archive, "-C", join(root, "artifacts/package"), "stream-machine"], { env: { ...process.env, COPYFILE_DISABLE: "1" }, stdout: "inherit", stderr: "inherit" });
 if (await pack.exited) throw new Error("Archive creation failed");
 const list = Bun.spawn(["tar", "-tzf", archive], { stdout: "pipe", stderr: "inherit" });
 const entries = (await new Response(list.stdout).text()).trim().split("\n");
-if (await list.exited || entries.some(path => /node_modules|\.env|\.git\/|\.DS_Store/.test(path) || !path.startsWith("stream-machine/"))) throw new Error("Unexpected archive contents");
+if (await list.exited || entries.some(path => /node_modules|\.env|\.git\/|\.DS_Store|\/\._/.test(path) || !path.startsWith("stream-machine/"))) throw new Error("Unexpected archive contents");
 console.log(`${archive}\n${entries.length} inspected archive entries; manifests and skill frontmatter parsed.`);

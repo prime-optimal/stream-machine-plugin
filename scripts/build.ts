@@ -14,4 +14,8 @@ if (/__APP_(JS|CSS)__/.test(html)) throw new Error("Unresolved UI template marke
 await Bun.write("dist/app.html", html);
 const server = await Bun.build({ entrypoints: ["src/stdio.ts"], target: "bun", outdir: "dist", naming: "server.js", define: { __STREAM_MACHINE_HTML__: JSON.stringify(html) } });
 if (!server.success) throw new AggregateError(server.logs, "Server build failed");
-console.log("Built dist/app.html and bundled dist/server.js");
+for (const [entry, name] of [["src/worker/main.ts", "worker.js"], ["src/demo-worker.ts", "demo-worker.js"]]) {
+  const build = await Bun.build({ entrypoints: [entry], target: "bun", outdir: "dist", naming: name });
+  if (!build.success) throw new AggregateError(build.logs, `Worker build failed: ${name}`);
+}
+console.log("Built app, MCP server, worker, and live event adapter.");

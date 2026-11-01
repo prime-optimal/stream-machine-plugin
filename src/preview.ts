@@ -1,7 +1,8 @@
-import { DemoWorkspace, toolResult } from "./domain";
+import { createPreviewBridge, previewRequest } from "./preview-bridge";
 
-const workspace = new DemoWorkspace();
-const port = 4317;
+const bridge = await createPreviewBridge();
+const port = Number(process.env.STREAM_MACHINE_PREVIEW_PORT ?? "4318");
+if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error("Invalid preview port");
 const origin = `http://127.0.0.1:${port}`;
 const server = Bun.serve({
   hostname: "127.0.0.1", port, maxRequestBodySize: 16_384,
@@ -12,15 +13,24 @@ const server = Bun.serve({
     if (request.method === "POST" && url.pathname === "/api/tool") {
       if (request.headers.get("origin") !== origin || !request.headers.get("content-type")?.startsWith("application/json")) return new Response("Same-origin JSON required", { status: 403 });
       try {
-        const body = await request.json();
-        if (typeof body?.name !== "string") return Response.json({ error: "Missing tool name" }, { status: 400 });
-        return Response.json(toolResult(workspace, body.name, body.arguments), { headers: { "cache-control": "no-store" } });
+        const parsed = previewRequest.safeParse(await request.json());
+        if (!parsed.success || !bridge.names.has(parsed.data.name)) return Response.json({ error: "Unknown tool or invalid request" }, { status: 400 });
+        return Response.json(await bridge.call(parsed.data), { headers: { "cache-control": "no-store" } });
       } catch {
-        return Response.json({ error: "Invalid preview request" }, { status: 400 });
+        return Response.json({ error: "Tool request failed. Inspect provider status before retrying a write." }, { status: 502 });
       }
     }
     return new Response("Not found", { status: 404 });
   },
 });
-console.log(`Stream Machine mock preview: ${origin}/?preview=1`);
-process.on("SIGINT", () => { server.stop(); process.exit(0); });
+process.stdout.write(`Stream Machine live demos: ${origin}/?preview=1\n`);
+let closing = false;
+async function close() {
+  if (closing) return;
+  closing = true;
+  server.stop(true);
+  await bridge.close();
+  process.exit(0);
+}
+process.on("SIGINT", () => { void close(); });
+process.on("SIGTERM", () => { void close(); });
