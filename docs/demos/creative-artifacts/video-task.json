@@ -1,0 +1,20 @@
+{
+  "taskId": "2a69c8a7-03ac-4923-b629-3dddc8f94d4f",
+  "compositionDir": ".hyperframes-cache/c6405f5e-1337-4163-a1a8-58831b7cb810",
+  "output": "stream-machine-proof.mp4",
+  "status": "failed",
+  "nextSince": 0,
+  "result": {
+    "taskId": "2a69c8a7-03ac-4923-b629-3dddc8f94d4f",
+    "status": "failed",
+    "error": {
+      "message": "hyperframes render failed: Open Design desktop frame renderer is unavailable. Open or upgrade the desktop client and try again.",
+      "status": 400,
+      "nextStep": "contact-support"
+    }
+  },
+  "dispatchExitCode": 144,
+  "waitExitCode": 144,
+  "sourcePath": ".hyperframes-cache/c6405f5e-1337-4163-a1a8-58831b7cb810/index.html",
+  "mp4Exists": false
+}

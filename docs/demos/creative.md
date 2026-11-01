@@ -28,7 +28,19 @@ Direct media integration trial exposed deployed MCP `write_file` normalization: 
 
 November 1 read-only checks: authenticated `/api/health`200, version0.25.1; remote MCP tools/list22; projects, scenarios, skills, agents readable; integrated HyperFrames provider advertised. Configured desktop MCP points local signed app sidecar, explaining why its transport failure cannot establish Sealos outage.
 
-Fresh isolated handoff/render verification recorded below after committed implementation. Historical accepted scenario evidence remains [reuse-evidence](../reuse-evidence.md).
+Fresh isolated project: `stream-machine-creative-20261101`. Historical accepted scenario evidence remains [reuse-evidence](../reuse-evidence.md).
+
+| Check | Fresh result |
+| --- | --- |
+| Installed overlay handoff | Run `145dd920-d844-4961-b239-2322467e9ced` succeeded; request `a4c409ba-724f-46d3-a601-2b97d2d3007f`. |
+| Artifact retrieval | `weekend-camera-v1/index.html` retrieved through public adapter; no truncation. Editable `source.json` retained remotely. |
+| Local browser | Title, aperture, copy visible; transparent body; no external scripts or browser console warnings/errors. [Screenshot](creative-artifacts/overlay-browser.png), [offline HTML](creative-artifacts/overlay.html). No new OBS verification. |
+| HyperFrames handoff | Run `fb7a3a55-e891-4dcd-a12e-40cafe6da99d` followed task `2a69c8a7-03ac-4923-b629-3dddc8f94d4f` to failure, without resubmission. |
+| Render result | Existing Sealos runtime reports desktop frame renderer unavailable. MP4 absent; dimensions/duration/frames/playback unverified. [Exact receipt](creative-artifacts/video-task.json), [editable source](creative-artifacts/video-source.html). |
+| Status truthfulness | Outer authoring run reported succeeded despite failed render. Adapter reads render receipt, returns failed with `RENDERER_UNAVAILABLE`, does not return MP4 as available artifact. |
+| Local checks | TypeScript/build pass; thirteen tests pass, including duplicate suppression, failed render receipt, invalid recipe/input, Origin policy and unusable localhost delivery URL. |
+
+Issue #43 has fresh connection/handoff/artifact proof. Issue #44 remains incomplete: existing renderer unavailable. No successful video or installed HyperFrames package version claim. Existing source `apps/daemon/src/media/index.ts:3948–3965` has explicit `HYPERFRAMES_BROWSER_PATH` daemon override; absent that override and desktop registration, it throws recorded error. Runtime/config investigation must precede any proposed change.
 
 Commands, with authorization already injected server-side:
 
