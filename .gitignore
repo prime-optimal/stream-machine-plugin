@@ -8,3 +8,43 @@ docs/packages/
 prompt-exports/
 .claude/nlpm-history.json
 .claude/nlpm-reports/
+
+# repo-init protections (keep at end so prior negations cannot undo them)
+# Local secrets, credentials, and encrypted-cache material
+.env
+.env.*
+*.pem
+*.key
+*credentials*
+*service-account*
+*service_account*
+*serviceaccount*
+fnox.local.toml
+
+# Local agent state and generated dependencies
+.agents/*
+!.agents/vocabulary.yaml
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/unslop/
+!.agents/skills/technical-writing/
+!.agents/skills/git-surgeon/
+.omp/
+.claude/
+.codex/
+.cursor/
+.opencode/
+mise.local.toml
+.mise.local.toml
+.cache/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.tox/
+.next/
+.turbo/
+node_modules/
+.venv/
+.obsidian/
+vendor/
+vendored/

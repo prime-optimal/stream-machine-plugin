@@ -1,0 +1,79 @@
+# Commit and share a change
+
+Use this guide to finish a change without including unrelated work.
+
+## Prepare the checkout
+
+Create an issue, then create a worktree from current `origin/main`. Keep each task in its own worktree.
+
+Run these commands from the worktree:
+
+```sh
+mise install
+mise run install
+mise run hooks:install
+```
+
+The last command installs hk launchers through mise. If global hk launchers already exist, hk keeps them and uses this repository's `hk.pkl`.
+
+## Commit one change
+
+Read the `git-surgeon` skill before selecting hunks. Inspect the working tree and the index:
+
+```sh
+git status --short --branch
+git-surgeon hunks
+git-surgeon show <hunk-id>
+git-surgeon stage <hunk-id>
+git diff --cached
+```
+
+Use `git-surgeon stage <hunk-id> --lines <start>-<end>` when one hunk contains separate changes. Stage new files with `git add <path>`.
+
+Run the checks needed for the change, then commit:
+
+```sh
+mise run hooks:check
+git commit -m "chore: describe the change (#issue)"
+git status --short --branch
+```
+
+The pre-commit hook checks Markdown and staged whitespace. It does not fix files, stage files, or stash edits. Markdown checks read current file contents, so inspect the staged diff when a file also has unstaged edits.
+
+The Markdown config accepts existing table alignment and skill frontmatter spacing. It also preserves a bare URL in the historical verification report. Other Markdown rules still apply.
+
+The commit-message hook runs Commitizen. A message such as `update stuff` fails. A message such as `fix: reject expired previews` passes.
+
+## Push a completed change
+
+Push after a verified change and before handing off the task:
+
+```sh
+git push -u origin HEAD
+git status --short --branch
+git rev-list --count '@{upstream}..HEAD'
+```
+
+The pre-push hook runs TypeScript checks and domain tests. The final command prints `0` when the tracking branch contains every local commit. Report any remaining working-tree edits.
+
+## Generate a changelog
+
+Preview the changelog before writing it:
+
+```sh
+mise run changelog:preview
+mise run changelog
+git diff -- docs/CHANGELOG.md
+```
+
+Commitizen reads conventional commits and writes `docs/CHANGELOG.md`. These tasks do not bump versions, create tags, or publish a release. Before a release, review the entries and commit the changelog. The version in `.cz.toml` starts at the existing package version, `0.2.0`.
+
+## Remove merged work
+
+Follow the cleanup checklist in [AGENTS.md](../AGENTS.md#clean-up-after-a-merge). Confirm the PR is merged, then inspect the branch and worktree before removing either. A merged PR alone does not prove that later commits or local files are safe to delete.
+
+For several worktrees, use the `safe-git-worktree-prune` skill. Remove one eligible worktree first and verify the result before continuing.
+
+## Tool references
+
+The commands follow the official [hk installation guide](https://hk.jdx.dev/cli/install.html), [hk hook configuration](https://hk.jdx.dev/configuration.html), [Commitizen message checks](https://commitizen-tools.github.io/commitizen/commands/check/), and [Commitizen changelog generation](https://commitizen-tools.github.io/commitizen/commands/changelog/).
