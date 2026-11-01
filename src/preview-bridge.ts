@@ -7,7 +7,7 @@ export const previewRequest = z.object({ name: z.string().min(1), arguments: z.r
 
 export async function createPreviewBridge(serverPath = resolve(import.meta.dir, "../dist/server.js")) {
   const environment = getDefaultEnvironment();
-  for (const name of ["TWITCH_CLIENT_ID", "TWITCH_CLIENT_SECRET", "TWITCH_TOKEN_ENCRYPTION_KEY", "STREAM_MACHINE_DESIGN_AUTHORIZATION", "STREAM_MACHINE_DESIGN_USERNAME", "STREAM_MACHINE_DESIGN_PASSWORD", "STREAM_MACHINE_TWITCH_STORE", "STREAM_MACHINE_STREAMDECK_SOURCE"]) {
+  for (const name of ["OPENAI_API_KEY", "TWITCH_CLIENT_ID", "TWITCH_CLIENT_SECRET", "TWITCH_TOKEN_ENCRYPTION_KEY", "STREAM_MACHINE_DESIGN_AUTHORIZATION", "STREAM_MACHINE_DESIGN_USERNAME", "STREAM_MACHINE_DESIGN_PASSWORD", "STREAM_MACHINE_TWITCH_STORE", "STREAM_MACHINE_STREAMDECK_SOURCE"]) {
     const value = process.env[name];
     if (value) environment[name] = value;
   }
