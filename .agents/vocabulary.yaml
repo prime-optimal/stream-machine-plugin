@@ -85,3 +85,5 @@ rejected:
     reason: Live controls also means overlay playback controls; preview server is the process, not the page.
   - term: job
     reason: Creative job is a generation task; request ID identifies a call. Different things.
+  - term: view
+    reason: View names UI views and saved board views; evidence means verification records.
