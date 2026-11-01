@@ -40,3 +40,7 @@ rejected:
     reason: Title update is one specific channel update; channel updates also cover other fields.
   - term: journal
     reason: Creative SQLite journal and worker ledger are separate stores in different components.
+  - term: confirm
+    reason: Ordinary verb; confirm checks external state, verify checks own results. Too broad to map.
+  - term: working tree
+    reason: 'Git terms differ: working tree is files in a checkout; worktree is a linked checkout.'
