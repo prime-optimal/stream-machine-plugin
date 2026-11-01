@@ -89,3 +89,11 @@ rejected:
     reason: Live also means broadcasts, live Twitch mode, and UI panels; too broad to map.
   - term: check
     reason: Check names mise run check and read checks; inspect means examining state.
+  - term: shutdown
+    reason: Cleanup covers git worktrees and resources; shutdown is the server stop event.
+  - term: sample
+    reason: Sample also names the 6300-second metric and Sample Streamer; fixture is test data.
+  - term: limits
+    reason: Limits also means rate and size limits; limitation means unproven scope.
+  - term: request
+    reason: Request also means provider and HTTP requests; call means tool invocation.
