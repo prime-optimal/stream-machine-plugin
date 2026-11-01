@@ -2,19 +2,12 @@ import { z } from "zod";
 import type { CreativeProvider } from "../design/provider";
 
 export const VIDEO_FILE = "stream-machine-proof.mp4";
+export const VIDEO_RECEIPT = "creative-video-task.json";
 export async function startVideo(provider: CreativeProvider, project: string, requestId: string) {
   const compositionDir = `.hyperframes-cache/${requestId}`;
-  await provider.api(`/api/projects/${encodeURIComponent(project)}/media/hyperframes/scaffold`, { compositionDir });
-  const scaffold = z.string().parse(await provider.call("get_file", { project, path: `${compositionDir}/index.html` }));
-  const html = scaffold
-    .replace('data-duration="10"', 'data-duration="3"')
-    .replace("background: #000;", "background: #0b0b0f; font-family: Arial, sans-serif;")
-    .replace('    ></div>', '    ><h1 id="title" style="position:absolute;left:140px;top:420px;color:#ffb76b;font-size:96px">STREAM MACHINE</h1></div>')
-    .replace('window.__timelines["main"] = tl;', 'tl.fromTo("#title", {opacity:0,x:80}, {opacity:1,x:0,duration:0.7}, 0).to("#title", {x:30,duration:1}, 1).to("#title", {opacity:0,duration:0.5}, 2.5); window.__timelines["main"] = tl;');
-  if (!html.includes('id="title"') || !html.includes('data-duration="3"')) throw new Error("Scaffold contract changed");
-  await provider.call("write_file", { project, path: `${compositionDir}/index.html`, content: html });
-  const task = z.object({ taskId: z.string() }).parse(await provider.api(`/api/projects/${encodeURIComponent(project)}/media/generate`, {
-    surface: "video", model: "hyperframes-html", compositionDir, output: VIDEO_FILE,
+  const run = z.object({ runId: z.string() }).parse(await provider.call("start_run", {
+    project, skill: "hyperframes", requestId, agent: "codex", model: "gpt-6.1-sol",
+    prompt: `Pipeline QA only, autonomous approval granted. Use installed HyperFrames skill's OpenDesign integration fast path. Run od media scaffold with composition-dir ${compositionDir}; edit ONLY generated index.html directly on filesystem. Fixed 3-second1920x1080 silent title card: dark #0b0b0f, Arial/system sans, warm #ffb76b, text STREAM MACHINE centered; fade/slide in, hold, fade out using scaffold paused GSAP timeline. No images, audio, external asset generation or original commissioning. Existing scaffold supplies GSAP. Dispatch with od media generate --surface video --model hyperframes-html --composition-dir ${compositionDir} --output ${VIDEO_FILE}. Immediately persist returned taskId, compositionDir and output filename to ${VIDEO_RECEIPT}. Follow SAME task via od media wait until terminal, never render directly or resubmit. Include final task status in receipt. Keep editable source hidden. Do not use MCP write_file for hidden sources: deployed route normalizes leading dot. Do not invoke another OpenDesign workflow. Do not change deployment, dependencies, credentials or configuration. Return exact MP4 and source paths; report failures truthfully.`,
   }));
-  return { taskId: task.taskId, source: `${compositionDir}/index.html`, file: VIDEO_FILE };
+  return { runId: run.runId, source: `${compositionDir}/index.html`, file: VIDEO_FILE };
 }

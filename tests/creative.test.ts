@@ -14,7 +14,7 @@ function fixture() {
       if (name === "list_plugins") return { plugins: [{ id: "stream-overlay-authoring" }] };
       if (name === "start_run") return { runId: "real-run" };
       if (name === "get_run") return { status: "succeeded" };
-      if (name === "get_file") return scaffold;
+      if (name === "get_file") return JSON.stringify({ taskId: "real-task", status: "done" });
       if (name === "write_file") return { ok: true };
       throw new Error("Unexpected provider operation");
     },
@@ -66,13 +66,13 @@ describe("creative provider boundary", () => {
       expect((await f.controller.start(input)).status).toBe("unknown");
     } finally { f.journal.close(); }
   });
-  test("video uses existing scaffold then daemon task and editable source", async () => {
+  test("video commissions existing skill and preserves its render task receipt", async () => {
     const f = fixture();
     try {
       const result = await f.controller.start({ requestId: id, project: "test-project", recipe: "video" });
-      expect(result).toMatchObject({ taskId: "real-task", source: `.hyperframes-cache/${id}/index.html` });
-      expect(f.calls.indexOf("write_file")).toBeLessThan(f.calls.findIndex(name => name.endsWith("/generate")));
-      expect(await f.controller.run(id)).toMatchObject({ status: "succeeded", file: "proof.mp4" });
+      expect(result).toMatchObject({ runId: "real-run", source: `.hyperframes-cache/${id}/index.html` });
+      expect(f.calls.filter(name => name === "start_run")).toHaveLength(1);
+      expect(await f.controller.run(id)).toMatchObject({ status: "succeeded", taskId: "real-task" });
     } finally { f.journal.close(); }
   });
   test("source traversal rejected before provider request", async () => {
