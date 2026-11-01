@@ -6,6 +6,7 @@ import { registerStreamDeckTools } from "./adapters/streamdeck/register";
 import { registerTwitchTools } from "./adapters/twitch/register";
 import { registerCreativeTools } from "./adapters/design/register";
 import { registerWorkerTools } from "./worker/register";
+import { registerGameTools } from "./adapters/igdb/register";
 
 export const UI_URI = "ui://stream-machine/workspace-v2.html";
 const descriptions: Record<ToolName, string> = {
@@ -44,6 +45,7 @@ export function createServer(html: string) {
   registerTwitchTools(server);
   registerCreativeTools(server);
   registerWorkerTools(server);
+  registerGameTools(server);
   server.server.onclose = () => {
     void Promise.allSettled([deck.close(), media.close()]).then(results => {
       if (results.some(result => result.status === "rejected")) process.stderr.write("Provider cleanup failed.\n");

@@ -9,13 +9,15 @@ const transport = new StdioClientTransport({ command: process.execPath, args: [s
 try {
   await client.connect(transport);
   const { tools } = await client.listTools();
-  assert.equal(tools.length, 31);
+  assert.equal(tools.length, 32);
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_clip"));
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_download_clip"));
   assert.ok(tools.some(tool => tool.name === "stream_machine_media_info"));
   const media = await client.callTool({ name: "stream_machine_media_info", arguments: { url: "https://youtu.be/BaW_jenozKc" } });
   assert.equal(media.isError, true);
   assert.ok(JSON.stringify(media).includes("MEDIA_PROVIDER_NOT_CONFIGURED"));
+  assert.ok(tools.some(tool => tool.name === "stream_machine_game_lookup"));
+  assert.equal((await client.callTool({ name: "stream_machine_game_lookup", arguments: { twitchCategoryId: "invalid" } })).isError, true);
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_profile" && tool.annotations?.readOnlyHint));
   assert.ok(tools.some(tool => tool.name === "stream_machine_obs_show_alert"));
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_apply_title"));
@@ -34,5 +36,5 @@ try {
   assert.ok("text" in resource.contents[0] && resource.contents[0].text.includes("Stream Machine"));
   await client.callTool({ name: "stream_machine_reset", arguments: {} });
   assert.equal((await client.callTool({ name: "stream_machine_preview", arguments: input })).isError, true);
-  console.log("PASS: 31 tools, isolated mock lifecycle, UI resource, and explicit real adapters");
+  console.log("PASS: 32 tools, isolated mock lifecycle, UI resource, and explicit real adapters");
 } finally { await client.close(); }

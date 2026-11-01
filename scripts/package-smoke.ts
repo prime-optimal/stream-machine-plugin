@@ -20,7 +20,7 @@ try {
     cwd: selected.cwd.replaceAll("${PLUGIN_ROOT}", root), stderr: "pipe",
   }), { timeout: 60_000 });
   const { tools } = await client.listTools();
-  assert.equal(tools.length, 31);
+  assert.equal(tools.length, 32);
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_profile" && tool.annotations?.readOnlyHint));
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_clip"));
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_download_clip"));
