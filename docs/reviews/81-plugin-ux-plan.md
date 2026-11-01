@@ -6,7 +6,7 @@ This review covers the proposal in [the UX plan](../plans/plugin-ux-2026-11-01.m
 
 Stream Machine baseline: `bc43ca8d5973ac9057a912cef84f444ef17a1bdb`. External MCP extensions baseline: `9e6d418439cca0790bece62f6cd886ad4c04f133` at `/Users/prime/Working/mcp-extensions`.
 
-The external checkout contains an unrelated untracked `plugins/bits-and-bolts.zip`. It was preserved. Read-only research found a host-support conflict: local `docs/spec.md:25` marks mentions supported on Work web, while [the public extension docs](https://developers.openai.com/plugins/build/extensions) say desktop only. Runtime verification must settle the target-host behavior.
+The external checkout contains an unrelated untracked `plugins/bits-and-bolts.zip`. It was preserved. Read-only research found a host-support conflict: local `docs/spec.md:25` marks mentions supported on Work browser, while [the public extension docs](https://developers.openai.com/plugins/build/extensions) say desktop only. Runtime verification must settle the target-host behavior.
 
 Source anchors verified during planning include `src/server.ts:9` for one UI resource, `src/ui/app.ts:100` for live and mock content on one page, `src/adapters/streamdeck/workspace.ts:30` for inventory limitations, `src/adapters/design/controller.ts:28` for constrained authoring, and `src/adapters/twitch/clips-service.ts:13` for authorized single-clip download. Existing native evidence at `docs/verification/46-native-host.md:57` leaves fullscreen, thread entrypoint, model context, and web untested.
 

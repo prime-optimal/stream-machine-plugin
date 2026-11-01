@@ -52,6 +52,20 @@ nouns:
       deprecated: [clip permission]
     - canonical: clip scopes
       deprecated: [clip permissions]
+    - canonical: Connect OpenDesign service
+      deprecated: [Connect design service]
+    - canonical: recent item
+      deprecated: [session reference]
+    - canonical: recent items
+      deprecated: [session references, recent-work references]
+    - canonical: recent item records
+      deprecated: [recent-work records]
+    - canonical: recent item model
+      deprecated: [recent-work model]
+    - canonical: recent item state
+      deprecated: [recent-work state]
+    - canonical: Work browser
+      deprecated: [Work web]
 rejected:
   - term: mock
     reason: Names the mock data layer and status value (status "mock" in catalog.ts); demo names the user-facing account.
@@ -93,3 +107,13 @@ rejected:
     reason: Creative job is a generation task; request ID identifies a call. Different things.
   - term: dependency
     reason: Dependency also means package, adapter, and local MCP dependencies across docs.
+  - term: workspace
+    reason: Workspace is a UI module with drafts; view is one screen.
+  - term: attempt
+    reason: Attempt is a retry of a request; job is already rejected.
+  - term: approval
+    reason: Approval is user consent; authorization is the resulting grant applied to a preview.
+  - term: response
+    reason: Response is generic; acknowledgment is a specific dispatch confirmation.
+  - term: creator
+    reason: Clipper made a clip; creator also means the streamer using the plugin.
