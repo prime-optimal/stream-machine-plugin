@@ -59,13 +59,13 @@ The task worktree had no local credential cache. Verification explicitly selecte
 
 ## Bundled host verification
 
-After the integration slot opened, `src/server.ts` added only the `registerGameTools` import and call. No sibling code or shutdown changes were copied. The branch contains 28 tools, not the combined sibling count.
+After the integration slot opened, `src/server.ts` added only the `registerGameTools` import and call. No sibling code or shutdown changes were copied. Before main reconciliation, this branch contained 28 tools, not the combined sibling count.
 
 On November 1, 2026 at 22:19:26 UTC, `tests/igdb-stdio.ts` launched `dist/server.js` through the MCP SDK stdio client. It discovered the tool and called category `33214`. The host received Fortnite text and `https://images.igdb.com/igdb/image/upload/t_cover_big/cocxbi.jpg`. [Sanitized host result](../verification/41-game-lookup.json) records the mapping and public metadata.
 
 The host was the MCP SDK Client on macOS, running Bun 1.4.4. This is bundled protocol-host proof, not a ChatGPT graphical view. No image was rendered or downloaded, so no graphical screenshot is claimed.
 
-Integration verification results:
+Verification before main reconciliation:
 
 - `mise run check`: exit 0.
 - `mise run test`: exit 0, 110 tests.
@@ -76,3 +76,11 @@ Integration verification results:
 - `mise exec -- fnox --non-interactive -c /Users/prime/Documents/ChatGPT/stream-machine-plugin/fnox.local.toml exec -- bun tests/igdb-stdio.ts`: exit 0.
 
 The last command used the existing primary checkout's age-encrypted cache. It did not copy credentials into the package. Keep #41 open and In Progress until the required PR merges. Cross-feature composition belongs to the coordinator; no sibling feature was cherry-picked.
+
+## Current main reconciliation
+
+The branch merged `origin/main` at `de577ad`, preserving #53's channel-profile tool. Both smoke scripts now expect 29 tools and check the profile and game tool names.
+
+After reconciliation, check, 116 tests, build, smoke, package, hooks, and packaged launch all exited 0. Package inspection covered 119 entries. The real bundled-stdio lookup also exited 0 at 22:21:45 UTC, again returning Fortnite text and its artwork reference. The committed JSON proof now records 29 tools.
+
+Only merge and epic-level composition remain. No feature from an unmerged sibling branch was copied.

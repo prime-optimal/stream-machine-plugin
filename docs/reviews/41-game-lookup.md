@@ -48,3 +48,11 @@ Check, 110 tests, build, smoke, package, packaged stdio launch, and real bundled
 For #42's next slot, retain the import from `./adapters/igdb/register` and the `registerGameTools(server)` call after worker registration. Add analytics registration separately and recompute combined smoke counts. Do not replace #40's media cleanup with this branch's older baseline handler.
 
 The PR remains unmerged. Issue #41 remains open and In Progress. No graphical evidence was produced; no screenshot is required for this text and URL output.
+
+## Reconcile current main
+
+Merged `de577ad` through merge commit `d60781b`, preserving the channel-profile feature. Resolved only the two smoke-script conflicts by keeping both features' assertions and setting the count to 29. The two-line server addition remains unchanged relative to current main.
+
+After reconciliation, check, 116 tests, build, smoke, package, hooks, packaged launch, and real bundled-stdio lookup exited 0. The refreshed JSON proof records the game text and artwork reference through the 29-tool host. Prior 28-tool results above describe the pre-merge branch.
+
+No force push, sibling cherry-pick, PR merge, or issue closure occurred. #42's next slot must preserve the game registration and profile assertions, plus #40's cleanup when combining branches.
