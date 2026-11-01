@@ -85,3 +85,7 @@ rejected:
     reason: Live controls also means overlay playback controls; preview server is the process, not the page.
   - term: job
     reason: Creative job is a generation task; request ID identifies a call. Different things.
+  - term: live
+    reason: Live also means broadcasts, live Twitch mode, and UI panels; too broad to map.
+  - term: check
+    reason: Check names mise run check and read checks; inspect means examining state.
