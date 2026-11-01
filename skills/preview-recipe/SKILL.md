@@ -1,6 +1,6 @@
 ---
 name: preview-recipe
-description: Preview a Stream Machine Twitch title or Stream Deck button, apply an explicitly authorized preview, or inspect the separate mock sample.
+description: Preview a Stream Machine Twitch title or Stream Deck button, apply an explicitly authorized preview, or inspect the separate mock demo.
 ---
 
 # Preview and run a selected demo
@@ -31,7 +31,7 @@ Do not claim the device while another demo process or Elgato app owns it. `strea
 
 ## Preview fictional data
 
-Use `stream_machine_open`, `stream_machine_list_recipes`, and `stream_machine_preview` for the mock sample. Offer `stream_machine_connect_demo` if that sample is disconnected.
+Use `stream_machine_open`, `stream_machine_list_recipes`, and `stream_machine_preview` for the mock demo. Offer `stream_machine_connect_demo` if that sample is disconnected.
 
 Mock results have `mode: mock` and `executable: false`. They cannot update Twitch or a device. Reset the sample only when requested.
 

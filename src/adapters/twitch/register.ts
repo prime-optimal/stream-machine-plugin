@@ -12,6 +12,7 @@ export function registerTwitchTools(server: McpServer, runtime?: LocalTwitchRunt
     stream_machine_twitch_status: { schema: z.object({}).strict(), description: "Validate real local Twitch connection and show account and scopes. No mock fallback." },
     stream_machine_twitch_connect: { schema: z.object({ manageBroadcast: z.boolean().default(false) }).strict(), description: "Start reused TwitchCon OAuth in local browser. Request broadcast scope only when explicitly requested." },
     stream_machine_twitch_channel: { schema: z.object({}).strict(), description: "Read connected broadcaster's real current title and category." },
+    stream_machine_twitch_profile: { schema: z.object({}).strict(), description: "Read connected account description, profile photo URL, and offline video-player image URL. Offline image is not a profile banner or header. No write." },
     stream_machine_twitch_preview_title: { schema: z.object({ title: z.string().min(1).max(280) }).strict(), description: "Preview exact connected-account title change, no write. Open returned approval URL to approve in browser." },
     stream_machine_twitch_apply_title: { schema: z.object({ previewId: z.string().uuid() }).strict(), description: "Apply browser-approved exact preview to connected broadcaster, recheck scope/current title and read back. Live mutation." },
   };
@@ -28,6 +29,7 @@ export function registerTwitchTools(server: McpServer, runtime?: LocalTwitchRunt
           result = { ...preview, approvalUrl: getRuntime()?.approvalUrl(preview.previewId) };
         } else if (name === "stream_machine_twitch_apply_title" && "previewId" in args) result = await service().apply(args.previewId);
         else if (name === "stream_machine_twitch_channel") result = await service().channel();
+        else if (name === "stream_machine_twitch_profile") result = await service().profile();
         else result = await service().status();
         return { content: [{ type: "text", text: JSON.stringify(result) }], structuredContent: { twitch: result } };
       } catch (error) {

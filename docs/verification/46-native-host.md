@@ -37,7 +37,7 @@ The installed package manifest at `/Users/prime/.codex/plugins/cache/created-by-
 ## Native action and observed result
 
 1. Called the installed `stream_machine_open` tool. The host opened a Stream Machine MCP App in this chat's side panel.
-2. Selected the existing app through the `mcpapps` surface. The document showed the five live-demo sections and a collapsed mock sample.
+2. Selected the existing app through the `mcpapps` surface. The document showed the five live-demo sections and a collapsed mock demo.
 3. Expanded **Mock preview · fictional account, no live changes**.
 4. Clicked **Use demo Twitch account**. The view showed **Sample Streamer is ready to explore.**
 5. Entered `Native host verification #46` in **Stream title** and selected **Street Fighter 6 (demo)**.
@@ -51,7 +51,7 @@ These clicks used the native MCP App document and its server-tool transport. No 
 
 The screenshot captures the visible document only. It includes the proposed title, category, preview button, and execution limit. It does not include the desktop sidebar.
 
-The mock sample remains connected in this plugin process. No reset was requested. The fictional preview is not a real Twitch account connection or title update.
+The mock demo remains connected in this plugin process. No reset was requested. The fictional preview is not a real Twitch account connection or title update.
 
 ## Host limits and untested features
 
