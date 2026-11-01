@@ -19,7 +19,7 @@ The command in `mcp.json` resolves optional private credentials with fnox, then 
 | `stream_machine_preview` | Returns proposed channel updates without applying them. |
 | `stream_machine_reset` | Disconnects the fictional account. |
 
-The server also registers three OBS tools, four USB Stream Deck tools, five Twitch tools, five creative tools, and four worker controls. `mise run smoke` verifies the current total of 27 and the mock boundary. The UI resource uses `text/html;profile=mcp-app`.
+The server also registers three OBS tools, four USB Stream Deck tools, six Twitch tools, five creative tools, and four worker controls. `mise run smoke` verifies the current total of 28 and the mock boundary. The profile read returns the connected account description, photo, and offline image. See the [Twitch profile reference](twitch-profile.md). The UI resource uses `text/html;profile=mcp-app`.
 
 ## State and limits
 
