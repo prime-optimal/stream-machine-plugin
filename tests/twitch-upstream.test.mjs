@@ -4,6 +4,60 @@ import {TwitchService,FOLLOWER_SCOPE} from '../src/auth/upstream/service.ts';
 import {decryptTokens,encryptTokens,randomState} from '../src/auth/upstream/crypto.ts';
 import {TwitchError} from '../src/auth/upstream/client.ts';
 import {fixture,key} from './twitch-helpers.mjs';
+import {createLocalTwitchRuntime} from '../src/auth/local-runtime.ts';
+test('clip permissions require explicit consent and an actual grant',async()=>{
+ const {store,client}=fixture(),service=new TwitchService(store,client);
+ const basic=await service.begin('owner');
+ assert.equal(new URL(basic.url).searchParams.get('scope'),'');
+ const start=await service.begin('owner',false,false,true);
+ assert.equal(new URL(start.url).searchParams.get('scope'),'channel:manage:clips');
+ assert.deepEqual(start.requestedScopes,['channel:manage:clips']);
+ await assert.rejects(service.complete('owner',start.state,start.state,'code',null),{code:'missing_permissions'});
+ assert.equal(await store.get('owner'),null);
+ client.scopes=['channel:manage:clips'];
+ const next=await service.begin('owner',false,false,true);
+ await service.complete('owner',next.state,next.state,'code',null);
+ assert.deepEqual((await service.status('owner')).scopes,['channel:manage:clips']);
+});
+test('scope upgrades preserve existing permissions in either order without duplicates',async()=>{
+ for(const firstClips of [false,true]){
+  const {store,client}=fixture(),service=new TwitchService(store,client);
+  client.scopes=[firstClips?'channel:manage:clips':'channel:manage:broadcast'];
+  const first=await service.begin('owner',false,!firstClips,firstClips);
+  await service.complete('owner',first.state,first.state,'code',null);
+  const next=await service.begin('owner',false,firstClips,!firstClips);
+  const expected=['channel:manage:broadcast','channel:manage:clips'];
+  assert.deepEqual(new URL(next.url).searchParams.get('scope').split(' '),expected);
+  assert.deepEqual(next.requestedScopes,expected);
+  client.scopes=expected;
+  await service.complete('owner',next.state,next.state,'code',null);
+  const repeat=await service.begin('owner',false,true,true);
+  assert.deepEqual(repeat.requestedScopes,expected);
+  const reconnect=await service.begin('owner');
+  assert.deepEqual(reconnect.requestedScopes,expected);
+ }
+});
+
+
+
+
+test('local connect exposes independent clip and broadcast permission flags',()=>{
+ const runtime=createLocalTwitchRuntime({TWITCH_CLIENT_ID:'test-client',TWITCH_CLIENT_SECRET:'test-secret',TWITCH_TOKEN_ENCRYPTION_KEY:key(),STREAM_MACHINE_TWITCH_STORE:':memory:'},fetch,0);
+ assert.ok(runtime);
+ try {
+  assert.equal(runtime.connect().requiredScope,'profile');
+  assert.deepEqual(runtime.connect().additionalScopes,[]);
+  const clips=runtime.connect(false,true);
+  assert.equal(clips.requiredScope,'channel:manage:clips');
+  assert.equal(new URL(clips.connectUrl).searchParams.get('clips'),'1');
+  assert.equal(new URL(clips.connectUrl).searchParams.has('manage'),false);
+  assert.deepEqual(clips.additionalScopes,['channel:manage:clips']);
+  const both=runtime.connect(true,true);
+  assert.equal(new URL(both.connectUrl).searchParams.get('manage'),'1');
+  assert.equal(new URL(both.connectUrl).searchParams.get('clips'),'1');
+  assert.deepEqual(both.additionalScopes,['channel:manage:broadcast','channel:manage:clips']);
+ } finally {runtime.close();}
+});
 
 async function connected(){const f=fixture();const service=new TwitchService(f.store,f.client);const started=await service.begin('owner');await service.complete('owner',started.state,started.state,'code',null);return {...f,service};}
 

@@ -3,6 +3,7 @@ import {TwitchClient,TwitchError,type Tokens} from './client';
 import type {Connection,ConnectionStore} from './store';
 
 export const FOLLOWER_SCOPE='moderator:read:followers';
+export const CLIP_SCOPE='channel:manage:clips';
 
 export class TwitchService {
   readonly store:ConnectionStore;
@@ -10,10 +11,11 @@ export class TwitchService {
   private now:()=>number;
   constructor(store:ConnectionStore,client:TwitchClient,now=()=>Date.now()) {this.store=store;this.client=client;this.now=now;}
 
-  async begin(ownerId:string,followers=false,manageBroadcast=false) {
-    const state=randomState(),scopes=[...(followers?[FOLLOWER_SCOPE]:[]),...(manageBroadcast?['channel:manage:broadcast']:[])];
+  async begin(ownerId:string,followers=false,manageBroadcast=false,manageClips=false) {
+    const previous=await this.store.get(ownerId);
+    const state=randomState(),scopes=[...new Set([...(previous?.scopes??[]),...(followers?[FOLLOWER_SCOPE]:[]),...(manageBroadcast?['channel:manage:broadcast']:[]),...(manageClips?[CLIP_SCOPE]:[])])].sort();
     await this.store.saveState(await stateHash(state),ownerId,scopes,this.now()+600000);
-    return {state,url:this.client.authorizationUrl(state,scopes)};
+    return {state,url:this.client.authorizationUrl(state,scopes),requestedScopes:scopes};
   }
 
   async complete(ownerId:string,state:string,cookie:string|null,code:string|null,error:string|null) {
