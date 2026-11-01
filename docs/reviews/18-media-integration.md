@@ -18,7 +18,7 @@ The [plan and coverage ledger](../plans/18-clips-and-games.md) records exact hea
 | Artifact safety | `src/adapters/twitch/clip-artifact.ts:9-13,43-88` restricts host, redirects, size, permissions, and partial cleanup. Live delivery remains unverified. |
 | Media isolation | `src/adapters/media/provider.ts:29-49,73-90` validates private configuration before lazy frontend start. Listener inspection is not authentication. |
 | Game authorization | `src/adapters/igdb/twitch-games.ts:24-49` reuses application tokens, independent of streamer OAuth. |
-| Metric arithmetic | `src/analytics/broadcast-duration.ts:33-70` validates duplicate IDs, unions intervals, intersects coverage, and exposes gaps. |
+| Metric arithmetic | `src/analytics/broadcast-duration.ts:33-64` validates duplicate IDs, unions intervals, intersects coverage, and exposes gaps. |
 | Combined shutdown | `src/server.ts:50-56` attempts both media and deck cleanup and sanitizes failures. |
 
 The read-only provider reviewer found no confirmed provider defect in reviewed paths. Integration retained all registrations, #53 profile, missing-media error checks, invalid game input checks, metric assertions, and mock isolation.
@@ -55,7 +55,7 @@ No OAuth flow, provider start, deployment, broadcast, automation, artwork downlo
 
 ## Retained worktrees and processes
 
-All ten worktrees remain. Initial inspection found no unrelated tracked or untracked edits. Ignored caches, exports, dependencies, and build products remain with their owners.
+All eleven worktrees remain at final inspection. Initial inspection found no unrelated tracked or untracked edits. Ignored caches, exports, dependencies, and build products remain with their owners.
 
 | Worktree | Owner and next step |
 | --- | --- |
@@ -65,7 +65,8 @@ All ten worktrees remain. Initial inspection found no unrelated tracked or untra
 | `feat/40-media-info` | #40 owner. Retain for private-provider verification. |
 | `feat/41-game-lookup` | #41 owner. Retain for review. |
 | `feat/42-streaming-metric` | #42 owner. Retain for review and source acceptance. |
-| Integration worktree | This task. Commit/push and confirm upstream match. |
+| Integration worktree | This task. Published as draft PR #80; retain for review. |
+| `stream-machine-ux-81`, `chore/81-plugin-ux-plan` at `bc43ca8` | Coordinator's new UX plan task. Clean at inspection; do not modify. |
 | `stream-machine-demo` | Demo owner. Worker PID 91601 uses this source; preserve. |
 | `stream-machine-native-46` | #46 owner. Preserve local-only commit `94371ca816406730c8df752991fcbd5bf1c159d9`; reconcile separately. |
 | `stream-machine-twitch-53` | #53 owner. Retain ignored cache and exports. |
@@ -74,4 +75,12 @@ Installed desktop plugin host groups rooted at PIDs 19122, 64056, and 91658 rema
 
 ## Published evidence and final handoff
 
-Pending final validation, push, draft PR, evidence publication, read-back, and clean upstream check.
+[Draft PR #80](https://github.com/prime-optimal/stream-machine-plugin/pull/80) is published. [Epic evidence comment](https://github.com/prime-optimal/stream-machine-plugin/issues/18#issuecomment-6564855503) was published as `prime-optimal` and read back through GitHub. The issue remains OPEN and board status remains In Progress. No screenshot is needed for this protocol-only change.
+
+Final functional validation held HEAD at `6c11b70adc9789872831ae1e29726952aff0b429` before and after. Check, 164 tests, build, package, package-smoke, and hooks exited 0. The final package contains 152 inspected entries after lifecycle docs were added. One smoke rebuild exited 1 with transient Bun resolution errors for installed `zod`; an unchanged-HEAD rerun exited 0 with 33 tools and the sample metric. Coordinator independently confirmed build and smoke at the same unchanged HEAD. No source change was made for this transient failure.
+
+Oracle review could not run. CLI returned `targetActivationMismatch`. MCP fallback reached the provider but aborted because an automatically included source-plan export resolved through the bound worktree to a missing file. Removing that stale export from selection did not resolve it. No Oracle review pass is claimed. Direct review, the separate read-only provider review, TLC, and executable checks remain the review evidence.
+
+After fetch, remote main advanced to `bc43ca8`; coordinator merged PR #76 at 22:30:41 UTC. This integration task did not merge any GitHub PR or modify the primary checkout. Other focused PRs remain independent. Do not infer that clip live acceptance is complete from its merge.
+
+Initial handoff check exited 1 solely because the two publication draft files remained untracked. They are included in the publication commit. The clean upstream check is rerun after its push.
