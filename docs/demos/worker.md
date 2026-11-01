@@ -41,6 +41,20 @@ Factory creates worker-owned provider connections. Reuse Twitch OAuth/token prov
 
 Parent MCP server can call `registerWorkerTools(server, {stateDir?})` from `src/worker/register.ts`. Tools forward status, arm, pause, and stop to existing worker. Tools do not load adapter modules or launch process. Host shutdown does not terminate detached worker.
 
+## Bind channel updates to alert source
+
+`createTwitchEventSource` in `src/events/eventsub.ts` supplies worker-owned WebSocket source. Pass verified account metadata `{userId,login?}` and `subscribe(request, {signal})` callback. Callback receives complete `ChannelUpdateSubscription` request body; use existing Twitch adapter's private `withAccount` callback to POST it to `https://api.twitch.tv/helix/eventsub/subscriptions`. Pass signal to fetch and reject non-success HTTP responses. Do not return or store token in source.
+
+Fixed subscription is `channel.update`, version `2`, with `condition.broadcaster_user_id` from verified account. Event needs no additional OAuth scope. WebSocket subscriptions require user access token; app token is invalid. See official [channel.update contract](https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelupdate) and [subscription authorization](https://dev.twitch.tv/docs/eventsub/manage-subscriptions/#authorization), checked 2026-11-01.
+
+Title, category, labels, or language changes can generate this event. Source formats alert text as `Channel updated: <title>`. Demo trigger can change channel title through existing authorized title tool; this source performs no title mutation.
+
+Source connects to `wss://eventsub.wss.twitch.tv/ws`. Welcome supplies session ID for subscription callback. Source reports online only after callback succeeds. Fresh connections subscribe again; server-requested reconnect transfers subscriptions without another POST. Source keeps old connection until replacement welcome, then ignores stale callbacks. Reconnect URL must retain Twitch's secure EventSub hostname and is used unchanged. See official [WebSocket lifecycle](https://dev.twitch.tv/docs/eventsub/handling-websocket-events/).
+
+Keepalive deadline comes from welcome. Notification or keepalive resets timer. Unexpected close, malformed frame, subscription failure, or timeout reports offline and retries with bounded backoff. Reconnect never rearms worker. Revocation stops connection without retry. Worker abort closes sockets and cancels retry. Source sends no data frames; WebSocket implementation handles protocol pong replies.
+
+`connect` and `retryDelayMs` injection options support real localhost socket tests. Live factory leaves both unset. No live endpoint selector or credentials appear in IPC.
+
 ## Interpret controls and failure behavior
 
 Worker starts paused. Arm checks source online, ledger capacity, and OBS readiness. Disconnect or reconnect pauses worker; new online signal does not rearm it. Explicit arm required again.
@@ -64,8 +78,10 @@ mise exec -- bun test
 mise exec -- bun run check
 ```
 
-All 15 tests pass. TypeScript check passes. Real subprocess test launches detached worker, observes launcher exit, dispatches synthetic event, checks socket permissions, rejects malformed/oversized requests, pauses, stops, restarts paused, and verifies persisted deduplication.
+All 21 tests pass. TypeScript check passes. Real subprocess test launches detached worker, observes launcher exit, dispatches synthetic event, checks socket permissions, rejects malformed/oversized requests, pauses, stops, restarts paused, and verifies persisted deduplication.
 
 Runtime tests cover concurrent events, pause during readiness/reservation, reconnect disarm, failed action without retry, stale/malformed events, corrupt ledger, and capacity failure.
+
+Six EventSub protocol tests use real localhost WebSocket connections and synthetic Twitch frames. They verify subscription body and online gate, broadcaster checks, nanosecond timestamp preservation, title normalization, reconnect transfer, keepalive expiry/fresh subscription, revocation, abort cleanup, cancellation during subscription, and reconnect-host rejection. No Twitch account or token participates in those tests.
 
 Evidence is synthetic. No subscribed Twitch event, real OBS alert, or actual chat-close session verified here. Those require integrated Twitch/OBS factory and separate live demo evidence for #38. Worker source/OBS connections must be independent of chat host before claiming integrated completion.
