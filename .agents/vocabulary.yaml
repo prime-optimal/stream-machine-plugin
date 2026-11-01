@@ -45,3 +45,7 @@ rejected:
     reason: Ordinary verb; confirm checks external state, verify checks own results. Too broad to map.
   - term: working tree
     reason: 'Git terms differ: working tree is files in a checkout; worktree is a linked checkout.'
+  - term: credential
+    reason: Credential covers tokens, files, bearer auth; secret names scanner and fnox values.
+  - term: child
+    reason: Child is RepoPrompt run terminology and also means child issues; not a synonym.
