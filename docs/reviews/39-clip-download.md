@@ -32,9 +32,11 @@ HEAD remained `9c5e2970b7dd693672292ee0b53c71c10f33c863` throughout validation. 
 
 ## Real acceptance limits
 
-The existing Twitch token store is present, but this worktree has no `fnox.local.toml` encrypted cache. Prerequisite existence checks returned 0 for the store and 1 for the cache. No secrets were printed, copied, refreshed, or added. No real authorization, scope validation, clip download, or playback occurred. Those acceptance criteria remain unmet. No playback screenshot exists to attach, and synthetic tests are not playback evidence.
+Initial prerequisite checks found the token store but no worktree-local encrypted cache. The user then authorized read-only use of the primary checkout's existing encrypted overlay, matching #41 setup provenance. `fnox --non-interactive -c /Users/prime/Documents/ChatGPT/stream-machine-plugin/fnox.local.toml exec` supplied credentials without copying or refreshing the cache.
 
-Next step: workstation owner provisions the approved encrypted cache, then verifies the existing account's clip grant. If missing, explicit consent is required. Download a broadcaster-owned clip and play the result before marking real acceptance complete.
+A read-only SQLite lookup decrypted the existing token in memory, then called Twitch token validation once. Exit 0 confirmed account `1494553296`, matching client and user identity, with only `channel:manage:broadcast`. `channel:manage:clips` was absent. No token refresh, new OAuth, source cache mutation, download, or playback occurred. Real account validation is verified, but clip consent, download, and playback remain unmet. No playback screenshot exists to attach.
+
+Next step: obtain explicit consent for `channel:manage:clips` through the existing OAuth flow. New OAuth was outside the follow-up authorization. Then download a broadcaster-owned clip, play the result, and publish visual evidence before marking real acceptance complete.
 
 ## Retained worktrees and processes
 
@@ -46,4 +48,6 @@ Demo worker PID `91601` runs from `stream-machine-demo/src/worker/main.ts` with 
 
 ## Issue evidence
 
-Keep #39 open and Board status `In Progress` while the PR awaits review and merge and real acceptance remains unmet. Preserve unchecked real acceptance criteria. Publish command exits and these limitations in a new issue comment, then read it back. No merge or issue close is authorized.
+[PR #76](https://github.com/prime-optimal/stream-machine-plugin/pull/76) contains implementation commit `9abfe617d2e766fae3790db07c414c97b82b80a1`. [Published issue evidence](https://github.com/prime-optimal/stream-machine-plugin/issues/39#issuecomment-6564710998) was read back successfully. [Follow-up account evidence](https://github.com/prime-optimal/stream-machine-plugin/issues/39#issuecomment-6564721088) corrects the initial cache blocker and records the verified missing clip grant. That comment was also read back. No visual attachment is claimed because real playback remains unverified.
+
+The read-back confirmed #39 `OPEN` and Board status `In Progress`. Real acceptance checkboxes remain unchecked. PR remains unmerged. After push and fetch, `mise run git:handoff` returned 0 and confirmed a clean worktree matching upstream. GitHub reports PR merge state `DIRTY` against current main. The integration owner must reconcile branch changes, including the authorized smoke inventory conflict. This task does not overwrite sibling integration files or merge. No issue close is authorized.

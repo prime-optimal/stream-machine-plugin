@@ -30,4 +30,6 @@ The official example names `production.assets.clips.twitchcdn.net`. This impleme
 
 ## Verification limits
 
-Synthetic fetch, temporary filesystem, OAuth, and in-memory MCP tests verify local boundaries. They do not establish real OAuth consent, official download access, playable Twitch media, or native-host playback. No new real account authorization, clip download, or playback has been performed for #39. The existing token store is present, but this worktree lacks the required `fnox.local.toml` encrypted cache. No credential refresh, cache copy, or authorization request was made. Real consent, scope validation, download, and playback remain unmet.
+Synthetic fetch, temporary filesystem, OAuth, and in-memory MCP tests verify local boundaries. They do not establish real OAuth consent, official download access, playable Twitch media, or native-host playback. At 2026-11-01 verification, the authorized existing primary encrypted overlay supplied credentials read-only. A read-only token-store lookup and Twitch validation returned exit 0 for account `1494553296`. Its only granted scope was `channel:manage:broadcast`; `channel:manage:clips` was absent. No cache copy, source cache mutation, token refresh, or new OAuth request occurred.
+
+Real account validation is verified. Clip consent, authorized download, and playback remain unmet because the existing account lacks the required clip grant. Obtain explicit clip consent before running the download procedure. No playback screenshot is claimed.
