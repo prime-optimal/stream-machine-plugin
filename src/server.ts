@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/server";
 import { DemoWorkspace, schemas, toolResult, type ToolName } from "./domain";
+import { registerMediaTools } from "./adapters/media/register";
 import { registerObsTools } from "./adapters/obs/register";
 import { registerStreamDeckTools } from "./adapters/streamdeck/register";
 import { registerTwitchTools } from "./adapters/twitch/register";
@@ -37,12 +38,17 @@ export function createServer(html: string) {
       return { ...result, content: [{ type: "text" as const, text: "Stream Machine workspace opened. The sample data is mock-only. Use the Twitch, OBS, Stream Deck, creative, and worker tools for real status and explicit actions." }] };
     });
   }
+  const media = registerMediaTools(server);
   registerObsTools(server);
   const deck = registerStreamDeckTools(server);
   registerTwitchTools(server);
   registerCreativeTools(server);
   registerWorkerTools(server);
-  server.server.onclose = () => { void deck.close().catch(() => process.stderr.write("Stream Deck cleanup failed.\n")); };
+  server.server.onclose = () => {
+    void Promise.allSettled([deck.close(), media.close()]).then(results => {
+      if (results.some(result => result.status === "rejected")) process.stderr.write("Provider cleanup failed.\n");
+    });
+  };
   server.registerResource("stream-machine-workspace", UI_URI, {
     mimeType: "text/html;profile=mcp-app",
   }, async () => ({
