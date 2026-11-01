@@ -13,7 +13,7 @@ function fixture() {
       if (name === "list_plugins") return { plugins: [{ id: "stream-overlay-authoring" }] };
       if (name === "start_run") return { runId: "real-run" };
       if (name === "get_run") return { status: "succeeded" };
-      if (name === "list_files") return { files: [{ name: "weekend-camera-v1/index.html", size: 100 }, { name: "stream-machine-proof.mp4", size: 500 }] };
+      if (name === "list_files") return { files: [{ name: "weekend-camera-v1/index.html", size: 100 }, { name: "stream-machine-proof.mp4", size: 500 }, { name: "creative-video-task.json", size: 100 }] };
       if (name === "get_file") return JSON.stringify({ taskId: "real-task", status: "done" });
       if (name === "write_file") return { ok: true };
       throw new Error("Unexpected provider operation");
@@ -86,6 +86,16 @@ describe("creative provider boundary", () => {
       const result = await f.controller.run(id);
       expect(result).toMatchObject({ status: "failed", failureCode: "RENDERER_UNAVAILABLE", taskId: "failed-task" });
       expect(result.file).toBeUndefined();
+    } finally { f.journal.close(); }
+  });
+  test("no-output authoring success is failed without attempting nonexistent receipt", async () => {
+    const f = fixture();
+    const original = f.provider.call;
+    f.provider.call = async (name, args) => name === "list_files" ? { files: [] } : original(name, args);
+    try {
+      await f.controller.start({ requestId: id, project: "test-project", recipe: "video" });
+      expect(await f.controller.run(id)).toMatchObject({ status: "failed", failureCode: "AUTHORING_INCOMPLETE" });
+      expect(f.calls).not.toContain("get_file");
     } finally { f.journal.close(); }
   });
   test("unusable localhost delivery URL is omitted", async () => {
