@@ -1,0 +1,350 @@
+## Final Prompt
+<taskname="Live Demo Dashboard"/>
+
+<task>Implement a UI-only explicit live demo dashboard above the existing mock Stream Machine preview. Own `src/ui/app.ts`, `src/ui/style.css`, and a new `src/ui/live-demos.ts` helper. Support native `app.callServerTool` and standalone local `POST /api/tool` transport. Include safe OBS preflight/alert replay; Stream Deck inventory, preview, apply, release; Twitch connect/status/title approval; creative project/run once/poll; worker status/arm/pause/stop. Never perform automatic writes, collect secrets, render raw JSON, or insert provider HTML. Preserve the existing mock handler only for mode `mock`. Backend adapters may be absent from this checkout, so build clear small UI cards and summarize known result fields.</task>
+
+<architecture>The current UI is a single host-neutral MCP App/browser-preview implementation in `src/ui/app.ts`. It owns a mock snapshot, starts by calling `stream_machine_open`, routes calls through host bridge or standalone `/api/tool`, then renders one full-page `innerHTML` template. The same file contains draft handling, safe HTML escaping, mock result validation, host theme/safe-area integration, and event wiring. `style.css` supplies dark/light responsive presentation. `index.html` embeds bundled CSS and JS via placeholders; `scripts/build.ts` bundles only `src/ui/app.ts`, inlines CSS, and embeds it in app HTML. `src/preview.ts` implements a loopback-only demo server and only uses `DemoWorkspace`/`toolResult`; `src/domain.ts` defines strict mock tool schemas and returns `mode: mock` snapshots. `src/server.ts` registers six mock tools. Architecture docs describe live integrations as proposed and emphasize action-specific permission checks, server-side write checks, no secret exposure, and separation of provider authentication.</architecture>
+
+<selected_context>
+src/ui/app.ts: Full current UI, transport dispatch, mock-only result acceptance, escaping/rendering and host bridge behavior; primary edit target.
+src/ui/style.css: Full visual system, responsive layout, component styles; primary edit target.
+src/ui/index.html: Bundler template mounting single entrypoint.
+src/server.ts: Current MCP registration has only six mock tools; live tools may not yet exist.
+src/domain.ts: Strict mock schemas and `mode: mock` result shape; mock handler contract to preserve.
+src/catalog.ts: Mock capability, category, and recipe definitions displayed by existing UI.
+src/preview.ts: Standalone `/api/tool` route and loopback safety constraints.
+scripts/build.ts: UI bundling entrypoint; new helper must be imported by app entry to bundle.
+AGENTS.md: Repo rules: UI scope, security and integration constraints, source limits.
+docs/architecture.md: Current vs proposed architecture, auth boundary, safe execution principles.
+docs/integrations.md: OBS/Deck/Twitch/OpenDesign integration constraints; write boundaries and first safe checks.
+docs/roadmap.md: Intended demo milestones and UI-related planned ownership.
+</selected_context>
+
+<relationships>
+- `app.ts` → `App.callServerTool` in host or `/api/tool` in standalone preview.
+- Standalone route → `toolResult` → `DemoWorkspace.invoke`; only mock tool names currently registered.
+- `app.ts` → `stream_machine_open` → validates strictly `mode: mock` and renders recipes/preview.
+- `scripts/build.ts` → bundles `src/ui/app.ts`; imported `live-demos.ts` is included automatically.
+- Existing `style.css` is inlined into `index.html` build output.
+- Live action state and result summaries need separation from `Snapshot` mock model so live responses do not break the mock flow.
+- Never expose credentials, provider raw JSON or HTML; render known fields through escaping/text-only DOM behavior.
+</relationships>
+
+<ambiguities>Exact live tool names and structured result schemas are not present in this checkout; backend adapters are expected in a parent checkout. Inspect available returned data conservatively and show clear unavailable/unsupported states. UI should remain useful if some tools are absent. The requested OBS scope is safe preflight and alert replay; do not expose broadcast start/stop controls.</ambiguities>
+
+## Selection
+- Files: 12 total (12 full)
+- Total tokens: 21210 (Auto view)
+- Token breakdown: full 21210
+- Token accounting: fresh from active_tab_published
+
+### Files
+### Selected Files
+├── docs/
+│   ├── architecture.md — 3,625 tokens (full)
+│   ├── integrations.md — 3,235 tokens (full)
+│   └── roadmap.md — 2,597 tokens (full)
+├── scripts/
+│   └── build.ts — 296 tokens (full)
+├── src/
+│   ├── ui/
+│   │   ├── app.ts — 3,663 tokens (full)
+│   │   ├── index.html — 97 tokens (full)
+│   │   └── style.css — 4,268 tokens (full)
+│   ├── catalog.ts — 581 tokens (full)
+│   ├── domain.ts — 1,173 tokens (full)
+│   ├── preview.ts — 396 tokens (full)
+│   └── server.ts — 578 tokens (full)
+└── AGENTS.md — 701 tokens (full)
+
+
+---
+
+## Generated Plan
+
+## Chat Send ✅
+- **Chat**: `live-demo-dashboard-610A87` | **Mode**: plan
+
+### Response
+Plan target: `docs/live-demo-dashboard-plan.md`. Not written: text-only session forbids tool calls.
+
+# 1. Summary
+
+Add explicit live-demo dashboard above existing mock workspace. Touch only `src/ui/app.ts`, `src/ui/style.css`, new `src/ui/live-demos.ts`. Reuse transport, escaping, host integration, build pipeline. Keep live state separate from mock `Snapshot`; route mock responses only when `mode === "mock"`. Every provider write requires deliberate user action. Missing adapters produce card-local unavailable states, never mock success. Targeted change fits existing architecture; no backend framework or domain refactor.
+
+# 2. Current-state analysis
+
+## Existing responsibilities and flow
+
+- `src/ui/app.ts` owns MCP `App`, OpenAI extensions, mock snapshot, drafts, global `busy`, errors, rendering, event binding.
+- Startup calls `stream_machine_open`; native host can also supply results through `app.ontoolresult`.
+- `call()` sends requests through:
+  - Native: `app.callServerTool({ name, arguments })`.
+  - Standalone: same-origin `POST /api/tool`.
+- `accept()` assumes every successful response contains mock snapshot. Live responses currently fail validation.
+- `render()` replaces entire `#app` subtree. Any new live controls must preserve their values in JavaScript state before rerendering.
+- Mock actions mutate process-local `DemoWorkspace.connected`; previews remain temporary response data.
+- Standalone backend registers only mock tools. Live requests currently return structured `UNKNOWN_TOOL`.
+- `scripts/build.ts` bundles imports from `app.ts`; new helper needs no build configuration.
+- Host theme and safe-area properties apply document-wide; dashboard should reuse existing CSS variables.
+
+## Reuse and boundaries
+
+Reuse `escape()`, native bridge, local endpoint, existing typography and panel styling. Preserve mock recipe controls, validation, reset behavior, model-context updates.
+
+Do not change server registration, authentication, persistence, provider adapters, or loopback security. UI confirmation cannot replace backend ownership, permission, expiry, or target validation.
+
+**Unknown:** live names and schemas are absent. Contract below is proposed UI integration contract, not verified backend API. Parent-checkout compatibility requires validation before claiming live success. Never probe alternate names or retry writes against guessed aliases.
+
+# 3. Design
+
+## A. Transport and response ownership — `app.ts`
+
+Extract existing transport branch into internal asynchronous function:
+
+- New interface: `requestTool(name, args): Promise<ToolResult>`.
+- Sends exactly one request.
+- Standalone checks HTTP status and parses JSON.
+- Native calls existing bridge.
+- Performs no rendering, mock acceptance, context updates, or retries.
+
+Keep existing mock `call(name, args): Promise<void>` interface and callers unchanged. It uses `requestTool()` but retains mock draft capture, busy state, reset semantics, errors, and context updates.
+
+Pass `requestTool` into live controller. Live actions never pass through mock `call()`.
+
+### Routing
+
+Replace unconditional host-result acceptance with explicit classification:
+
+1. Structured `mode === "mock"` plus error: handle existing mock error.
+2. Structured `mode === "mock"` plus snapshot: existing `accept()`.
+3. Recognized live result: live controller’s passive result handler.
+4. Anything else: ignore; do not replace mock snapshot.
+
+Direct live-call errors belong to initiating card even when standalone backend returns `{ mode: "mock", error: { code: "UNKNOWN_TOOL" } }`. Transport caller determines ownership before inspecting result mode.
+
+Unsolicited host live results may update safe display summaries only. They must not authorize apply, replay, run, release, or arm actions.
+
+## B. Live controller — `src/ui/live-demos.ts`
+
+Use module-level types and one controller factory; no framework or provider registry.
+
+Partial interface:
+
+```ts
+createLiveDashboard({ requestTool, invalidate, escape })
+  → { render, bind, captureDrafts, acceptHostResult, dispose }
+```
+
+- `render()` returns escaped dashboard markup.
+- `bind(container)` attaches listeners after parent render.
+- `captureDrafts(container)` saves current control values.
+- `invalidate()` requests parent render.
+- `acceptHostResult()` accepts recognized, display-only summaries.
+- `dispose()` clears polling timers and invalidates pending completions.
+
+`app.ts` creates one controller instance. Helper imports no SDK and owns no host connection.
+
+### Owned state
+
+Five cards: `obs`, `deck`, `twitch`, `creative`, `worker`.
+
+Each owns:
+
+- Phase: `idle | pending | ready | unavailable | unsupported | error | uncertain`.
+- Current operation, sanitized summary, typed drafts.
+- Operation generation counter for stale-response rejection.
+- Validated target identifiers and prerequisite results.
+- Local confirmation state tied to exact current target and inputs.
+
+Controller also owns global mutation lock: at most one live write request in flight. Reads on unrelated cards remain allowed. Same-card operations remain serialized.
+
+No local storage, cookies, credentials, or persisted approvals.
+
+Before every parent rerender, capture mock and live drafts. Render itself must not initiate requests.
+
+### Proposed tool contract
+
+Centralize exact names and argument construction in helper. These names are assumptions requiring parent-adapter validation.
+
+| Action | Tool | Arguments |
+|---|---|---|
+| OBS preflight | `stream_machine_obs_preflight` | Empty |
+| OBS alert replay | `stream_machine_obs_alert_replay` | `targetId`, `alertId` from validated preflight |
+| Deck inventory | `stream_machine_streamdeck_inventory` | Empty |
+| Deck preview | `stream_machine_streamdeck_preview` | Selected `profileId`, `actionId`, `slotId` |
+| Deck apply | `stream_machine_streamdeck_apply` | Validated `previewId` |
+| Deck release | `stream_machine_streamdeck_release` | Validated `leaseId` |
+| Twitch connect | `stream_machine_twitch_connect` | Empty; initiates existing authorization flow only |
+| Twitch status | `stream_machine_twitch_status` | Empty |
+| Twitch title preview | `stream_machine_twitch_title_preview` | Validated `accountId`, trimmed `title` |
+| Twitch title apply | `stream_machine_twitch_title_apply` | Validated `previewId` |
+| Creative project | `stream_machine_creative_project` | User-entered `projectId`; lookup only |
+| Creative run once | `stream_machine_creative_run_once` | Validated `projectId`, `kind`, trimmed `brief` |
+| Creative poll | `stream_machine_creative_run_status` | Validated `runId` |
+| Worker status | `stream_machine_worker_status` | Empty |
+| Worker arm | `stream_machine_worker_arm` | Validated `workerId`, `configurationId` |
+| Worker pause | `stream_machine_worker_pause` | Validated `workerId` |
+| Worker stop | `stream_machine_worker_stop` | Validated `workerId` |
+
+Creative `kind` has exactly two values: `asset | hyperframes`.
+
+No arbitrary tool-name input, arbitrary argument editor, alias fallback, or direct provider forwarding.
+
+### Live result contract and normalization
+
+Recognized envelope:
+
+- `mode: "live"`.
+- `demo: "obs" | "streamdeck" | "twitch" | "creative" | "worker"`.
+- Operation-specific known fields.
+
+Treat `structuredContent` as untrusted `unknown`. Validate plain records, bounded strings, enum values, booleans, finite numbers, arrays. Never spread provider objects into UI state.
+
+Distinguish:
+
+- Recognized safe fields present: show partial summary.
+- Required prerequisite fields absent: show summary, disable dependent action.
+- Successful but unrecognized response: “Unsupported adapter response.”
+- Unknown/missing tool: “Adapter unavailable in this checkout.”
+- Other tool/transport failure: fixed local error copy.
+- Ambiguous write outcome: `uncertain`; require explicit status refresh, no retry.
+
+Do not display provider `content`, raw error messages, raw JSON, HTML, tokens, headers, connection URLs, or generic metadata.
+
+Allowlisted summary fields:
+
+| Card | Fields |
+|---|---|
+| OBS | Connection enum, target/source name, `targetId`, `alertId`, `safeToReplay`, replay outcome |
+| Deck | Bounded profile/action/slot lists, test-profile flag, preview ID, target labels, application-interruption flag, lease ID, applied/released outcome |
+| Twitch | Connection enum, account ID/display name, `canManageTitle`, current title, preview ID, proposed title, optional expiry, applied/readback title |
+| Creative | Project ID/name, isolated-project flag, run ID/status, artifact name/type, duration, width, height |
+| Worker | Worker ID, configuration ID, state, readiness flag, target label, heartbeat timestamp |
+
+Limit lists to 20 entries; labels to 160 characters. Titles max 140, briefs max 2,000. Reject overlong identifiers rather than truncating identifiers used in requests.
+
+Render labels through shared escaping. No provider HTML or provider-derived links. Artifact summaries show metadata only.
+
+## C. Card behavior
+
+### OBS
+
+- Initial button: **Check OBS**. No startup preflight.
+- Enable **Replay test alert** only after explicit preflight returns `safeToReplay: true`, `targetId`, `alertId`.
+- Confirmation names dedicated test source and alert.
+- Replay sends one request, then invalidates replay readiness. Another replay requires new preflight.
+- Never expose broadcast, recording, scene-switch, arbitrary text injection, or automation-start controls.
+
+### Stream Deck
+
+- **Load inventory** explicitly reads profiles, installed actions, eligible slots.
+- Only profiles explicitly marked test profiles can become write targets.
+- Selection changes invalidate previous preview and confirmation.
+- **Preview button** performs no device/profile write.
+- Preview summary names profile, slot, action and whether Elgato must quit/restart.
+- **Apply preview** requires explicit acknowledgment of exact target and interruption.
+- **Release** appears only for validated lease ID; separate confirmation explains release affects adapter-held test-session resources.
+- Never offer profile deletion, arbitrary scripts, or active-profile modification.
+- Missing test-profile/interruption/lease semantics disables corresponding unsafe action rather than inferring safety.
+
+### Twitch
+
+- **Connect Twitch** explicitly starts existing provider flow; no token, password, client-secret, or OAuth-code inputs.
+- UI does not navigate to arbitrary returned URLs. If adapter requires browser authorization unavailable through host-managed flow, show “Complete existing Twitch authorization, then refresh status.”
+- **Refresh status** establishes account and title permission.
+- Title edit invalidates prior preview.
+- **Review title** requests read-only preview.
+- Approval summary shows exact account, old title, proposed title.
+- **Approve title change** requires fresh preview, unchanged draft/account, explicit checkbox, unexpired preview when expiry supplied.
+- After apply, show returned readback only when supplied. Otherwise show “Submitted; refresh status to verify.” Never claim verified change from submission alone.
+
+### Creative
+
+- Project ID field plus **Load project**; never automatically create projects.
+- Run enabled only for explicitly isolated test project.
+- Select asset or HyperFrames, enter brief, then confirm **Run once**.
+- One click sends one run request; never auto-resubmit after timeout.
+- Valid run ID enables **Check run** and optional **Start polling**.
+- Polling requires explicit click; read-only status request every five seconds, scheduled after preceding request settles.
+- Stop polling on terminal status, first error, ten minutes, page hide, or explicit **Stop polling**.
+- Run statuses: `queued | running | succeeded | failed | cancelled`.
+- No run-cancel control unless backend contract later adds one.
+
+### Worker
+
+- **Refresh worker status** first.
+- Arm requires validated worker/configuration IDs, explicit readiness and target summary.
+- Separate confirmed **Arm**, **Pause**, **Stop worker** controls.
+- Label stop “Stop worker — not OBS broadcast.”
+- State-specific availability:
+  - `paused`: arm.
+  - `armed`: pause or stop.
+  - `stopped | unknown`: no mutation; refresh only.
+- Never auto-arm on load, reconnect, successful status, or creative completion.
+
+## D. Concurrency, failures, lifecycle
+
+All state updates occur on browser event loop.
+
+- Each operation captures generation and relevant IDs/drafts.
+- Ignore responses from obsolete generations; poll results cannot overwrite newer mutations.
+- No write retries, including network failures.
+- Lost write response marks uncertain outcome and clears confirmation.
+- Read failures preserve previous summary but mark it stale; stale prerequisites cannot enable writes.
+- Missing adapter disables actions in that card; explicit **Retry availability** reruns its safe read.
+- Mock Reset affects mock workspace only; does not release Deck resources, pause worker, disconnect Twitch, or clear live results.
+- `pagehide` disposes timers. In-flight writes may still complete server-side; never imply cancellation.
+- Editing controls during unrelated activity preserves drafts. Same-card pending operation disables its controls.
+
+## E. Presentation and accessibility
+
+Insert dashboard after existing intro, before mock progress/connection section. Include heading:
+
+**Live demos** — “Real services. Actions run only when you click. Adapters may be unavailable.”
+
+Give existing section explicit **Mock workspace** heading and retain fictional-data labels.
+
+CSS:
+
+- Prefix new classes `live-`.
+- Two-column card grid on desktop; one column at existing 720px breakpoint.
+- Reuse theme variables, border treatment, focus styles, reduced-motion rule.
+- No nested forms.
+- Named card headings, associated labels, inline confirmations.
+- Per-card status region uses `role="status"`; errors use `role="alert"`.
+- Preserve focused live control and text selection across full rerenders when control remains enabled.
+- Missing adapter presents local explanation, not page-wide error.
+
+# 4. File-by-file impact
+
+| File | Changes | Dependencies |
+|---|---|---|
+| `src/ui/live-demos.ts` — new | Controller, state types, fixed tool mapping, validators, summaries, cards, bindings, confirmations, polling lifecycle | Shared transport and render callback supplied by `app.ts` |
+| `src/ui/app.ts` | Extract `requestTool`; retain mock `call`; add mode-aware host routing; instantiate controller; capture drafts/focus; insert dashboard; bind/dispose controller | Helper interface |
+| `src/ui/style.css` | Namespaced dashboard, card, status, confirmation, action-row, responsive styles | New helper markup |
+
+Unchanged: `index.html`, build script, domain, server, preview backend, catalog, manifests, architecture documents.
+
+# 5. Risks and migration
+
+No stored-data migration or existing mock API change.
+
+**Integration blocker:** supplied checkout cannot perform live actions. Proposed names, arguments, envelopes, test-profile markers, lease semantics and authorization behavior must match parent adapters. Validate against adapter registrations and representative sanitized fixtures. Mismatch remains visibly unsupported; do not weaken checks or add guessed fallback calls.
+
+UI approval cannot ensure provider safety. Backend must independently enforce caller ownership, test targets, permissions, plan validity and write authorization.
+
+# 6. Implementation order
+
+1. Validate parent-adapter contracts. Record accepted names and sanitized fixtures under implementation issue; unresolved cards remain unsupported.
+2. Extract transport without changing mock behavior. Verify mock open/connect/preview/reset through both transports.
+3. Add helper validators and idle/read-only cards. Verify missing tools, malformed results, hostile strings and partial summaries.
+4. Add prerequisite-bound confirmations and write handlers. Verify double clicks produce one request; failures never retry.
+5. Add creative polling and lifecycle cleanup. Verify no overlap, terminal stop, timeout, page-hide stop and stale-response rejection.
+6. Land dashboard integration and CSS together. Verify light/dark, narrow viewport, keyboard focus, draft preservation and mock/live isolation.
+7. Run `mise run check`, `mise run test`, `mise run build`, `mise run smoke`. Browser-check missing-adapter behavior; separately verify native host transport with available adapters.
+
+Acceptance: startup performs existing mock open only; no automatic live reads or writes. No raw provider output reaches DOM. No live response corrupts mock snapshot. No unavailable adapter implies connected or successful state.
+
+
+> 💡 Continue this plan conversation with ask_oracle(chat_id: "live-demo-dashboard-610A87", new_chat: false). In Agent Mode, continuation requires the run that created this chat; after that run changes, start a new chat instead.

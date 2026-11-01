@@ -1,0 +1,240 @@
+## Final Prompt
+<taskname="Integrate demos"/>
+<task>Integrate independently implemented OBS, Stream Deck, Twitch, OpenDesign/HyperFrames, and local-worker demos into this plugin and native/local UI. Keep mock mode explicit and keep prototypes minimal. User authorizes disposable OBS layout and fresh 15-key Stream Deck. Do not broadcast or record. OAuth must reuse existing Twitch source locally, callback exactly localhost:4017, and require browser approval before title changes. Own only root-owned files; adapters are agent-owned and provide expected exports. Provide an actionable, concise implementation with required existing-code changes only; no broad framework/architecture work.</task>
+
+<architecture>Current package has one bundled stdio MCP server (`src/server.ts`), built UI (`src/ui/app.ts`), and a loopback-only local browser preview (`src/preview.ts`). Both server and preview currently invoke mock-only `DemoWorkspace`/`toolResult`. UI validates mock-only `Snapshot`, labels all capability placeholders, and standalone mode posts to `/api/tool`. Build bundles UI then stdio entrypoint; package copies `dist`, docs, plugin metadata, skills. Existing plugin is stdio-only per `mcp.json`. Integrations belong as thin wrappers around independently implemented adapter modules. Reuse existing Twitch OAuth and OpenDesign service/workflow; avoid replacement systems.</architecture>
+
+<selected_context>
+src/server.ts: Existing six mock tools and UI resource registration; root-owned entrypoint to register real tools.
+src/stdio.ts: Bundled stdio startup.
+src/domain.ts, src/catalog.ts: Mock state, schemas, tool names, capability catalog; preserve visibly explicit mock path.
+src/preview.ts: Loopback API currently directly calls mock dispatcher; must instead reach the actual registered tools.
+src/ui/app.ts, src/ui/style.css, src/ui/index.html: Native and standalone UI, currently mock-only response types and placeholder adapter panel.
+scripts/build.ts, scripts/package.ts, scripts/smoke.ts: Bundling, package inclusion/validation, stdio smoke coverage.
+mise.toml, package.json, tsconfig.json, mcp.json: Tasks, dependencies, TS configuration, plugin server declaration.
+tests/domain.test.ts: Existing mock contract coverage.
+AGENTS.md: Repo implementation rules, ownership conventions, safety boundaries.
+docs/roadmap.md: V1 demo acceptance and ownership/dependencies.
+docs/integrations.md: Existing adapter constraints and safe actions.
+docs/reuse-evidence.md: Existing Twitch OAuth details, OpenDesign endpoint/workflow, prior evidence and current connection caveat.
+docs/architecture.md, docs/decisions.md: Current mock architecture and minimal-prototype decisions.
+skills/onboarding/SKILL.md, skills/preview-recipe/SKILL.md: User-facing descriptions that may require accuracy updates after integration.
+docs/verification.md: Historical mock-only verification statements; distinguish current from prior acceptance.
+</selected_context>
+
+<relationships>
+- `src/stdio.ts` → `createServer()` in `src/server.ts` → existing mock tools/resource.
+- `src/preview.ts` → separate `DemoWorkspace` → `/api/tool` → standalone `src/ui/app.ts`; this bypass must be redirected to the same real registered tool handlers.
+- `src/ui/app.ts` currently accepts only `{mode:"mock"}` snapshots; adding live demo panels needs explicit live/mock distinction and must avoid exposing tokens in UI or logs.
+- Adapter contracts supplied by parallel owners: `src/adapters/obs/register.ts` exports `registerObsTools` plus `obsPreflight`/`obsShowAlert`; `src/adapters/streamdeck/register.ts` exports `registerStreamDeckTools`, returns `workspace.close`; `src/adapters/twitch/register.ts` exports `registerTwitchTools` and internal account provider; `src/adapters/design/register.ts` exports `registerCreativeTools`; `src/worker/register.ts` exports `registerWorkerTools` plus standalone worker.
+- Build/package must include/bundle the new modules and any runtime dependencies; inspect adapter implementations for exact imports and lifecycle needs.
+- No UI or tool output may carry account tokens. OBS actions must never start/stop broadcasts or recording.</relationships>
+
+<ambiguities>Adapter internals and exact tool names/schemas are not included here because adapters are independently owned; inspect their files when available and wrap only their exported registration APIs. OpenDesign tools previously returned `Transport closed`; verify connection status without treating that as proof service is down. Worker tool registration and standalone worker have different lifecycle/entrypoint needs. Keep native UI and local preview behavior aligned.</ambiguities>
+
+## Selection
+- Files: 25 total (25 full)
+- Total tokens: 30305 (Auto view)
+- Token breakdown: full 30305
+- Token accounting: fresh from active_tab_published
+
+### Files
+### Selected Files
+├── docs/
+│   ├── architecture.md — 3,625 tokens (full)
+│   ├── decisions.md — 1,648 tokens (full)
+│   ├── integrations.md — 3,235 tokens (full)
+│   ├── reuse-evidence.md — 2,465 tokens (full)
+│   ├── roadmap.md — 2,597 tokens (full)
+│   └── verification.md — 949 tokens (full)
+├── scripts/
+│   ├── build.ts — 296 tokens (full)
+│   ├── package.ts — 860 tokens (full)
+│   └── smoke.ts — 560 tokens (full)
+├── skills/
+│   ├── onboarding/
+│   │   └── SKILL.md — 738 tokens (full)
+│   └── preview-recipe/
+│       └── SKILL.md — 616 tokens (full)
+├── src/
+│   ├── ui/
+│   │   ├── app.ts — 3,663 tokens (full)
+│   │   ├── index.html — 97 tokens (full)
+│   │   └── style.css — 4,268 tokens (full)
+│   ├── catalog.ts — 581 tokens (full)
+│   ├── domain.ts — 1,173 tokens (full)
+│   ├── preview.ts — 396 tokens (full)
+│   ├── server.ts — 578 tokens (full)
+│   └── stdio.ts — 69 tokens (full)
+├── tests/
+│   └── domain.test.ts — 693 tokens (full)
+├── AGENTS.md — 701 tokens (full)
+├── mcp.json — 66 tokens (full)
+├── mise.toml — 191 tokens (full)
+├── package.json — 164 tokens (full)
+└── tsconfig.json — 76 tokens (full)
+
+
+---
+
+## Generated Plan
+
+## Chat Send ✅
+- **Chat**: `integrate-demos-ED883D` | **Mode**: plan
+
+### Response
+## 1. Summary
+
+Integrate adapters through existing MCP server registrations. Preserve six mock tools unchanged. Route local preview through bundled stdio server, eliminating mock-only bypass. Add separate real-demo UI panels; reuse adapter-owned authorization, validation, and lifecycle behavior. No provider registry, generic runner, replacement OAuth, or new deployment.
+
+**Limits:** Adapter files absent from supplied context; exact registration signatures, tool names, schemas, results, and shutdown contracts remain unverified. Those contracts must be checked before implementation. Text-only restriction prevents writing intended artifact: `docs/demo-integration-plan.md`.
+
+## 2. Current-state analysis
+
+- `src/stdio.ts` creates `McpServer` through `createServer(html)`.
+- `src/server.ts` owns one `DemoWorkspace`, registers six mock tools, serves bundled UI resource.
+- `DemoWorkspace.invoke()` validates strict schemas, mutates only process-local demo connection, returns cloned snapshots. Previews remain transient and non-executable.
+- Native UI calls `app.callServerTool()`. `accept()` accepts only mock snapshots.
+- Local UI posts `/api/tool`; `src/preview.ts` invokes separate mock dispatcher directly. Adapter registrations would currently be unreachable.
+- `scripts/build.ts` bundles browser UI, embeds HTML into bundled stdio server. `scripts/package.ts` copies `dist`, skills, manifests, docs.
+- Existing tests establish mock boundaries, not real-provider behavior.
+
+Reuse server registration, MCP client transport already used by smoke tests, existing UI bridge, loopback protections, and build pipeline. Blocking assumptions: six-tool smoke assertion, mock-only UI result handling, mock-only onboarding claims.
+
+## 3. Design
+
+### Adapter integration and ownership
+
+Root changes only entrypoints, UI, scripts, tests, documentation. Do not edit `src/adapters/**` or agent-owned worker implementation.
+
+Before wiring imports, inspect and record:
+
+| Adapter export | Required contract validation |
+|---|---|
+| `registerObsTools`, `obsPreflight`, `obsShowAlert` | Registration inputs; precise tool schemas; disposable target selection; broadcast/recording exclusions |
+| `registerStreamDeckTools` | Registration inputs; returned workspace; synchronous/asynchronous `workspace.close()`; fresh 15-key target identity |
+| `registerTwitchTools` | Local source reuse; account-provider boundary; callback listener lifecycle; browser approval enforcement |
+| `registerCreativeTools` | Existing service configuration; run/task tracking; artifact result shapes |
+| `registerWorkerTools` | Registration inputs; worker startup semantics; separate standalone entrypoint; shutdown ownership |
+
+Use actual exports directly. No credential-bearing account provider exposed through MCP results or browser APIs.
+
+**Missing-contract gate:** If adapter lacks required safety or lifecycle behavior, return requirement to adapter owner. Root integration must not compensate with an alternative OAuth flow, provider client, or background runner.
+
+### Server composition and lifecycle
+
+Modify `src/server.ts`:
+
+- Preserve `createServer(html: string)` signature and returned `McpServer`.
+- Register existing mock tools/resource, then each adapter through exported registration function.
+- Keep adapter state scoped to server instance; no root-level shared account state.
+- Register each adapter once.
+- Attach adapter cleanup to server lifecycle using installed SDK’s supported shutdown hook. Validate hook against installed SDK before implementation.
+- Dispose successfully initialized adapters if later initialization fails.
+- Cleanup must tolerate repeated shutdown; await asynchronous cleanup.
+- Never start standalone worker merely by registering its tools.
+
+Optional provider absence must not prevent mock tools or unrelated demos loading. Expected unavailable/configuration failures belong in adapter tool results. Malformed registrations or missing required exports fail startup clearly, without secrets.
+
+Do not reuse `obsPreflight` or `obsShowAlert` in a second HTTP implementation. Registered tools remain execution path.
+
+### Local preview: actual MCP tool calls
+
+Replace direct `DemoWorkspace` usage in `src/preview.ts` with one persistent MCP `Client` and `StdioClientTransport`, following `scripts/smoke.ts`.
+
+Flow:
+
+`browser → same-origin /api/tool → MCP client.callTool → dist/server.js → registered handler → MCP result → browser`
+
+Behavior:
+
+- Spawn bundled server using `process.execPath`; resolve server path independently of caller working directory.
+- Connect and list tools before accepting API calls.
+- Forward only discovered tool names; preserve MCP `isError`, text content, and structured content.
+- Never accept executable paths, transport settings, provider URLs, or credentials from browser request.
+- Retain loopback binding, exact Host/Origin checks, JSON requirement, body limit, and `no-store`.
+- Unknown tool/request shape: HTTP 400. Unavailable child transport: HTTP 503. Domain/provider failures: normal MCP error result.
+- Do not retry write calls automatically after transport failure; outcome may be unknown.
+- Route child diagnostics to stderr, not API responses.
+- SIGINT/SIGTERM: stop accepting requests, close MCP client/child transport, finish cleanup.
+- No second adapter dispatcher or direct mock dispatcher.
+
+Native host and preview use same registrations but separate processes/state. Do not claim shared sessions.
+
+### Native/local UI
+
+Keep existing mock workflow and `accept()` semantics. Add separate real-demo section in `src/ui/app.ts`; never cast adapter results to mock `Snapshot`.
+
+Use one small static action table containing **verified adapter tool names and exact argument builders**. Populate only after inspecting adapters. No arbitrary tool-name entry, arbitrary JSON executor, or generated schema-form framework.
+
+Panel coverage:
+
+| Panel | UI behavior |
+|---|---|
+| OBS | Preflight/status; show alert only on explicit disposable layout/source |
+| Stream Deck | Inventory/preview; write only to explicitly identified fresh 15-key test target |
+| Twitch | Connection status; explicit browser authorization/approval handoff; title preview/update/read-back using adapter workflow |
+| OpenDesign | Existing connection check; isolated project submission; returned run/artifact display |
+| HyperFrames | Existing integrated workflow; task progress; MP4 and editable-source references |
+| Worker | Status plus explicit start/arm/pause actions supported by adapter; no startup side effect |
+
+State owned by UI: per-panel pending flag, latest sanitized result, error, drafts, returned run/task IDs. Keep mock snapshot separate.
+
+- Distinguish `Mock preview`, `Real account/device`, `Unavailable`, and uncertain outcomes.
+- Format each adapter’s known result shape explicitly. Render provider text with escaping/text nodes; never dump arbitrary result JSON.
+- Serialize same-panel submissions. Poll only supported read/status tools; never resubmit job creation to obtain progress.
+- Track response generation per panel; ignore stale results. Stop polling when superseded or page closes. Closing UI does not imply provider-job cancellation.
+- Use adapter cancellation only where supported; otherwise state “Job may still be running.”
+- Keep native `ontoolresult` handling discriminated by actual result shape. Do not feed real results into mock `accept()`.
+- Preserve mock model-context updates; include only safe IDs/status for real panels.
+
+Add root-owned UI helper files only if needed to keep each file below 500 lines.
+
+### Safety boundaries
+
+- **OBS:** No broadcast or recording start/stop tools exposed through integration. Authorization covers disposable layout, not arbitrary existing scenes.
+- **Stream Deck:** Authorization covers fresh 15-key target only. Display target identity and any Elgato restart interruption before write. Never select existing active profile implicitly.
+- **Twitch:** Reuse existing Twitch source locally. Callback must use `localhost:4017`, never substitute `127.0.0.1` or preview port. Exact callback path must match existing implementation and application registration; supplied context does not establish that path.
+- **Title changes:** Browser approval enforced server-side by Twitch adapter, bound to exact account/title and consumed once. UI approval alone insufficient. A connection grant must not authorize later unreviewed title writes.
+- **Creative:** Preserve existing authenticated connection. `Transport closed` means connection failure, not proven service outage.
+- **Worker:** Own independent OBS/MCP connection. Chat/native UI closure must not be required for delivery. No automatic arming during server startup.
+
+No new root persistence or migration. Adapter-owned persistence remains adapter responsibility.
+
+## 4. File-by-file impact
+
+| File | Change and dependency |
+|---|---|
+| `src/server.ts` | Compose verified registrars; attach cleanup. Depends on adapter contracts. |
+| `src/stdio.ts` | Add lifecycle coordination only if server hook insufficient. Never write diagnostics to stdout. |
+| `src/preview.ts` | Replace mock dispatcher with persistent stdio MCP client; shutdown/error handling. Depends on composed server. |
+| `src/ui/app.ts` | Preserve mock path; add separate real-result routing, panel state, explicit actions. Depends on verified schemas. |
+| `src/ui/demo-panels.ts` — new, if needed | Root-owned rendering/action table for real demos; no provider implementation. |
+| `src/ui/style.css` | Panel layout, mode/status badges, pending/error states. |
+| `scripts/build.ts` | Bundle standalone worker to separate `dist` entry only if worker owner supplies executable entrypoint; include required non-bundled assets explicitly. |
+| `scripts/package.ts` | Verify required runtime outputs/assets included; exclude adapter state, credential files, test artifacts. Existing broad `dist`/docs copy requires inspection. |
+| `scripts/smoke.ts` | Replace six-total assertion with six-mock-tools assertion plus exact verified adapter tool set. Exercise harmless discovery/status only. |
+| `tests/integration.test.ts` — new | Registration, lifecycle, transport, error routing, unavailable-provider tests using fakes; no live writes. |
+| `tests/domain.test.ts` | Retain unchanged unless integration exposes regression; mock contracts stay intact. |
+| `package.json`, `bun.lock` | Add only dependencies actually imported by adapters and absent today. |
+| `mise.toml`, `package.json` | Add explicit standalone-worker task only after entrypoint confirmed. |
+| `skills/onboarding/SKILL.md`, `skills/preview-recipe/SKILL.md` | Separate mock setup from verified real-demo procedures and browser approval. |
+| `docs/architecture.md`, `docs/decisions.md` | Replace obsolete mock-only current-state claims; record thin composition and separate worker. |
+| `docs/demo-integration-verification.md` — new | Current checks, provider versions, targets, limits; link historical `docs/verification.md` without rewriting its results. |
+
+No planned changes to `src/domain.ts`, `src/catalog.ts`, `src/ui/index.html`, `mcp.json`, or `tsconfig.json`. Mock catalog remains mock; plugin remains stdio-only.
+
+## 5. Implementation order
+
+1. Confirm adapter contracts and ownership. Record exact exports, tools, schemas, result discriminators, cleanup, runtime assets, callback path. Resolve safety gaps with adapter owners.
+2. Before implementation edits, create integration issue and worktree from `origin/main`, following repository rules.
+3. Add registration/lifecycle tests with fake dependencies; compose adapters in server. Keep existing mock tests passing.
+4. Replace preview dispatcher with MCP client. Test unknown tools, child failure, shutdown, and same-origin rejection.
+5. Add real-demo panels and result routing. Land UI action table and verified adapter contracts together.
+6. Add standalone-worker build/task and runtime assets only where required. Verify extracted package outside checkout.
+7. Run `mise run check`, `mise run test`, `mise run smoke`, `mise run package`.
+8. Verify local browser and native host separately. Confirm mock labeling, error recovery, no token exposure, no console errors.
+9. Run one authorized record per integration before broader testing: disposable OBS alert, fresh deck button, browser-approved Twitch title with read-back, isolated creative artifact, short HyperFrames MP4, explicit chat-closed worker alert. Never broadcast or record. Record evidence and unresolved limits.
+
+
+> 💡 Continue this plan conversation with ask_oracle(chat_id: "integrate-demos-ED883D", new_chat: false). In Agent Mode, continuation requires the run that created this chat; after that run changes, start a new chat instead.
