@@ -1,6 +1,7 @@
 import { describe, test, expect } from "bun:test";
 import { StreamDeckWorkspace, openUrlCommand } from "../src/adapters/streamdeck/workspace";
 import type { DeckProvider } from "../src/adapters/streamdeck/provider";
+import { streamDeckResult } from "../src/adapters/streamdeck/register";
 
 class Provider implements DeckProvider {
   calls: string[] = [];
@@ -17,6 +18,11 @@ class Provider implements DeckProvider {
 }
 
 describe("Stream Deck demo", () => {
+  test("provider errors include structured message for UI", async () => {
+    const result = await streamDeckResult(async () => { throw new Error("Missing libhidapi.dylib"); });
+    expect(result.isError).toBe(true);
+    expect(result.structuredContent.error?.message).toBe("Missing libhidapi.dylib");
+  });
   test("preview reads only, bounds position, validates URL", async () => {
     const provider = new Provider();
     const workspace = new StreamDeckWorkspace(provider);
