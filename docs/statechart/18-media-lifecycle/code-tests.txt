@@ -1,0 +1,43 @@
+bun test v1.4.4 (38afee6c8)
+
+tests/media-info.test.ts:
+(pass) only single HTTPS YouTube video URLs pass [0.80ms]
+(pass) listener check rejects missing, wildcard, IPv6, mixed, and ambiguous bindings [0.09ms]
+(pass) real listener inspection accepts loopback and blocks exposed listener without provider launch [79.06ms]
+(pass) metadata uses narrow arguments and filters extra fields [0.98ms]
+(pass) transcript text is bounded with actual language [0.21ms]
+(pass) NO_SUBTITLES reports unavailable without invented text [0.15ms]
+(pass) SUBTITLE_FETCH_FAILED reports unavailable without invented text [0.08ms]
+(pass) generic failures, malformed data, and mismatched URLs fail closed [0.24ms]
+(pass) busy, timeout, fresh retry, and close cancellation [43.66ms]
+
+tests/twitch-clips-registration.test.ts:
+(pass) Twitch assembly exposes strict clip tools without initializing OAuth [8.80ms]
+(pass) clip tool returns public metadata through real in-memory MCP [1.16ms]
+
+tests/clip-artifact.test.ts:
+(pass) writes private file and hash without credentials [1.96ms]
+(pass) rejects unsafe URLs before fetch [0.28ms]
+(pass) cleans streamed oversized partial file [0.75ms]
+(pass) rejects length, expired links, redirects, and empty files [2.22ms]
+(pass) overall timeout cancels stalled body and removes partial [21.45ms]
+(pass) sanitizes network failure and excludes concurrent writes [11.90ms]
+(pass) rejects truncated responses and removes interrupted streams [0.97ms]
+(pass) timeout bounds a stalled fetch without leaking partials [11.38ms]
+(pass) rejects symlink directories and group-accessible target [0.76ms]
+
+tests/media-registration.test.ts:
+(pass) real MCP advertises strict optional tool and sanitizes missing-provider faults [1.06ms]
+
+tests/twitch-clips.test.ts:
+(pass) official parameters use connected owner and result excludes secrets [0.50ms]
+(pass) scope and ownership fail before download lookup [0.10ms]
+(pass) metadata needs no download scope and validates input and returned ID [0.16ms]
+(pass) not found, absent formats, wrong download ID and malformed data fail clearly [0.29ms]
+(pass) portrait fallback and sanitized API failures [0.17ms]
+(pass) concurrent download fails without a second provider request [0.07ms]
+
+ 27 pass
+ 0 fail
+ 170 expect() calls
+Ran 27 tests across 5 files. [240.00ms]

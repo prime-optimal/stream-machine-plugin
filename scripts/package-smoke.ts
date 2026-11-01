@@ -21,6 +21,9 @@ try {
   }), { timeout: 60_000 });
   const { tools } = await client.listTools();
   assert.equal(tools.length, 33);
+  for (const name of ["stream_machine_media_info", "stream_machine_game_lookup", "stream_machine_streaming_metric"]) {
+    assert.ok(tools.some(tool => tool.name === name));
+  }
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_profile" && tool.annotations?.readOnlyHint));
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_clip"));
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_download_clip"));

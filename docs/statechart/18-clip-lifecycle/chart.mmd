@@ -1,0 +1,24 @@
+---
+title: "Authorized clip download"
+---
+stateDiagram-v2
+  s0: Ready
+  s1: Checking clip permission
+  s2: Handled failure, partial removed
+  s3: Checking owner and format
+  s4: Slot released
+  s5: Fetching without Twitch credentials
+  s6: Writing private partial file
+  s7: Complete file published
+  [*] --> s0
+  s0 --> s1: valid download requested
+  s1 --> s2: request or write fails
+  s1 --> s3: permission present
+  s2 --> s4: request finishes
+  s3 --> s2: request or write fails
+  s3 --> s5: owner and format verified
+  s5 --> s2: request or write fails
+  s5 --> s6: approved response received
+  s6 --> s2: request or write fails
+  s6 --> s7: bounded complete bytes renamed
+  s7 --> s4: request finishes

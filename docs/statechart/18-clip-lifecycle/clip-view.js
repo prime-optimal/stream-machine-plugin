@@ -1,0 +1,3 @@
+export const title = "Authorized clip download";
+export const state = v => ({ Idle: "Ready", Authorizing: "Checking clip permission", Resolving: "Checking owner and format", Fetching: "Fetching without Twitch credentials", Writing: "Writing private partial file", Complete: "Complete file published", Failed: "Handled failure, partial removed", Returned: "Slot released" })[v.phase];
+export const step = a => ({ Start: "valid download requested", Grant: "permission present", Resolve: "owner and format verified", Write: "approved response received", Rename: "bounded complete bytes renamed", Fail: "request or write fails", Release: "request finishes", Busy: "concurrent request rejected", Done: "request remains finished" })[a] ?? a;
