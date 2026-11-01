@@ -121,4 +121,4 @@ Tests pin the exact policy, implemented feature inventory, registered tool names
 - Statechart: [consent model](../statechart/83-twitch-consent/README.md) checks requested policy, honest missing grants, rejection preservation, and validated replacement. It abstracts scope classes and does not prove provider-policy compliance or source behavior.
 - Builder fidelity: the raw builder's empty-baseline recommendation and extra user approval gate were superseded by coordinator verification and explicit owner direction. Endpoint inventory, grant-preservation facts, failure tests, and identity limits were retained here. Its unrelated worker hardening proposal remains outside #83.
 
-Implementation evidence, actual command exits, UI proof, PR, and remaining limits are recorded in [the verification report](../verification/83-twitch-consent.md).
+Implementation evidence, actual command exits, UI evidence, PR, and remaining limits are recorded in [the verification report](../verification/83-twitch-consent.md).

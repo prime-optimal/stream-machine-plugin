@@ -51,7 +51,7 @@ No native-host or real-account acceptance is claimed.
 
 ## Review
 
-One Oracle review found no substantive source defect and requested the missing report link be repaired. This file resolves it. Coordinator spot review requested broadcast-only usability proof; the existing title read/preview test now asserts it directly.
+One Oracle review found no substantive source defect and requested the missing report link be repaired. This file resolves it. Coordinator spot review requested broadcast-only usability evidence; the existing title read/preview test now asserts it directly.
 
 - Simplification: shared scope helpers reuse existing callback and storage logic. No general authorization framework, store migration, or worker hardening.
 - Documentation: [the reference](../reviews/83-twitch-scope-audit.md) preserves the audit, prior defaults, historical grant evidence, exact product decision, and future matrix. Raw builder output was consumed and removed.

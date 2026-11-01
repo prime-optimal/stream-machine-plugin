@@ -54,7 +54,7 @@ Run `mise run secrets:check` after staging the intended change. The check uses [
 
 Keep reference-only `fnox.toml` updates committable. Do not replace references with credential literals. See [secret setup and refresh](secrets.md) for the required age cache and global helper prerequisites.
 
-A successful check reports no detected secrets, not proof that every password is absent. Default scanner rules have limits. Review the staged diff yourself without copying secrets into logs or chat.
+A successful check reports no detected secrets, not evidence that every password is absent. Default scanner rules have limits. Review the staged diff yourself without copying secrets into logs or chat.
 
 If the check reports a finding, remove the credential from the staged content and rotate it if exposed. If verification cannot complete, fix the missing tool or reported prerequisite and rerun the check. Do not bypass the hook or enable verbose secret output. Use synthetic fixtures for scanner tests, never real credentials.
 

@@ -25,4 +25,4 @@ bash docs/verification/83-ui/verify.sh
 
 The script builds the actual UI with a fake `ToolRequest`, starts only a loopback server, captures both screenshots, checks the displayed state, and stops its own server and browser. It requires port 48383 to be free. It never opens the consent link.
 
-The original capture commands and cleanup all exited 0. The final automated reproduction also exits 0 when its assertions hold. This is mocked disclosure evidence, not proof that Twitch granted permissions or that future chat, reward, event, clip-creation, or bot features exist.
+The original capture commands and cleanup all exited 0. The final automated reproduction also exits 0 when its assertions hold. This is mocked disclosure evidence, not evidence that Twitch granted permissions or that future chat, reward, event, clip-creation, or bot features exist.
