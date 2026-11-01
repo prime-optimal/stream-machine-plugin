@@ -22,6 +22,16 @@ nouns:
       deprecated: [running dependencies]
     - canonical: running process
       deprecated: [running dependency]
+    - canonical: mock demo
+      deprecated: [mock sample]
+    - canonical: fictional demo
+      deprecated: [fictional sample]
+    - canonical: fictional demo's
+      deprecated: [fictional sample's]
+    - canonical: that demo account
+      deprecated: [that sample account]
+    - canonical: demo data
+      deprecated: [sample data]
 rejected:
   - term: mock
     reason: Names the mock data layer and status value (status "mock" in catalog.ts); demo names the user-facing account.

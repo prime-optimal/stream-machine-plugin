@@ -24,7 +24,7 @@ Run from the repository root:
 mise run preview
 ```
 
-Open [the live controls](http://127.0.0.1:4318/?preview=1). The page calls the actual registered MCP tools. The mock sample remains separate and collapsed.
+Open [the live controls](http://127.0.0.1:4318/?preview=1). The page calls the actual registered MCP tools. The mock demo remains separate and collapsed.
 
 The server must stay running for the USB button. Release the deck through that page before another process claims it. Elgato's app is absent, so this demo uses the existing USB MCP server.
 

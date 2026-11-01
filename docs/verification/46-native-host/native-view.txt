@@ -116,7 +116,7 @@
       - generic: Coming later
       - generic: ↗
     - heading "Set the scene" [level=3]
-    - generic: Sample data
+    - generic: Demo data
     - paragraph: Draft a title and category for the demo channel.
     - generic: Stream title
     - textbox "Stream title":

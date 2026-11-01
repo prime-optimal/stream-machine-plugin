@@ -1,6 +1,6 @@
 # Run the demo and build the package
 
-Use this guide for the separate mock sample or package build. For real devices, Twitch, HTML authoring, and the background worker, use the [live demo guide](demos/integration.md). You need mise, Bun 1.4.4, and fnox on `PATH`. The private credential references resolve through 1Password.
+Use this guide for the separate mock demo or package build. For real devices, Twitch, HTML authoring, and the background worker, use the [live demo guide](demos/integration.md). You need mise, Bun 1.4.4, and fnox on `PATH`. The private credential references resolve through 1Password.
 
 ## Prepare the checkout
 
@@ -20,7 +20,7 @@ mise run install
 	```
 
 2. Open the [local demo](http://127.0.0.1:4318/?preview=1).
-3. Expand **Mock preview** for the fictional sample.
+3. Expand **Mock preview** for the fictional demo.
 4. Click **Use demo Twitch account**.
 5. Select **Prepare channel details**.
 6. Enter a stream title.
