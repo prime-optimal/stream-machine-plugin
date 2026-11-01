@@ -1,12 +1,13 @@
 import { TwitchFault, type TwitchAccountProvider } from "../../auth/twitch";
 import { TwitchChannelClient, type TwitchChannel } from "./client";
-export const TITLE_SCOPE = "channel:manage:broadcast";
+import { BROADCAST_SCOPE, twitchPermissions } from "../../auth/permissions";
+export const TITLE_SCOPE = BROADCAST_SCOPE;
 type Preview = { id: string; before: TwitchChannel; title: string; expiresAt: number; approved: boolean; consumed: boolean };
 export class TwitchTitleService {
   private previews = new Map<string, Preview>();
   private executing = false;
   constructor(readonly accounts: TwitchAccountProvider, private client = new TwitchChannelClient(), private now = Date.now) {}
-  async status() { return this.accounts.withAccount(async ({ account }) => ({ mode: "live", account: { ...account, scopes: [...account.scopes] } })); }
+  async status() { return this.accounts.withAccount(async ({ account }) => ({ mode: "live", account: { ...account, scopes: [...account.scopes] }, ...twitchPermissions(account.scopes) })); }
   async channel() { return this.accounts.withAccount(async access => ({ mode: "live", channel: await this.client.read(access) })); }
   async profile() { return this.accounts.withAccount(async access => ({ mode: "live", source: "https://api.twitch.tv/helix/users", profile: await this.client.readProfile(access) })); }
   async preview(title: string) {

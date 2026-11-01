@@ -30,7 +30,7 @@ Private SQLite journal preserves UUID/hash duplicate protection. Same request ne
 
 ## Verification
 
-Fresh installed overlay handoff: project `stream-machine-creative-20261101`, run `145dd920-d844-4961-b239-2322467e9ced`, entry `weekend-camera-v1/index.html`. [Offline HTML](creative-artifacts/overlay.html) and [browser screenshot](creative-artifacts/overlay-browser.png) preserve proof. Transparent body, no external scripts, no browser console errors. No new OBS verification.
+Fresh installed overlay handoff: project `stream-machine-creative-20261101`, run `145dd920-d844-4961-b239-2322467e9ced`, entry `weekend-camera-v1/index.html`. [Offline HTML](creative-artifacts/overlay.html) and [browser screenshot](creative-artifacts/overlay-browser.png) preserve evidence. Transparent body, no external scripts, no browser console errors. No new OBS verification.
 
 Corrected HTML-only request `effe35e3-0bc9-4a5a-b97e-4c3021de3a2d` succeeded in isolated project `stream-machine-html-20261101`. [Actual stored playable HTML](creative-artifacts/hyperframes-html.html), [editable source](creative-artifacts/hyperframes-source.html), [provenance](creative-artifacts/hyperframes-provenance.json), and [service hashes](creative-artifacts/html-service-proof.json) preserve exact files. Read-back was complete, without truncation.
 

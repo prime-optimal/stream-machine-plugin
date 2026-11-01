@@ -2,7 +2,8 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { LocalConnectionStore } from "./local-store";
 import { TwitchClient, TwitchError } from "./upstream/client";
-import { CLIP_SCOPE, TwitchService } from "./upstream/service";
+import { TwitchService } from "./upstream/service";
+import { requestedTwitchScopes, twitchPermissions, twitchConsentDisclosure, requiredTwitchScopes } from "./permissions";
 import { TwitchFault, type TwitchAccountProvider } from "./twitch";
 import { TwitchTitleService } from "../adapters/twitch/service";
 import { TwitchChannelClient } from "../adapters/twitch/client";
@@ -90,13 +91,15 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
   return {
     accounts, titles,
     diagnostics() { return failures.map(failure => ({ ...failure })); },
-    connect(manage = false, manageClips = false) {
+    async connect(_manage = false, _manageClips = false) {
       listen();
-      const additionalScopes = [...(manage ? ["channel:manage:broadcast"] : []), ...(manageClips ? [CLIP_SCOPE] : [])];
-      const query = new URLSearchParams({ ...(manage ? { manage: "1" } : {}), ...(manageClips ? { clips: "1" } : {}) });
+      const previous = await store.get(OWNER);
+      const granted = previous?.scopes ?? [];
       return {
-        mode: "live", connectUrl: `${ORIGIN}/connect${query.size ? `?${query}` : ""}`, callbackUrl,
-        requiredScope: manageClips ? CLIP_SCOPE : manage ? "channel:manage:broadcast" : "profile", additionalScopes,
+        mode: "live", connectUrl: `${ORIGIN}/connect`, callbackUrl,
+        ...twitchPermissions(granted), requestedScopes: requestedTwitchScopes(granted),
+        retainedScopes: granted.filter(scope => !requiredTwitchScopes.includes(scope)),
+        disclosure: twitchConsentDisclosure, grantSource: "stored",
       };
     },
     approvalUrl(id: string) { listen(); return `${ORIGIN}/approve?id=${encodeURIComponent(id)}`; },

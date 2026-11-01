@@ -3,7 +3,8 @@ import {TwitchClient,TwitchError,type Tokens} from './client';
 import type {Connection,ConnectionStore} from './store';
 
 export const FOLLOWER_SCOPE='moderator:read:followers';
-export const CLIP_SCOPE='channel:manage:clips';
+export { CLIP_SCOPE } from "../permissions";
+import { requestedTwitchScopes, twitchPermissions } from "../permissions";
 
 export class TwitchService {
   readonly store:ConnectionStore;
@@ -11,9 +12,9 @@ export class TwitchService {
   private now:()=>number;
   constructor(store:ConnectionStore,client:TwitchClient,now=()=>Date.now()) {this.store=store;this.client=client;this.now=now;}
 
-  async begin(ownerId:string,followers=false,manageBroadcast=false,manageClips=false) {
+  async begin(ownerId:string,followers=false,_manageBroadcast=false,_manageClips=false) {
     const previous=await this.store.get(ownerId);
-    const state=randomState(),scopes=[...new Set([...(previous?.scopes??[]),...(followers?[FOLLOWER_SCOPE]:[]),...(manageBroadcast?['channel:manage:broadcast']:[]),...(manageClips?[CLIP_SCOPE]:[])])].sort();
+    const state=randomState(),scopes=requestedTwitchScopes(previous?.scopes??[],followers?[FOLLOWER_SCOPE]:[]);
     await this.store.saveState(await stateHash(state),ownerId,scopes,this.now()+600000);
     return {state,url:this.client.authorizationUrl(state,scopes),requestedScopes:scopes};
   }
@@ -80,7 +81,7 @@ export class TwitchService {
         if(error instanceof TwitchError&&error.code==='invalid_access_token')connection=await this.refresh(connection,tokens);
         else throw error;
       }
-      return {connected:true,profile:connection.profile,scopes:connection.scopes};
+      return {connected:true,profile:connection.profile,scopes:connection.scopes,...twitchPermissions(connection.scopes)};
     } catch(error) {
       if(error instanceof TwitchError&&['invalid_refresh_token','invalid_identity','invalid_access_token'].includes(error.code)){await this.store.remove(ownerId,connection.ciphertext);return {connected:false,reconnectRequired:true};}
       throw error;
