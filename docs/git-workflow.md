@@ -66,7 +66,7 @@ The task reads local tracking refs. It does not fetch, contact the remote, or ch
 
 ## Finish the handoff
 
-Inspect other worktrees and running dependencies before the final reply:
+Inspect other worktrees and running processes before the final reply:
 
 ```sh
 git worktree list
@@ -74,7 +74,7 @@ git worktree list
 
 For each retained worktree, inspect its status and local-only commits. Check ignored files and any processes or configured paths that use the worktree. `git:handoff` checks only the current worktree. It does not inspect ignored files.
 
-Name each remaining dirty worktree, local-only commit, or running dependency. Give the owner, the reason it stays, and the next step. Link any cleanup record under `docs/reviews/`.
+Name each remaining dirty worktree, local-only commit, or running process. Give the owner, the reason it stays, and the next step. Link any cleanup record under `docs/reviews/`.
 
 If a completion check fails, report the path and blocker. Do not claim completion until completed task work is committed and pushed.
 
