@@ -1,6 +1,6 @@
 # Stream Machine architecture
 
-This page records the initial architecture. The [current demo guide](demos/integration.md) describes the implemented live tools and independent worker. The original mock sample remains isolated.
+This page records the initial architecture. The [current demo guide](demos/integration.md) describes the implemented live tools and independent worker. The original mock demo remains isolated.
 
 Stream Machine separates reusable streaming recipes from the tools that carry out their actions. The current prototype uses fictional data to test that separation. You can select a demo account, choose a recipe, and inspect proposed changes without granting access to a live channel.
 

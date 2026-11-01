@@ -51,6 +51,12 @@ Before commit, this issue worktree contains only owned changes. No other writer 
 
 Sandboxed `ps` failed with operation not permitted. Running processes could not be inventoried. No process was stopped. Process inventory remains a handoff limitation. No worktree is removed.
 
+## Reconcile current main
+
+Merged `origin/main` at `de577ad`, preserving #53's Twitch channel profile tool, tests, and documentation. Resolved the `scripts/smoke.ts` conflict by retaining both profile and media assertions. Updated bundled and packaged inventories to 29 tools. No sibling provider modules were added.
+
+After reconciliation, `mise run check`, `mise run test`, `mise run smoke`, `mise run package`, and `mise run hooks:check` each exited 0. The full suite has 97 passing tests and 0 failures. Package inspection covers 117 archive entries. `mise exec -- bun scripts/package-smoke.ts` also exited 0 and verified the packaged fnox launch with 29 tools. Its Twitch configuration flag is not a new account or profile acceptance test. The earlier table records the pre-reconciliation run, not the final count.
+
 ## Remaining acceptance
 
 An approved existing private Python service and installed pinned frontend are required for the live demo. The adapter rejects missing configuration and unsafe or uninspectable listeners. It does not accept an exposed service with a documentation warning. Live metadata, transcript state, frontend compatibility, and real child shutdown still need verification. Do not merge or close #40 on this evidence alone.
