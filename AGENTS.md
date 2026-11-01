@@ -9,6 +9,7 @@ Follow these development rules:
 - Use conventional commits.
 - Apply `feat`, `fix`, or `chore`, one phase label, and one priority label. Phase labels are `phase:architecture`, `phase:build`, `phase:integration`, and `phase:release`. Priority labels are `priority:p0`, `priority:p1`, and `priority:p2`.
 - Use the [implementation roadmap](docs/roadmap.md) for track ownership and completion dependencies. Start each implementation issue in its own worktree from `origin/main`.
+- Keep the primary checkout on clean, current `main`. Make task edits in the issue's worktree.
 - Build the smallest visible demo in the issue's Done when checklist. Extract shared helpers after working demos need them.
 - Reuse TwitchCon's Twitch OAuth, the existing Sealos OpenDesign service, and OpenDesign's HyperFrames workflow before adding a replacement.
 - Use mise for runtimes and tasks.
@@ -72,20 +73,27 @@ Follow these rules throughout the task:
 - Inspect the staged diff before committing. Stage new files by explicit path. Never stage the whole tree blindly.
 - Check for other writers before staging or committing. Preserve unrelated edits and never commit another session's unfinished work.
 - Commit each complete, verified change before starting unrelated work. Push completed commits before a handoff or the end of a task.
+- Partial hunk commits are allowed during a task. Before claiming completion, commit and push all completed task work.
 - Use conventional commit messages and reference the issue. Set upstream tracking on the first push, then verify the remote branch contains the commits.
 - Check status after hooks run. Report any remaining edits and their owner or reason. Do not leave completed work uncommitted without explaining the blocker.
 - Run `mise run hooks:install` in a new checkout. Keep automatic hooks check-only so they do not expand staged hunks.
 - Run `mise run hooks:check` before handoff. Run checks and tests relevant to the change before committing.
+- Fetch remote refs, then run `mise run git:handoff` after the final push. The task worktree must be clean and match its upstream.
+- Inspect other retained worktrees and running dependencies. At handoff, name each dirty worktree, local-only commit, or running dependency that remains. Give its owner and next step.
+- If a completion check fails, report the path, blocker, owner, and next step. Do not claim that the task is complete.
 - Use Commitizen through `mise run changelog:preview` and `mise run changelog`. Review and commit the generated `docs/CHANGELOG.md` when preparing a release. Do not create release tags or publish as part of routine commits.
 
 ## Clean up after a merge
 
 After GitHub confirms the PR is merged, follow these steps:
 
-1. Fetch the remote state. Confirm the merged PR contains the branch's current work. A squash merge may have a different commit ID.
-2. Inspect the worktree for tracked edits, untracked files, and useful ignored files. Check for unpushed commits and another active session.
+1. Fetch the remote state. Compare the PR's merged head with the current branch tip. Preserve later or local-only commits unless their changes are verified in `main`. A squash merge may have a different commit ID.
+2. Inspect the worktree for tracked edits, untracked files, and useful ignored files. Check for unpushed commits, another active session, running processes, and configured source paths that use the worktree.
 3. Preserve any unique work in a commit pushed to a named branch, or move local files to an agreed location. Keep dirty or active worktrees.
 4. Remove the clean, inactive worktree with `git worktree remove <path>`. Delete the merged local and remote branches after checking for later commits or open PRs.
 5. Run `git worktree prune`, then verify the remaining branches and worktrees. Report anything kept and why.
+6. If the primary checkout is clean and has no active writer, fast-forward its `main` branch to `origin/main`. Reconcile leftover edits against merged changes before claiming cleanup is complete.
 
 Use the `safe-git-worktree-prune` skill for batch cleanup. Test cleanup on one worktree before continuing. Never use forced removal, broad directory deletion, or `git clean` to bypass these checks. If a squash merge prevents ordinary branch deletion, verify the changes reached `main` before deleting the branch.
+
+Do not automatically stop workers to remove a worktree. Get the owner's approval to move or stop a dependency, then verify the replacement before removing its source worktree.
