@@ -8,13 +8,14 @@ import { TwitchTitleService } from "../adapters/twitch/service";
 import { TwitchChannelClient } from "../adapters/twitch/client";
 const OWNER = "local-desktop-owner";
 export const TWITCH_CALLBACK = "http://localhost:4017/api/twitch/callback";
-const ORIGIN = new URL(TWITCH_CALLBACK).origin;
 const htmlEscape = (value: string) => value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll('"', "&quot;");
-export function createLocalTwitchRuntime(environment: Record<string, string | undefined> = process.env, fetcher: typeof fetch = fetch) {
+export function createLocalTwitchRuntime(environment: Record<string, string | undefined> = process.env, fetcher: typeof fetch = fetch, port = 4017) {
+  const ORIGIN = `http://localhost:${port}`;
+  const callbackUrl = `${ORIGIN}/api/twitch/callback`;
   const clientId = environment.TWITCH_CLIENT_ID, clientSecret = environment.TWITCH_CLIENT_SECRET, encryptionSecret = environment.TWITCH_TOKEN_ENCRYPTION_KEY;
   if (!clientId || !clientSecret || !encryptionSecret) return undefined;
   const store = new LocalConnectionStore(environment.STREAM_MACHINE_TWITCH_STORE ?? join(homedir(), ".local/share/stream-machine/twitch.sqlite"));
-  const client = new TwitchClient({ clientId, clientSecret, encryptionSecret, redirectUri: TWITCH_CALLBACK }, fetcher);
+  const client = new TwitchClient({ clientId, clientSecret, encryptionSecret, redirectUri: callbackUrl }, fetcher);
   const oauth = new TwitchService(store, client);
   const accounts: TwitchAccountProvider = {
     async withAccount(operation) {
@@ -32,9 +33,9 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
   const response = (body: string, status = 200, headers: Record<string, string> = {}) => new Response(body, { status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "Content-Security-Policy": "default-src 'none'; form-action 'self'; frame-ancestors 'none'", ...headers } });
   function listen() {
     if (server) return;
-    server = Bun.serve({ hostname: "127.0.0.1", port: 4017, async fetch(request) {
+    server = Bun.serve({ hostname: "127.0.0.1", port, async fetch(request) {
       const url = new URL(request.url);
-      if (request.headers.get("host") !== "localhost:4017") return response("Invalid host", 403);
+      if (request.headers.get("host") !== `localhost:${port}`) return response("Invalid host", 403);
       try {
         if (url.pathname === "/connect" && request.method === "GET") {
           titles.clear();
@@ -63,6 +64,6 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
     } });
     server.unref();
   }
-  return { accounts, titles, connect(manage = false) { listen(); return { mode: "live", connectUrl: `${ORIGIN}/connect${manage ? "?manage=1" : ""}`, callbackUrl: TWITCH_CALLBACK, requiredScope: manage ? "channel:manage:broadcast" : "profile" }; }, approvalUrl(id: string) { listen(); return `${ORIGIN}/approve?id=${encodeURIComponent(id)}`; }, close() { server?.stop(true); store.close(); } };
+  return { accounts, titles, connect(manage = false) { listen(); return { mode: "live", connectUrl: `${ORIGIN}/connect${manage ? "?manage=1" : ""}`, callbackUrl, requiredScope: manage ? "channel:manage:broadcast" : "profile" }; }, approvalUrl(id: string) { listen(); return `${ORIGIN}/approve?id=${encodeURIComponent(id)}`; }, close() { server?.stop(true); store.close(); } };
 }
 export type LocalTwitchRuntime = NonNullable<ReturnType<typeof createLocalTwitchRuntime>>;

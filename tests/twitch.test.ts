@@ -75,6 +75,7 @@ describe("Twitch live boundary with explicit fake provider", () => {
   });
 });
 test("local OAuth callback and human approval form preserve trusted boundary", async () => {
+  const port = 42000 + Math.floor(Math.random() * 10000);
   let title = "Original", writes = 0;
   const fake: typeof fetch = Object.assign(async (input: string | URL | Request, init?: RequestInit) => {
     const url = String(input);
@@ -87,7 +88,7 @@ test("local OAuth callback and human approval form preserve trusted boundary", a
     }
     throw new Error("Unexpected fake request");
   }, { preconnect: fetch.preconnect });
-  const runtime = createLocalTwitchRuntime({ TWITCH_CLIENT_ID: "client", TWITCH_CLIENT_SECRET: "secret", TWITCH_TOKEN_ENCRYPTION_KEY: btoa("a".repeat(32)), STREAM_MACHINE_TWITCH_STORE: ":memory:" }, fake);
+  const runtime = createLocalTwitchRuntime({ TWITCH_CLIENT_ID: "client", TWITCH_CLIENT_SECRET: "secret", TWITCH_TOKEN_ENCRYPTION_KEY: btoa("a".repeat(32)), STREAM_MACHINE_TWITCH_STORE: ":memory:" }, fake, port);
   if (!runtime) throw new Error("Test runtime missing");
   try {
     const { connectUrl } = runtime.connect(true);
@@ -97,7 +98,7 @@ test("local OAuth callback and human approval form preserve trusted boundary", a
     const state = new URL(location).searchParams.get("state");
     expect(new URL(location).searchParams.get("scope")).toBe(TITLE_SCOPE);
     const stateCookie = start.headers.get("set-cookie")?.split(";")[0] ?? "";
-    const callback = `http://localhost:4017/api/twitch/callback?state=${state}&code=test-code`;
+    const callback = `http://localhost:${port}/api/twitch/callback?state=${state}&code=test-code`;
     expect((await fetch(callback)).status).toBe(400);
     expect((await fetch(callback, { headers: { cookie: stateCookie } })).status).toBe(200);
     const status = await runtime.titles.status(); expect(status.account.id).toBe("123");
@@ -108,7 +109,7 @@ test("local OAuth callback and human approval form preserve trusted boundary", a
     const cookie = page.headers.get("set-cookie")?.split(";")[0] ?? "";
     expect((await fetch(approvalUrl, { method: "POST", headers: { origin: "https://evil.example", cookie } })).status).toBe(403);
     await expect(runtime.titles.apply(p.previewId)).rejects.toThrow("BROWSER_APPROVAL_REQUIRED");
-    expect((await fetch(approvalUrl, { method: "POST", headers: { origin: "http://localhost:4017", cookie } })).status).toBe(200);
+    expect((await fetch(approvalUrl, { method: "POST", headers: { origin: `http://localhost:${port}`, cookie } })).status).toBe(200);
     expect(await runtime.titles.apply(p.previewId)).toMatchObject({ status: "verified" }); expect(writes).toBe(1);
   } finally { runtime.close(); }
 });
