@@ -1,0 +1,46 @@
+---
+title: "Twitch product consent and retained grants"
+---
+stateDiagram-v2
+  state "Legend" as legend {
+    lg0: pending
+    lg1: ready
+    lg2: attention
+  }
+  class lg0 blue
+  class lg1 teal
+  class lg2 orange
+  s0: Connected with missing permissions
+  s1: Connected with product permissions
+  s2: Disconnected
+  s3: Consent pending
+  s4: Consent denied, connected with missing permissions
+  s5: Consent denied, connected with product permissions
+  s6: Consent denied, disconnected
+  s7: Incomplete grant rejected, connected with missing permissions
+  s8: Incomplete grant rejected, connected with product permissions
+  s9: Incomplete grant rejected, disconnected
+  [*] --> s0
+  [*] --> s1
+  [*] --> s2
+  s0 --> s3: request product permissions plus existing grants
+  s1 --> s0: status validates current grants
+  s1 --> s3: request product permissions plus existing grants
+  s2 --> s3: request product permissions plus existing grants
+  s3 --> s1: Twitch validates every requested grant
+  s3 --> s4: you deny consent [previously connected with missing permissions]
+  s3 --> s7: Twitch omits a requested permission [previously connected with missing permissions]
+  s3 --> s5: you deny consent [previously connected with product permissions]
+  s3 --> s8: Twitch omits a requested permission [previously connected with product permissions]
+  s3 --> s6: you deny consent [previously disconnected]
+  s3 --> s9: Twitch omits a requested permission [previously disconnected]
+  class s0 orange
+  class s1 teal
+  class s2 orange
+  class s3 blue
+  class s4 orange
+  class s5 teal
+  class s6 orange
+  class s7 orange
+  class s8 teal
+  class s9 orange

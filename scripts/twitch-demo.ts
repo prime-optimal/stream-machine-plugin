@@ -5,7 +5,7 @@ import { TwitchFault } from "../src/auth/twitch";
 const command = z.discriminatedUnion("action", [z.object({ action: z.literal("status") }), z.object({ action: z.literal("diagnostics") }), z.object({ action: z.literal("channel") }), z.object({ action: z.literal("preview"), title: z.string() }), z.object({ action: z.literal("apply"), previewId: z.string().uuid() }), z.object({ action: z.literal("exit") })]);
 const runtime = createLocalTwitchRuntime();
 if (!runtime) throw new Error("TWITCH_NOT_CONFIGURED: inject existing Twitch fnox secrets");
-console.log(JSON.stringify(runtime.connect(true)));
+console.log(JSON.stringify(await runtime.connect(true)));
 const lines = createInterface({ input: process.stdin });
 for await (const line of lines) {
   try {

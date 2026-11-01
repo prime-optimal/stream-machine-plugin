@@ -1,3 +1,4 @@
+import {requiredTwitchScopes} from "../src/auth/permissions.ts";
 import {LocalConnectionStore} from '../src/auth/local-store.ts';
 import {TwitchError} from '../src/auth/upstream/client.ts';
 
@@ -7,7 +8,7 @@ export function fixture(){
  const sql={prepare:query=>({get:()=>store.db.query(query).get()})};
  const client={
   config:{clientId:'test-client',clientSecret:'test-secret',redirectUri:'https://studio.example/api/twitch/callback',encryptionSecret:key()},
-  scopes:[],exchanges:0,refreshes:0,revocations:[],invalidAccess:false,invalidRefresh:false,unavailable:false,foreignIdentity:false,
+  scopes:[...requiredTwitchScopes],exchanges:0,refreshes:0,revocations:[],invalidAccess:false,invalidRefresh:false,unavailable:false,foreignIdentity:false,
   authorizationUrl(state,scopes){return 'https://id.twitch.tv/oauth2/authorize?'+new URLSearchParams({state,scope:scopes.join(' ')});},
   async exchange(){this.exchanges++;return {accessToken:'test-access',refreshToken:'test-refresh',expiresIn:3600,scopes:this.scopes};},
   async validate(token){if(this.unavailable)throw new TwitchError('provider_unavailable');if(this.invalidAccess&&token==='test-access')throw new TwitchError('invalid_access_token',401);return {client_id:'test-client',user_id:this.foreignIdentity?'other-user':'twitch-user',scopes:this.scopes,expires_in:3600};},
