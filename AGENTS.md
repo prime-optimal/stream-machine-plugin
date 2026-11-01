@@ -40,6 +40,14 @@ Use the repository layout to locate changes:
 - Edit `skills/` for plugin skills and `plugin.json` for the manifest.
 - Consult `docs/architecture.md` and `docs/decisions.md` for design decisions.
 
+## Build context and delegate work
+
+Follow [the RepoPrompt workflow](docs/repoprompt-workflow.md). Use `rp-build-cli` by default for implementation, `rp-deep-plan-cli` for substantial plan-only design and user checkpoints, and `rp-orchestrate-cli` for scoped delegated items. Use context-builder often and delegate read-heavy work to subagents.
+
+Prefer `rpce-cli` with `-w <window_id>` on every routed call and `-t <context_id>` on follow-ups. Use MCP only when the CLI is unavailable. Verify the exact workspace, session-bound worktree, physical path, branch, HEAD, status, and selection before builder or child dispatch. Allow long builder and chat timeouts.
+
+Pass the builder export path in each child's brief. State the assigned section, owned files, completion criteria, and sibling conflicts. Verify each result and record actual validation exits before dispatching dependent work. Inspect persisted state after an indeterminate mutation; never retry it blindly. Remove consumed exports only after recording evidence and completing any required fidelity check.
+
 ## Write for the reader
 
 Every agent, including subagents, must apply [technical-writing](.agents/skills/technical-writing/SKILL.md) and [unslop](.agents/skills/unslop/SKILL.md) to project writing. Read both skills before writing or reviewing prose. This includes docs, README files, agent instructions, packaged skills, issues, PR descriptions, commit messages, and chat updates.
