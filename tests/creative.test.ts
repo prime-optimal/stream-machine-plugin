@@ -1,11 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { CreativeController, startSchema } from "../src/adapters/design/controller";
 import { CreativeJournal } from "../src/adapters/design/journal";
-import { DESIGN_ORIGIN, remoteProvider, type CreativeProvider } from "../src/adapters/design/provider";
+import { configuredProvider, DESIGN_ORIGIN, remoteProvider, type CreativeProvider } from "../src/adapters/design/provider";
 
 const id = "34687798-1fa0-4a69-ae35-631a44a286c5";
 function fixture() {
   const calls: string[] = [];
+  const writes: string[] = [];
   const provider: CreativeProvider = {
     async call(name, args) {
       calls.push(name);
@@ -14,8 +15,8 @@ function fixture() {
       if (name === "start_run") return { runId: "real-run" };
       if (name === "get_run") return { status: "succeeded" };
       if (name === "list_files") return { files: [{ name: "weekend-camera-v1/index.html", size: 100 }, { name: "stream-machine-proof.mp4", size: 500 }, { name: "creative-video-task.json", size: 100 }] };
-      if (name === "get_file") return args.path === "creative-video-task.json" ? JSON.stringify({ taskId: "real-task", status: "done" }) : '<script src="./gsap.min.js"></script><div data-duration="10"\n    ></div><script>window.__timelines["main"] = tl;</script>';
-      if (name === "write_file") return { ok: true };
+      if (name === "get_file") return args.path === "creative-video-task.json" ? JSON.stringify({ taskId: "real-task", status: "done" }) : '<head><script src="./gsap.min.js"></script></head><div data-duration="10"\n    ></div><script>window.__timelines["main"] = tl;</script>';
+      if (name === "write_file") { if (typeof args.content === "string") writes.push(args.content); return { ok: true }; }
       throw new Error("Unexpected provider operation");
     },
     async api(path) {
@@ -26,9 +27,31 @@ function fixture() {
     },
   };
   const journal = new CreativeJournal(":memory:");
-  return { controller: new CreativeController(provider, journal), journal, calls, provider };
+  return { controller: new CreativeController(provider, journal), journal, calls, writes, provider };
 }
 describe("creative provider boundary", () => {
+  test("server-only login derives Basic auth while explicit authorization wins", async () => {
+    const keys = ["STREAM_MACHINE_DESIGN_AUTHORIZATION", "STREAM_MACHINE_DESIGN_USERNAME", "STREAM_MACHINE_DESIGN_PASSWORD"];
+    const previous = keys.map(key => process.env[key]);
+    const original = globalThis.fetch;
+    const observed: string[] = [];
+    globalThis.fetch = Object.assign(async (_input: Parameters<typeof fetch>[0], init?: RequestInit) => {
+      observed.push(new Headers(init?.headers).get("Authorization") ?? "");
+      return Response.json({ tasks: [] });
+    }, { preconnect: original.preconnect });
+    try {
+      process.env.STREAM_MACHINE_DESIGN_USERNAME = "fixture-user";
+      process.env.STREAM_MACHINE_DESIGN_PASSWORD = "fixture-password";
+      delete process.env.STREAM_MACHINE_DESIGN_AUTHORIZATION;
+      await configuredProvider().api("/api/projects/test/media/tasks");
+      process.env.STREAM_MACHINE_DESIGN_AUTHORIZATION = "Basic fixture-override";
+      await configuredProvider().api("/api/projects/test/media/tasks");
+      expect(observed).toEqual([`Basic ${Buffer.from("fixture-user:fixture-password").toString("base64")}`, "Basic fixture-override"]);
+    } finally {
+      globalThis.fetch = original;
+      keys.forEach((key, index) => { const value = previous[index]; if (value === undefined) delete process.env[key]; else process.env[key] = value; });
+    }
+  });
   test("existing reverse proxy receives its configured Origin on media requests", async () => {
     const original = globalThis.fetch;
     const observed: { origin: string | null } = { origin: null };
@@ -72,6 +95,7 @@ describe("creative provider boundary", () => {
       const result = await f.controller.start({ requestId: id, project: "test-project", recipe: "video" });
       expect(result).toMatchObject({ taskId: "real-task", source: `motion-source/${id}/index.html` });
       expect(f.calls).not.toContain("start_run");
+      expect(f.writes[0]).toContain('href="../../stream-machine-proof.mp4"');
       expect(f.calls.indexOf("write_file")).toBeLessThan(f.calls.findIndex(name => name.endsWith("/generate")));
       expect(await f.controller.run(id)).toMatchObject({ status: "succeeded", taskId: "real-task", file: "stream-machine-proof.mp4" });
     } finally { f.journal.close(); }
