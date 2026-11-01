@@ -1,16 +1,18 @@
 import { Database } from "bun:sqlite";
-import { mkdirSync, chmodSync } from "node:fs";
-import { join, isAbsolute } from "node:path";
+import { mkdirSync, chmodSync, writeFileSync } from "node:fs";
+import { dirname, join, isAbsolute } from "node:path";
 import { homedir } from "node:os";
 import { z } from "zod";
 import { CreativeError } from "./provider";
 
+const retiredSchema = z.object({ recipe: z.literal("video"), requestId: z.uuid(), project: z.string(), runId: z.string().optional(), taskId: z.string().optional(), source: z.string().optional(), file: z.string().optional() });
 export const operationSchema = z.object({
-  requestId: z.uuid(), project: z.string(), recipe: z.enum(["overlay", "video"]),
+  requestId: z.uuid(), project: z.string(), recipe: z.enum(["overlay", "hyperframes-html"]),
   status: z.enum(["submitting", "queued", "running", "succeeded", "failed", "canceled", "unknown"]),
-  runId: z.string().optional(), taskId: z.string().optional(), source: z.string().optional(),
+  runId: z.string().optional(), source: z.string().optional(),
   file: z.string().optional(), previewUrl: z.string().optional(),
-  failureCode: z.enum(["RENDERER_UNAVAILABLE", "RENDER_FAILED", "AUTHORING_INCOMPLETE"]).optional(),
+  failureCode: z.literal("LEGACY_RECIPE_RETIRED").optional(),
+  legacy: retiredSchema.optional(),
 });
 export type Operation = z.infer<typeof operationSchema>;
 
@@ -19,10 +21,25 @@ export class CreativeJournal {
   constructor(path?: string) {
     const directory = process.env.STREAM_MACHINE_CREATIVE_STATE_DIR ?? join(homedir(), ".local", "state", "stream-machine");
     if (!isAbsolute(directory)) throw new CreativeError("CONFIGURATION_REQUIRED", "Creative state directory must be absolute.");
-    if (path !== ":memory:") { mkdirSync(directory, { recursive: true, mode: 0o700 }); chmodSync(directory, 0o700); }
-    this.db = new Database(path ?? join(directory, "creative.sqlite"), { create: true });
-    if (!path) chmodSync(join(directory, "creative.sqlite"), 0o600);
+    const file = path ?? join(directory, "creative.sqlite");
+    if (file !== ":memory:") {
+      if (!isAbsolute(file)) throw new CreativeError("CONFIGURATION_REQUIRED", "Creative database path must be absolute.");
+      mkdirSync(dirname(file), { recursive: true, mode: 0o700 });
+      if (!path) chmodSync(directory, 0o700);
+    }
+    this.db = new Database(file, { create: true });
+    if (file !== ":memory:") chmodSync(file, 0o600);
     this.db.run("CREATE TABLE IF NOT EXISTS creative_operations (id TEXT PRIMARY KEY, hash TEXT NOT NULL, value TEXT NOT NULL)");
+    const rows = z.array(z.object({ id: z.string(), value: z.string() })).parse(this.db.query("SELECT id,value FROM creative_operations").all());
+    const retired = rows.filter(row => z.object({ recipe: z.string() }).parse(JSON.parse(row.value)).recipe === "video");
+    if (retired.length && file !== ":memory:") writeFileSync(`${file}.before-html-${Date.now()}`, this.db.serialize(), { mode: 0o600 });
+    this.db.transaction(() => {
+      for (const row of retired) {
+        const legacy = retiredSchema.parse(JSON.parse(row.value));
+        const value: Operation = { requestId: legacy.requestId, project: legacy.project, recipe: "hyperframes-html", status: "failed", failureCode: "LEGACY_RECIPE_RETIRED", legacy };
+        this.db.run("UPDATE creative_operations SET value=? WHERE id=?", [JSON.stringify(value), row.id]);
+      }
+    })();
   }
   get(id: string) {
     const row = z.object({ value: z.string() }).nullable().parse(this.db.query("SELECT value FROM creative_operations WHERE id=?").get(id));

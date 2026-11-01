@@ -1,147 +1,145 @@
 import { describe, expect, test } from "bun:test";
+import { Database } from "bun:sqlite";
+import { mkdtempSync, readdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { z } from "zod";
 import { CreativeController, startSchema } from "../src/adapters/design/controller";
 import { CreativeJournal } from "../src/adapters/design/journal";
-import { configuredProvider, DESIGN_ORIGIN, remoteProvider, type CreativeProvider } from "../src/adapters/design/provider";
+import { configuredProvider, type CreativeProvider } from "../src/adapters/design/provider";
+import { composeHtml } from "../src/adapters/hyperframes/html";
 
 const id = "34687798-1fa0-4a69-ae35-631a44a286c5";
 function fixture() {
-  const calls: string[] = [];
-  const writes: string[] = [];
+  const calls: { name: string; args: Record<string, unknown> }[] = [];
+  const files = new Map<string, string>();
   const provider: CreativeProvider = {
     async call(name, args) {
-      calls.push(name);
+      calls.push({ name, args });
       if (name === "list_projects") return { projects: [{ id: "test-project", name: "Test" }] };
       if (name === "list_plugins") return { plugins: [{ id: "stream-overlay-authoring" }] };
+      if (name === "list_skills") return { skills: [{ id: "hyperframes" }] };
       if (name === "start_run") return { runId: "real-run" };
-      if (name === "get_run") return { status: "succeeded" };
-      if (name === "list_files") return { files: [{ name: "weekend-camera-v1/index.html", size: 100 }, { name: "stream-machine-proof.mp4", size: 500 }, { name: "creative-video-task.json", size: 100 }] };
-      if (name === "get_file") return args.path === "creative-video-task.json" ? JSON.stringify({ taskId: "real-task", status: "done" }) : '<head><script src="./gsap.min.js"></script></head><div data-duration="10"\n    ></div><script>window.__timelines["main"] = tl;</script>';
-      if (name === "write_file") { if (typeof args.content === "string") writes.push(args.content); return { ok: true }; }
+      if (name === "get_run") return { status: "succeeded", artifactPaths: ["weekend-camera-v1/index.html"] };
+      if (name === "list_files") return { files: [{ name: "creative-html/unrelated/index.html", size: 100 }, { name: "weekend-camera-v1/index.html", size: 100 }] };
+      if (name === "create_artifact") { files.set(z.string().parse(args.name), z.string().parse(args.content)); return { ok: true }; }
+      if (name === "get_file") return files.get(z.string().parse(args.path));
+      if (name === "get_artifact") return { files: [{ name: args.entry, content: files.get(z.string().parse(args.entry)), mime: "text/html", binary: false }], truncated: false };
       throw new Error("Unexpected provider operation");
-    },
-    async api(path) {
-      calls.push(path);
-      if (path.endsWith("/scaffold")) return { files: ["index.html", "gsap.min.js", "hyperframes.json", "meta.json"] };
-      if (path.endsWith("/generate")) return { taskId: "real-task" };
-      return { tasks: [{ taskId: "real-task", status: "done", file: { name: "stream-machine-proof.mp4" } }] };
     },
   };
   const journal = new CreativeJournal(":memory:");
-  return { controller: new CreativeController(provider, journal), journal, calls, writes, provider };
+  return { controller: new CreativeController(provider, journal), journal, calls, files, provider };
 }
-describe("creative provider boundary", () => {
-  test("server-only login derives Basic auth while explicit authorization wins", async () => {
+describe("creative HTML reuse", () => {
+  test("server-only login derives Basic auth and explicit authorization wins", async () => {
     const keys = ["STREAM_MACHINE_DESIGN_AUTHORIZATION", "STREAM_MACHINE_DESIGN_USERNAME", "STREAM_MACHINE_DESIGN_PASSWORD"];
     const previous = keys.map(key => process.env[key]);
     const original = globalThis.fetch;
     const observed: string[] = [];
     globalThis.fetch = Object.assign(async (_input: Parameters<typeof fetch>[0], init?: RequestInit) => {
-      observed.push(new Headers(init?.headers).get("Authorization") ?? "");
-      return Response.json({ tasks: [] });
+      if (init?.method !== "POST") return new Response(null, { status: 405 });
+      const request = z.object({ id: z.union([z.string(), z.number()]).optional(), method: z.string(), params: z.unknown().optional() }).parse(JSON.parse(String(init.body)));
+      if (request.id === undefined) return new Response(null, { status: 202 });
+      if (request.method === "initialize") {
+        observed.push(new Headers(init.headers).get("Authorization") ?? "");
+        const params = z.object({ protocolVersion: z.string() }).parse(request.params);
+        return Response.json({ jsonrpc: "2.0", id: request.id, result: { protocolVersion: params.protocolVersion, capabilities: { tools: {} }, serverInfo: { name: "fixture", version: "1" } } });
+      }
+      return Response.json({ jsonrpc: "2.0", id: request.id, result: { content: [{ type: "text", text: '{"projects":[]}' }] } });
     }, { preconnect: original.preconnect });
     try {
       process.env.STREAM_MACHINE_DESIGN_USERNAME = "fixture-user";
       process.env.STREAM_MACHINE_DESIGN_PASSWORD = "fixture-password";
       delete process.env.STREAM_MACHINE_DESIGN_AUTHORIZATION;
-      await configuredProvider().api("/api/projects/test/media/tasks");
+      await configuredProvider().call("list_projects", {});
       process.env.STREAM_MACHINE_DESIGN_AUTHORIZATION = "Basic fixture-override";
-      await configuredProvider().api("/api/projects/test/media/tasks");
+      await configuredProvider().call("list_projects", {});
       expect(observed).toEqual([`Basic ${Buffer.from("fixture-user:fixture-password").toString("base64")}`, "Basic fixture-override"]);
     } finally {
       globalThis.fetch = original;
       keys.forEach((key, index) => { const value = previous[index]; if (value === undefined) delete process.env[key]; else process.env[key] = value; });
     }
   });
-  test("existing reverse proxy receives its configured Origin on media requests", async () => {
-    const original = globalThis.fetch;
-    const observed: { origin: string | null } = { origin: null };
-    globalThis.fetch = Object.assign(async (_input: Parameters<typeof fetch>[0], init?: RequestInit) => {
-      observed.origin = new Headers(init?.headers).get("Origin");
-      return Response.json({ tasks: [] });
-    }, { preconnect: original.preconnect });
-    try { await remoteProvider("Basic test-only").api("/api/projects/test/media/tasks"); expect(observed.origin).toBe(DESIGN_ORIGIN); }
-    finally { globalThis.fetch = original; }
-  });
-  test("rejects unreviewed recipes, credentials and long copy", () => {
-    const input = { requestId: id, project: "test-project", recipe: "overlay" };
+  test("rejects retired recipe, credentials and long copy", () => {
+    const input = { requestId: id, project: "test-project", recipe: "hyperframes-html" };
     expect(startSchema.safeParse({ ...input, authorization: "secret" }).success).toBe(false);
-    expect(startSchema.safeParse({ ...input, recipe: "shell" }).success).toBe(false);
+    expect(startSchema.safeParse({ ...input, recipe: "video" }).success).toBe(false);
     expect(startSchema.safeParse({ ...input, title: "x".repeat(49) }).success).toBe(false);
   });
-  test("same request submits once; changed inputs conflict", async () => {
+  test("HTML composition keeps title safe and uses TwitchCon live driver", () => {
+    const result = composeHtml('<img src=x onerror="alert(1)">');
+    expect(result.html).not.toContain('<img src=x');
+    expect(result.html).toContain('window.overlay =');
+    expect(result.source).toContain('gsap.timeline({paused:true})');
+    expect(result.source).not.toContain('window.overlay =');
+    expect(result.html).toContain('data-var-text="title"');
+    expect([...result.html.matchAll(/src="(https:[^"]+)"/g)].map(match => match[1])).toEqual(["https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"]);
+  });
+  test("HTML artifact/source roundtrip completes without authoring run", async () => {
     const f = fixture();
     try {
-      const input = { requestId: id, project: "test-project", recipe: "overlay" };
-      const [first, second] = await Promise.all([f.controller.start(input), f.controller.start(input)]);
-      expect(first.requestId).toBe(second.requestId);
-      expect(f.calls.filter(name => name === "start_run")).toHaveLength(1);
-      await expect(f.controller.start({ ...input, title: "Different" })).rejects.toThrow("different inputs");
-      expect(await f.controller.run(id)).toMatchObject({ runId: "real-run", status: "succeeded" });
+      const result = await f.controller.start({ requestId: id, project: "test-project", recipe: "hyperframes-html", title: "HTML QA" });
+      expect(result).toMatchObject({ status: "succeeded", file: `creative-html/${id}/index.html`, source: `creative-html/${id}/source.html` });
+      expect(f.calls.filter(call => call.name === "create_artifact")).toHaveLength(3);
+      expect(f.calls.some(call => call.name === "start_run")).toBe(false);
+      const count = f.calls.length;
+      expect(await f.controller.run(id)).toEqual(result);
+      expect(f.calls).toHaveLength(count);
+      expect((await f.controller.artifact("test-project", result.file ?? "")).files[0]?.content).toContain("HTML QA");
     } finally { f.journal.close(); }
   });
-  test("lost submission acknowledgment remains unknown without retry", async () => {
+  test("same request writes once; changed inputs conflict", async () => {
+    const f = fixture();
+    try {
+      const input = { requestId: id, project: "test-project", recipe: "hyperframes-html" };
+      await Promise.all([f.controller.start(input), f.controller.start(input)]);
+      expect(f.calls.filter(call => call.name === "create_artifact")).toHaveLength(3);
+      await expect(f.controller.start({ ...input, title: "Different" })).rejects.toThrow("different inputs");
+    } finally { f.journal.close(); }
+  });
+  test("lost write acknowledgment stays unknown without duplicate writes", async () => {
     const f = fixture();
     const original = f.provider.call;
-    f.provider.call = async (name, args) => { if (name === "start_run") throw new Error("lost"); return original(name, args); };
+    f.provider.call = async (name, args) => { const result = await original(name, args); if (name === "create_artifact") throw new Error("lost"); return result; };
     try {
-      const input = { requestId: id, project: "test-project", recipe: "overlay" };
+      const input = { requestId: id, project: "test-project", recipe: "hyperframes-html" };
       await expect(f.controller.start(input)).rejects.toThrow("lost");
       expect((await f.controller.start(input)).status).toBe("unknown");
+      expect(f.calls.filter(call => call.name === "create_artifact")).toHaveLength(1);
     } finally { f.journal.close(); }
   });
-  test("video uses supported motion-source root and daemon task without authoring process", async () => {
-    const f = fixture();
-    try {
-      const result = await f.controller.start({ requestId: id, project: "test-project", recipe: "video" });
-      expect(result).toMatchObject({ taskId: "real-task", source: `motion-source/${id}/index.html` });
-      expect(f.calls).not.toContain("start_run");
-      expect(f.writes[0]).toContain('href="../../stream-machine-proof.mp4"');
-      expect(f.calls.indexOf("write_file")).toBeLessThan(f.calls.findIndex(name => name.endsWith("/generate")));
-      expect(await f.controller.run(id)).toMatchObject({ status: "succeeded", taskId: "real-task", file: "stream-machine-proof.mp4" });
-    } finally { f.journal.close(); }
-  });
-  test("done task cannot claim missing or unrelated MP4", async () => {
-    const f = fixture();
-    const original = f.provider.api;
-    f.provider.api = async (path, body) => path.includes("/media/tasks?") ? { tasks: [{ taskId: "real-task", status: "done", file: { name: "unrelated.mp4" } }] } : original(path, body);
-    try {
-      await f.controller.start({ requestId: id, project: "test-project", recipe: "video" });
-      await expect(f.controller.run(id)).rejects.toThrow("expected nonempty MP4");
-    } finally { f.journal.close(); }
-  });
-  test("outer run success cannot hide failed render receipt or claim MP4", async () => {
+  test("changed source readback cannot claim success", async () => {
     const f = fixture();
     const original = f.provider.call;
-    f.provider.call = async (name, args) => name === "get_file"
-      ? JSON.stringify({ taskId: "failed-task", status: "failed", result: { error: { message: "Open Design desktop frame renderer is unavailable" } } })
-      : original(name, args);
-    try {
-      f.journal.reserve({ requestId: id, project: "test-project", recipe: "video", status: "queued", runId: "real-run" }, "legacy");
-      const result = await f.controller.run(id);
-      expect(result).toMatchObject({ status: "failed", failureCode: "RENDERER_UNAVAILABLE", taskId: "failed-task" });
-      expect(result.file).toBeUndefined();
-    } finally { f.journal.close(); }
+    f.provider.call = async (name, args) => name === "get_file" ? "changed" : original(name, args);
+    try { await expect(f.controller.start({ requestId: id, project: "test-project", recipe: "hyperframes-html" })).rejects.toThrow("differs"); expect(f.journal.get(id)?.status).toBe("unknown"); }
+    finally { f.journal.close(); }
   });
-  test("no-output authoring success is failed without attempting nonexistent receipt", async () => {
+  test("overlay retains actual run entry and excludes unrelated project HTML", async () => {
     const f = fixture();
-    const original = f.provider.call;
-    f.provider.call = async (name, args) => name === "list_files" ? { files: [] } : original(name, args);
-    try {
-      f.journal.reserve({ requestId: id, project: "test-project", recipe: "video", status: "queued", runId: "real-run" }, "legacy");
-      expect(await f.controller.run(id)).toMatchObject({ status: "failed", failureCode: "AUTHORING_INCOMPLETE" });
-      expect(f.calls).not.toContain("get_file");
-    } finally { f.journal.close(); }
-  });
-  test("unusable localhost delivery URL is omitted", async () => {
-    const f = fixture();
-    const original = f.provider.call;
-    f.provider.call = async (name, args) => name === "get_run" ? { status: "succeeded", previewUrl: "http://127.0.0.1:7456/private" } : original(name, args);
     try {
       await f.controller.start({ requestId: id, project: "test-project", recipe: "overlay" });
-      const result = await f.controller.run(id);
-      expect(result.previewUrl).toBeUndefined();
-      expect(result.file).toBe("weekend-camera-v1/index.html");
+      expect(await f.controller.run(id)).toMatchObject({ runId: "real-run", status: "succeeded", file: "weekend-camera-v1/index.html" });
+      expect(f.calls.find(call => call.name === "start_run")?.args.model).toBe("gpt-6.1-sol");
     } finally { f.journal.close(); }
+  });
+  test("legacy journal records retire with backup and unchanged UUID protection", () => {
+    const directory = mkdtempSync(join(tmpdir(), "creative-journal-"));
+    const path = join(directory, "state.sqlite");
+    const database = new Database(path, { create: true });
+    database.run("CREATE TABLE creative_operations (id TEXT PRIMARY KEY, hash TEXT NOT NULL, value TEXT NOT NULL)");
+    database.run("INSERT INTO creative_operations VALUES (?,?,?)", [id, "old-hash", JSON.stringify({ requestId: id, project: "test-project", recipe: "video", status: "running", runId: "old-run", taskId: "old-task" })]);
+    database.close();
+    const journal = new CreativeJournal(path);
+    try {
+      const operation = journal.get(id);
+      expect(operation).toMatchObject({ recipe: "hyperframes-html", status: "failed", failureCode: "LEGACY_RECIPE_RETIRED", legacy: { runId: "old-run", taskId: "old-task" } });
+      expect(operation?.runId).toBeUndefined();
+      expect(readdirSync(directory).some(name => name.startsWith("state.sqlite.before-html-"))).toBe(true);
+      if (!operation) throw new Error("Missing migrated operation");
+      expect(() => journal.reserve(operation, "new-hash")).toThrow("different inputs");
+    } finally { journal.close(); rmSync(directory, { recursive: true, force: true }); }
   });
   test("source traversal rejected before provider request", async () => {
     const f = fixture();
