@@ -60,13 +60,14 @@ export class CreativeController {
       const result = z.object({ status, previewUrl: z.string().optional() }).parse(await this.provider.call("get_run", { runId: operation.runId }));
       const previewUrl = deliveryUrl(result.previewUrl);
       if (operation.recipe === "video" && result.status === "succeeded") {
+        const files = z.object({ files: z.array(z.object({ name: z.string(), size: z.number() })) }).parse(await this.provider.call("list_files", { project: operation.project }));
+        if (!files.files.some(file => file.name === VIDEO_RECEIPT)) return this.journal.save({ ...operation, status: "failed", failureCode: "AUTHORING_INCOMPLETE" });
         const text = z.string().parse(await this.provider.call("get_file", { project: operation.project, path: VIDEO_RECEIPT }));
         const receipt = z.object({ taskId: z.string(), status: z.string(), result: z.object({ error: z.object({ message: z.string() }).optional() }).optional() }).parse(JSON.parse(text));
         if (!["done", "succeeded"].includes(receipt.status)) {
           const { file: _unconfirmed, ...known } = operation;
           return this.journal.save({ ...known, taskId: receipt.taskId, status: "failed", failureCode: receipt.result?.error?.message.includes("desktop frame renderer is unavailable") ? "RENDERER_UNAVAILABLE" : "RENDER_FAILED" });
         }
-        const files = z.object({ files: z.array(z.object({ name: z.string(), size: z.number() })) }).parse(await this.provider.call("list_files", { project: operation.project }));
         if (!files.files.some(file => file.name === VIDEO_FILE && file.size > 0)) throw new CreativeError("ARTIFACT_MISSING", "Render receipt reports success but MP4 file is missing.");
         return this.journal.save({ ...operation, taskId: receipt.taskId, status: "succeeded", file: VIDEO_FILE });
       }
