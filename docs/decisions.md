@@ -14,7 +14,7 @@ Default labels: `feat`, `phase:architecture`, `priority:p1`.
 | --- | --- | --- |
 | Product name: Stream Machine | Confirmed by user | New project identity; no inherited K-Lab branding |
 | Separate repository | Streaming workflows exceed event-specific Studio scope | Reuse selected code later; preserve existing deployment |
-| First slice: demo connection→recipe→preview | Proves architecture with minimal integration risk | Every simulated account/action/result explicitly marked |
+| First slice: demo connection→recipe→preview | Proves architecture with minimal integration risk | Every demo account/action/result explicitly marked |
 | Local stdio core first | Desktop agent already orchestrates local MCP tools | No custom bridge, public endpoint, or hosted auth claim |
 | MCP App plus separate browser preview | Native workflow and practical local QA need distinct surfaces | Browser success does not establish host rendering |
 | Existing plugins preferred | Preserve working auth, hosting, and maintenance ownership | OpenDesign Cloud/Canva stay dependencies; no invented App IDs |
@@ -35,7 +35,7 @@ Default labels: `feat`, `phase:architecture`, `priority:p1`.
 | Automatic execution policy | First unattended write; define action scope, expiry, retry, and revocation |
 | HyperFrames plugin versus local CLI adapter | Verified plugin exists or rendering slice begins |
 | App dependency IDs and endpoint configuration | Actual connection discovery returns verified IDs/contracts |
-| Packaging/install/publication | Scaffold validation complete and chosen host workflow established |
+| Packaging/install/publication | Prototype validation complete and chosen host workflow established |
 
 ## Open product questions
 

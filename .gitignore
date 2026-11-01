@@ -5,3 +5,5 @@ docs/packages/
 .env*
 *.log
 .DS_Store
+.claude/nlpm-history.json
+.claude/nlpm-reports/

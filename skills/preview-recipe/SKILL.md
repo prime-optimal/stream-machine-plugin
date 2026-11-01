@@ -14,3 +14,19 @@ Disconnected demo state: offer `stream_machine_connect_demo`. Unknown recipe/cat
 Use `stream_machine_reset` only when asked to reset demo. Demo state lasts for current local server process; separate processes do not share accounts or history.
 
 Future provider orchestration belongs in explicit typed adapters or host-driven skills. Do not forward arbitrary tool names, URLs, secrets, or user-provided executable commands.
+
+First-time setup and the demo connection walkthrough belong to the `onboarding` skill.
+
+## Examples
+
+<example>
+Context: The demo account is connected.
+user: "Preview changing my stream title to 'Ranked grind' in Street Fighter 6."
+assistant: "I'll call `stream_machine_preview` for `prepare-channel` with that title and the `demo-street-fighter` category, then show the before/after for the fictional demo channel. This is a mock preview; nothing is applied."
+</example>
+
+<example>
+Context: The user asks what a recipe needs.
+user: "What does the prepare-channel recipe need to run?"
+assistant: "I'll list recipes with `stream_machine_list_recipes` and report its required capabilities and which ones this core can call."
+</example>

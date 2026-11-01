@@ -15,3 +15,19 @@ description: Set up Stream Machine after installation or when the user asks to c
 Desktop-capable MCP hosts can call local OBS/Stream Deck servers directly. Web/mobile require a hosted core; this release has no hosted endpoint. Unattended cloud-to-local workflows need separate runtime design later.
 
 Never request tokens in chat. Live Twitch authorization is not implemented. Do not launch candidate `obs-twitch-mcp` server during onboarding: inspected startup enables chat automation. Future integrations must address startup side effects and credential handling first.
+
+For later recipe previews after setup, use the `preview-recipe` skill.
+
+## Examples
+
+<example>
+Context: The plugin was just installed.
+user: "Set up Stream Machine and preview my first streaming recipe."
+assistant: "I'll open Stream Machine, offer the demo connection, and preview a recipe. Everything here is mock data; nothing changes on Twitch."
+</example>
+
+<example>
+Context: The user asks to connect their real Twitch account.
+user: "Connect my Twitch channel."
+assistant: "Live Twitch authorization isn't implemented in this release. I can connect the demo account so you can try recipe previews."
+</example>

@@ -1,0 +1,10 @@
+name: nlpm
+on:
+  pull_request:
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  nlpm:
+    uses: prime-optimal/.github/.github/workflows/nlpm-advisory.yml@main
+    secrets: inherit
