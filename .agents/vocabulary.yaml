@@ -22,6 +22,16 @@ nouns:
       deprecated: [running dependencies]
     - canonical: running process
       deprecated: [running dependency]
+    - canonical: mock demo
+      deprecated: [mock sample]
+    - canonical: fictional demo
+      deprecated: [fictional sample]
+    - canonical: fictional demo's
+      deprecated: [fictional sample's]
+    - canonical: that demo account
+      deprecated: [that sample account]
+    - canonical: demo data
+      deprecated: [sample data]
     - canonical: board status
       deprecated: ['Project #18 status']
     - canonical: board item
@@ -34,6 +44,8 @@ nouns:
       deprecated: [stop a dependency]
     - canonical: stopping the worker
       deprecated: [stopping the dependency]
+    - canonical: independent worker
+      deprecated: [background worker, detached worker, event worker]
 rejected:
   - term: mock
     reason: Names the mock data layer and status value (status "mock" in catalog.ts); demo names the user-facing account.
@@ -69,3 +81,7 @@ rejected:
     reason: Checkout means a clone or primary directory; worktree is a linked checkout.
   - term: session
     reason: Session is an agent session; writer is the actor editing files. Different meanings.
+  - term: live controls
+    reason: Live controls also means overlay playback controls; preview server is the process, not the page.
+  - term: job
+    reason: Creative job is a generation task; request ID identifies a call. Different things.

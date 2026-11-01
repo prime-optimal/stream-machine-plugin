@@ -9,7 +9,7 @@ The integration branch combines the parallel implementations. Every implementati
 | Twitch | Reused TwitchCon OAuth with a private local store. KLabFM connected with `channel:manage:broadcast`. The approved title update read back correctly, then the original title was restored. |
 | OBS | Real play and replay passed in OBS Studio Rust. Idle was transparent. Broadcasting and recording stayed stopped. |
 | Stream Deck | The user pressed the new 15-key USB device's button and confirmed the board opened. The integrated UI then configured it to open the local demo page and verified the stored action. |
-| Independent worker | A real `channel.update` event reached the detached worker after the MCP client/server disconnected. OBS showed the expected alert. The worker recorded one success. |
+| Independent worker | A real `channel.update` event reached the independent worker after the MCP client/server disconnected. OBS showed the expected alert. The worker recorded one success. |
 | Pause | Restoring the title after pause produced a second event but no second alert. Final counters recorded one success and one skipped event. |
 | OpenDesign | The existing Sealos service returned real projects and produced an isolated overlay through its installed scenario. |
 | HyperFrames HTML | Editable source and playable HTML passed service read-back and browser pause, replay, update, text-safety, and finite-playback checks. No MP4 is part of the deliverable. |
@@ -24,7 +24,7 @@ Run from the repository root:
 mise run preview
 ```
 
-Open [the live controls](http://127.0.0.1:4318/?preview=1). The page calls the actual registered MCP tools. The mock sample remains separate and collapsed.
+Open [the live controls](http://127.0.0.1:4318/?preview=1). The page calls the actual registered MCP tools. The mock demo remains separate and collapsed.
 
 The server must stay running for the USB button. Release the deck through that page before another process claims it. Elgato's app is absent, so this demo uses the existing USB MCP server.
 

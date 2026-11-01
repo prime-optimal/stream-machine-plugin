@@ -10,7 +10,8 @@ const transport = new StdioClientTransport({ command: process.execPath, args: [s
 try {
   await client.connect(transport);
   const { tools } = await client.listTools();
-  assert.equal(tools.length, 28);
+  assert.equal(tools.length, 29);
+  assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_profile" && tool.annotations?.readOnlyHint));
   assert.ok(tools.some(tool => tool.name === "stream_machine_obs_show_alert"));
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_apply_title"));
   assert.ok(!tools.some(tool => /start_broadcast|stop_broadcast/.test(tool.name)));
@@ -53,5 +54,5 @@ try {
   assert.ok("text" in resource.contents[0] && resource.contents[0].text.includes("Stream Machine"));
   await client.callTool({ name: "stream_machine_reset", arguments: {} });
   assert.equal((await client.callTool({ name: "stream_machine_preview", arguments: input })).isError, true);
-  console.log("PASS: 28 tools, 6300-second supplied-report metric, isolated mock lifecycle, UI resource, and explicit real adapters");
+  console.log("PASS: 29 tools, 6300-second supplied-report metric, isolated mock lifecycle, UI resource, and explicit real adapters");
 } finally { await client.close(); }
