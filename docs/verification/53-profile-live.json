@@ -1,0 +1,35 @@
+{
+  "checkedAt": "2026-11-01T22:01:03.845Z",
+  "transport": "bundled stdio MCP",
+  "actions": [
+    "stream_machine_twitch_profile",
+    "stream_machine_twitch_channel"
+  ],
+  "profile": {
+    "twitch": {
+      "mode": "live",
+      "source": "https://api.twitch.tv/helix/users",
+      "profile": {
+        "broadcasterId": "1494553296",
+        "login": "klabfm",
+        "displayName": "KLabFM",
+        "description": "K-LAB Discovery is a live DJ discovery series by K-LAB Worldwide, spotlighting rising DJs from Vegas and beyond. Built for the community, we share sounds, grow together, and showcase new talent. More than music. A sound experience. Follow @klab.worldwide. ",
+        "profilePictureUrl": "https://static-cdn.jtvnw.net/jtv_user_pictures/a2033a03-b826-4066-827f-be566118339c-profile_image-300x300.png",
+        "offlinePlaceholderUrl": null
+      }
+    }
+  },
+  "channel": {
+    "twitch": {
+      "mode": "live",
+      "channel": {
+        "broadcasterId": "1494553296",
+        "login": "klabfm",
+        "displayName": "KLabFM",
+        "title": "K-Lab Discovery - EDC Week Night 3",
+        "categoryId": "26936",
+        "categoryName": "Music"
+      }
+    }
+  }
+}

@@ -39,7 +39,7 @@ Factory creates worker-owned provider connections. Reuse Twitch OAuth/token prov
 
 `preflight()` performs read-only OBS readiness check and rejects on unavailable target. Any resolved value counts success. Arm imposes five-second deadline. `showAlert({text,signal})` invokes fixed OBS test alert once and resolves on confirmed request. Adapter must not retry writes. Failed or ambiguous writes remain consumed. Use dedicated test source; never broadcast or record.
 
-Parent MCP server can call `registerWorkerTools(server, {stateDir?})` from `src/worker/register.ts`. Tools forward status, arm, pause, and stop to existing worker. Tools do not load adapter modules or launch process. Host shutdown does not terminate detached worker.
+Parent MCP server can call `registerWorkerTools(server, {stateDir?})` from `src/worker/register.ts`. Tools forward status, arm, pause, and stop to existing worker. Tools do not load adapter modules or launch process. Host shutdown does not terminate independent worker.
 
 ## Bind channel updates to alert source
 
@@ -78,7 +78,7 @@ mise exec -- bun test
 mise exec -- bun run check
 ```
 
-All 22 tests pass. TypeScript check passes. Real subprocess test launches detached worker, observes launcher exit, dispatches synthetic event, checks socket permissions, rejects malformed/oversized requests, pauses, stops, restarts paused, and verifies persisted deduplication.
+All 22 tests pass. TypeScript check passes. Real subprocess test launches independent worker, observes launcher exit, dispatches synthetic event, checks socket permissions, rejects malformed/oversized requests, pauses, stops, restarts paused, and verifies persisted deduplication.
 
 Runtime tests cover concurrent events, pause during readiness/reservation, reconnect disarm, failed action without retry, stale/malformed events, corrupt ledger, and capacity failure.
 

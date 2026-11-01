@@ -28,7 +28,7 @@ The tested prototype contains these components:
 | Bundled stdio, `mise run smoke` | Discovered six tools. The disconnected preview rejection, demo connection, preview, UI resource, and reset checks passed. |
 | Archive validation, `mise run package` | Parsed the manifest JSON and skill YAML. Inspected archive entries contained no dependency directory, secrets, or configuration cache. |
 | Extracted archive | The MCP smoke test passed from a temporary directory outside the checkout without `node_modules`. |
-| Browser workflow | The fictional Sample Streamer account connected. The preview matched the entered title and category. Reset disabled the form. |
+| Browser workflow | The fictional demo Streamer account connected. The preview matched the entered title and category. Reset disabled the form. |
 | Browser console | No warnings or errors appeared during the tested workflow. |
 | Responsive layout | The page had no horizontal overflow at measured CSS viewports of 375×811, 767×1024, and 1440×900. |
 | Source review | A separate read-only review covered the domain, MCP registration, preview server, build, and package scripts. The review found no actionable issues. |
