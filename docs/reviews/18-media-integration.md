@@ -83,4 +83,12 @@ Oracle review could not run. CLI returned `targetActivationMismatch`. MCP fallba
 
 After fetch, remote main advanced to `bc43ca8`; coordinator merged PR #76 at 22:30:41 UTC. This integration task did not merge any GitHub PR or modify the primary checkout. Other focused PRs remain independent. Do not infer that clip live acceptance is complete from its merge.
 
-Initial handoff check exited 1 solely because the two publication draft files remained untracked. They are included in the publication commit. The clean upstream check is rerun after its push.
+The publication commit `bb48153974f3845c44ac3b8384888278ea1ebf43` was pushed. Fetch followed by `mise run git:handoff` exited 0 with a clean worktree matching upstream.
+
+## Reconcile the externally merged clip PR
+
+An external actor squash-merged PR #76 into main as `bc43ca8`. This made draft PR #80 conflict despite identical clip/auth source. Integration merged current origin/main in `95b4e0e8ee1f922fdac67ee1013f4cb3cca13018`. Only `docs/statechart/39-clip-download.md`, `scripts/smoke.ts`, and `scripts/package-smoke.ts` conflicted. Resolution retains the checked lifecycle correction and all 33-tool assertions. No provider source or cleanup behavior changed.
+
+At unchanged merge HEAD `95b4e0e8ee1f922fdac67ee1013f4cb3cca13018`, `mise run check`, `mise run test`, and `mise run smoke` exited 0. Tests passed 164 cases and 830 assertions; smoke confirmed 33 tools and the 6300-second sample metric. Earlier package and lifecycle evidence still describes unchanged code. The external merge does not satisfy missing clip consent, download/playback, or private-media live acceptance.
+
+[Reconciliation evidence](https://github.com/prime-optimal/stream-machine-plugin/issues/18#issuecomment-6564885080) is published as a new epic comment. Final push, fetched handoff, and GitHub mergeability are checked after this documentation commit.
