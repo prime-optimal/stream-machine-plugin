@@ -76,10 +76,10 @@ describe("Twitch live boundary with explicit fake provider", () => {
 });
 test("local OAuth callback and human approval form preserve trusted boundary", async () => {
   const port = 42000 + Math.floor(Math.random() * 10000);
-  let title = "Original", writes = 0;
+  let title = "Original", writes = 0, exchanges = 0;
   const fake: typeof fetch = Object.assign(async (input: string | URL | Request, init?: RequestInit) => {
     const url = String(input);
-    if (url.includes("/oauth2/token")) return Response.json({ access_token: "LOCAL_TOKEN_SENTINEL", refresh_token: "LOCAL_REFRESH_SENTINEL", expires_in: 3600, token_type: "bearer", scope: [TITLE_SCOPE] });
+    if (url.includes("/oauth2/token")) { exchanges++; return Response.json({ access_token: "LOCAL_TOKEN_SENTINEL", refresh_token: "LOCAL_REFRESH_SENTINEL", expires_in: 3600, token_type: "bearer", scope: [TITLE_SCOPE] }); }
     if (url.includes("/oauth2/validate")) return Response.json({ client_id: "client", user_id: "123", scopes: [TITLE_SCOPE], expires_in: 3600 });
     if (url.includes("/helix/users")) return Response.json({ data: [{ id: "123", login: "creator", display_name: "Creator" }] });
     if (url.includes("/helix/channels")) {
@@ -101,6 +101,13 @@ test("local OAuth callback and human approval form preserve trusted boundary", a
     const callback = `http://localhost:${port}/api/twitch/callback?state=${state}&code=test-code`;
     expect((await fetch(callback)).status).toBe(400);
     expect((await fetch(callback, { headers: { cookie: stateCookie } })).status).toBe(200);
+    expect((await fetch(callback, { headers: { cookie: stateCookie } })).status).toBe(200);
+    expect(exchanges).toBe(1);
+    expect((await fetch(callback)).status).toBe(400);
+    expect((await fetch(callback, { headers: { cookie: "sm_twitch_state=wrong-browser-state" } })).status).toBe(400);
+    expect((await fetch(callback.replace(`state=${state}`, "state=wrong-state"), { headers: { cookie: stateCookie } })).status).toBe(400);
+    expect(exchanges).toBe(1);
+    expect(runtime.diagnostics().every(f => f.class === "TwitchError" && f.code === "invalid_state" && f.status === 400)).toBe(true);
     const status = await runtime.titles.status(); expect(status.account.id).toBe("123");
     expect(JSON.stringify(status)).not.toContain("LOCAL_TOKEN_SENTINEL");
     const p = await runtime.titles.preview("Proposed"), approvalUrl = runtime.approvalUrl(p.previewId);

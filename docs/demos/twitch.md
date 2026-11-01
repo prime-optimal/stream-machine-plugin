@@ -53,7 +53,9 @@ Internal workers reuse `TwitchAccountProvider.withAccount(operation)` from `src/
 
 Fake-provider tests prove target derivation, missing scope, changed identity, stale title/category, preview expiry, approval requirement, single-use execution, concurrent-write exclusion, read-back mismatch, ambiguous write outcome, redacted results, cookie/state rejection, browser Origin enforcement. They do not prove live Twitch authorization or title mutation.
 
-Live evidence pending creator consent. No live title write performed at documentation creation.
+Live creator verification on 2026-11-01: validated `KLabFM` (`klabfm`), broadcaster `1494553296`, scope `channel:manage:broadcast`. Real Helix read returned title `K-Lab Discovery - EDC Week Night 3`, category `Music` (`26936`). No live title write performed at this point.
+
+Browser displayed callback error despite successful grant and storage. Historical error was not captured. Replaying a completed callback reproduced the same false failure in a failing test. Runtime now shares one completion per hashed, validated browser-cookie-bound state, preventing duplicate exchanges while preserving wrong-cookie and wrong-state rejection. Driver `diagnostics` command returns only sanitized error class, code, and status. Tests prove retry succeeds, exchange runs once, and wrong browser/state still fails. Historical browser error cause remains an inference.
 
 ## Limits
 
