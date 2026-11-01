@@ -1,4 +1,6 @@
-# Existing renderer diagnosis
+# Superseded renderer trial
+
+Historical audit only. User corrected scope to editable/playable HTML. Do not deploy candidate or submit render jobs. Original Sealos image restored and healthy; no owned jobs pending. Upstream issue5 closed NOT_PLANNED. Isolated trial commits remain unmerged. Current implementation is [HTML-only](creative.md).
 
 November 1, 2026. Read-only source/container inspection; no workload, image, authentication, container package, or runtime configuration changed.
 

@@ -2,9 +2,9 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import { CreativeJournal, type Operation } from "./journal";
 import { CreativeError, DESIGN_ORIGIN, type CreativeProvider } from "./provider";
-import { startVideo, VIDEO_FILE, VIDEO_RECEIPT } from "../hyperframes/video";
+import { authorHtml } from "../hyperframes/html";
 
-export const startSchema = z.object({ requestId: z.uuid(), project: z.string().min(1).max(128), recipe: z.enum(["overlay", "video"]), title: z.string().trim().min(1).max(48).default("WEEKEND / STUDIO") }).strict();
+export const startSchema = z.object({ requestId: z.uuid(), project: z.string().min(1).max(128), recipe: z.enum(["overlay", "hyperframes-html"]), title: z.string().trim().min(1).max(48).default("WEEKEND / STUDIO") }).strict();
 const listed = z.array(z.object({ id: z.string(), name: z.string().optional(), title: z.string().optional() }));
 const status = z.enum(["queued", "running", "succeeded", "failed", "canceled"]);
 const terminal = new Set(["succeeded", "failed", "canceled"]);
@@ -35,9 +35,9 @@ export class CreativeController {
     try {
       const projects = z.object({ projects: listed }).parse(await this.provider.call("list_projects", {})).projects;
       if (!projects.some(item => item.id === args.project)) throw new CreativeError("PROJECT_NOT_FOUND", "Choose exact project ID from creative list.");
-      if (args.recipe === "video") {
-        const task = await startVideo(this.provider, args.project, args.requestId);
-        return this.journal.save({ ...operation, ...task, status: "queued" });
+      if (args.recipe === "hyperframes-html") {
+        const artifact = await authorHtml(this.provider, args.project, args.requestId, args.title);
+        return this.journal.save({ ...operation, ...artifact, status: "succeeded" });
       }
       const scenarios = z.object({ plugins: listed }).parse(await this.provider.call("list_plugins", {})).plugins;
       if (!scenarios.some(item => item.id === "stream-overlay-authoring")) throw new CreativeError("CAPABILITY_UNAVAILABLE", "Installed overlay scenario unavailable.");
@@ -56,39 +56,18 @@ export class CreativeController {
     const operation = this.journal.get(requestId);
     if (!operation) throw new CreativeError("OPERATION_NOT_FOUND", "No creative operation for this request ID.");
     if (terminal.has(operation.status)) return operation;
-    if (operation.runId) {
-      const result = z.object({ status, previewUrl: z.string().optional() }).parse(await this.provider.call("get_run", { runId: operation.runId }));
+    if (operation.recipe === "overlay" && operation.runId) {
+      const result = z.object({ status, previewUrl: z.string().optional(), artifactPaths: z.array(z.string()).optional() }).parse(await this.provider.call("get_run", { runId: operation.runId }));
       const previewUrl = deliveryUrl(result.previewUrl);
-      if (operation.recipe === "video" && result.status === "succeeded") {
+      if (result.status === "succeeded") {
         const files = z.object({ files: z.array(z.object({ name: z.string(), size: z.number() })) }).parse(await this.provider.call("list_files", { project: operation.project }));
-        if (!files.files.some(file => file.name === VIDEO_RECEIPT)) return this.journal.save({ ...operation, status: "failed", failureCode: "AUTHORING_INCOMPLETE" });
-        const text = z.string().parse(await this.provider.call("get_file", { project: operation.project, path: VIDEO_RECEIPT }));
-        const receipt = z.object({ taskId: z.string(), status: z.string(), result: z.object({ error: z.object({ message: z.string() }).optional() }).optional() }).parse(JSON.parse(text));
-        if (!["done", "succeeded"].includes(receipt.status)) {
-          const { file: _unconfirmed, ...known } = operation;
-          return this.journal.save({ ...known, taskId: receipt.taskId, status: "failed", failureCode: receipt.result?.error?.message.includes("desktop frame renderer is unavailable") ? "RENDERER_UNAVAILABLE" : "RENDER_FAILED" });
-        }
-        if (!files.files.some(file => file.name === VIDEO_FILE && file.size > 0)) throw new CreativeError("ARTIFACT_MISSING", "Render receipt reports success but MP4 file is missing.");
-        return this.journal.save({ ...operation, taskId: receipt.taskId, status: "succeeded", file: VIDEO_FILE });
-      }
-      if (operation.recipe === "overlay" && result.status === "succeeded") {
-        const files = z.object({ files: z.array(z.object({ name: z.string(), size: z.number() })) }).parse(await this.provider.call("list_files", { project: operation.project }));
-        const file = files.files.find(file => file.name.endsWith("/index.html") && !file.name.includes("hyperframes-cache") && file.size > 0);
-        if (!file) throw new CreativeError("ARTIFACT_MISSING", "Scenario completed but no versioned HTML artifact was returned.");
+        const entries = (result.artifactPaths ?? []).filter(path => path.endsWith("/index.html") && !path.includes("hyperframes-cache") && !path.startsWith("creative-html/"));
+        if (entries.length !== 1) throw new CreativeError("ARTIFACT_MISSING", "Scenario must return one exact versioned HTML entry for its run.");
+        const file = files.files.find(file => file.name === entries[0] && file.size > 0);
+        if (!file) throw new CreativeError("ARTIFACT_MISSING", "Returned scenario HTML entry is missing.");
         return this.journal.save({ ...operation, status: "succeeded", file: file.name, source: file.name.replace(/index\.html$/, "source.json"), ...(previewUrl ? { previewUrl } : {}) });
       }
       return this.journal.save({ ...operation, status: result.status, ...(previewUrl ? { previewUrl } : {}) });
-    }
-    if (operation.taskId) {
-      const result = z.object({ tasks: z.array(z.object({ taskId: z.string(), status: z.enum(["queued", "running", "done", "failed", "interrupted"]), file: z.object({ name: z.string() }).nullable().optional(), error: z.object({ message: z.string() }).nullable().optional() })) }).parse(await this.provider.api(`/api/projects/${encodeURIComponent(operation.project)}/media/tasks?includeDone=1`));
-      const task = result.tasks.find(item => item.taskId === operation.taskId);
-      if (!task) throw new CreativeError("CONTRACT_MISMATCH", "Returned media task missing from project; keep original task ID.");
-      if (task.status === "done") {
-        const files = z.object({ files: z.array(z.object({ name: z.string(), size: z.number() })) }).parse(await this.provider.call("list_files", { project: operation.project }));
-        if (task.file?.name !== VIDEO_FILE || !files.files.some(file => file.name === VIDEO_FILE && file.size > 0)) throw new CreativeError("ARTIFACT_MISSING", "Completed task did not return expected nonempty MP4.");
-      }
-      if (["failed", "interrupted"].includes(task.status)) return this.journal.save({ ...operation, status: "failed", failureCode: task.error?.message.includes("desktop frame renderer is unavailable") ? "RENDERER_UNAVAILABLE" : "RENDER_FAILED" });
-      return this.journal.save({ ...operation, status: task.status === "done" ? "succeeded" : task.status === "interrupted" ? "failed" : task.status, ...(task.file ? { file: task.file.name } : {}) });
     }
     return operation.status === "submitting" ? this.journal.save({ ...operation, status: "unknown" }) : operation;
   }

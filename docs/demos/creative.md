@@ -1,55 +1,39 @@
-# Creative reuse demos
+# Creative HTML reuse demos
 
-Issues #43/#44 reuse existing Sealos service. No deployment, replacement renderer, Twitch action, or OBS control.
+HyperFrames authors editable/playable browser HTML, following TwitchCon overlays. Sealos runs original image `a3aa28203c12996188a2e9ad9037392e1207e719ef33a708abaa8ed7dfc0b50b`. No renderer deployment or media job belongs to this workflow.
 
-## Interface
+## Tools
 
-`registerCreativeTools(server)` from `src/adapters/design/register.ts` registers five independent live tools. Parent server owns registration/UI integration.
+`registerCreativeTools(server)` exports five live tools. Parent server owns registration and UI.
 
 | Tool | Input |
 | --- | --- |
 | `stream_machine_creative_list` | `{}` |
-| `stream_machine_creative_project` | `{name,id}`; ID begins `stream-machine-` |
-| `stream_machine_creative_start` | `{requestId,project,recipe,title?}`; recipe `overlay` or `video` |
+| `stream_machine_creative_project` | `{name,id}`; ID starts `stream-machine-` |
+| `stream_machine_creative_start` | `{requestId,project,recipe,title?}`; recipe `overlay` or `hyperframes-html` |
 | `stream_machine_creative_run` | `{requestId}` |
 | `stream_machine_creative_artifact` | `{project,entry}` |
 
-Overlay invokes installed `stream-overlay-authoring` with accepted camera-frame inputs, system fonts and GPT-6.1 Sol. Output offline HTML; no HyperFrames claim. Video invokes existing HyperFrames composition setup, edits its title/timeline, dispatches daemon `hyperframes-html` renderer, preserves returned task ID. Output three-second 1920×1080 silent MP4. Editable source stays under `.hyperframes-cache/<requestId>/`.
+Overlay invokes installed `stream-overlay-authoring`, preserving actual run ID and exact artifact entry. Fresh handoff succeeded with system fonts and requested GPT-6.1 Sol.
 
-Server-only `STREAM_MACHINE_DESIGN_AUTHORIZATION` carries existing proxy authorization injected through fnox/1Password. Never supply credentials to tools, UI, repository, or `.env`. Endpoint fixed to existing deployment. Authenticated requests reject redirects. Errors omit raw provider responses.
+HyperFrames HTML uses a fixed system-font composition with a paused GSAP timeline. TwitchCon live driver is copied byte-for-byte from `overlays/live/driver.js`, SHA256 `94b01676edd95c0f47cf968ae5d17842a1a8300ee7c2fbbd2555c422683ccf5b`, at Stream Makeover revision `4e2bff85969550e3b2e94aed2fab7a6b8f2f62db`. Injection follows `overlays/scripts/build-overlay.mjs`. No private fonts or assets copied.
 
-Operation journal defaults to private `~/.local/state/stream-machine/creative.sqlite`; optional absolute `STREAM_MACHINE_CREATIVE_STATE_DIR` selects private location. Same UUID and inputs never submit again. Changed inputs with same UUID fail. Lost acknowledgment remains `unknown`; inspect existing project before consciously creating another operation. Do not delete journal to retry. Provider run also receives original UUID. HyperFrames submission has no documented provider idempotency key; journal reservation precedes scaffold/render.
+Existing OpenDesign MCP stores three versioned files under `creative-html/<requestId>/`: paused authoring `source.html`, source/provenance `source.json`, and playable `index.html`. Exact readback is required before success. Playback fetches only pinned GSAP3.14.2 from jsDelivr. No HyperFrames CLI/runtime required.
 
-Status polls returned run only; hosted HyperFrames skill follows original media task through `od media wait` and writes its task receipt. Completed video requires terminal successful render receipt. Existing project task-list API remains available for inspection of earlier direct media tasks. Cancellation unsupported in this slice; do not equate disconnect with cancellation.
+Live controls match TwitchCon: `window.overlay.pause()`, `play()`, `replay()`, `update({title,primary})`, URL variables, default loop, and `?loop=0`. Title updates write text.
 
-Direct media integration trial exposed deployed MCP `write_file` normalization: `.hyperframes-cache` becomes `_hyperframes-cache`, leaving generated composition unchanged. Final recipe commissions installed HyperFrames skill to edit actual hidden source and use existing `od media scaffold` → `od media generate` → `od media wait`. No service change required. Media HTTP requests include deployment's configured Origin, as required by existing reverse proxy policy.
+## Connection and retry contract
+
+Server-only `STREAM_MACHINE_DESIGN_USERNAME` and `STREAM_MACHINE_DESIGN_PASSWORD` resolve through fnox/1Password. Adapter constructs Basic authorization in memory. Explicit `STREAM_MACHINE_DESIGN_AUTHORIZATION` overrides derived authorization. No credentials enter tool inputs, artifacts, logs, UI, or package. Existing administrative connection remains personal and single-tenant.
+
+Private SQLite journal preserves UUID/hash duplicate protection. Same request never repeats writes. Lost acknowledgments remain unknown. Changed inputs with same UUID fail. Historical render records are privately backed up and retired as failed; they cannot trigger provider polling.
 
 ## Verification
 
-November 1 read-only checks: authenticated `/api/health`200, version0.25.1; remote MCP tools/list22; projects, scenarios, skills, agents readable; integrated HyperFrames provider advertised. Configured desktop MCP points local signed app sidecar, explaining why its transport failure cannot establish Sealos outage.
+Fresh installed overlay handoff: project `stream-machine-creative-20261101`, run `145dd920-d844-4961-b239-2322467e9ced`, entry `weekend-camera-v1/index.html`. [Offline HTML](creative-artifacts/overlay.html) and [browser screenshot](creative-artifacts/overlay-browser.png) preserve proof. Transparent body, no external scripts, no browser console errors. No new OBS verification.
 
-Fresh isolated project: `stream-machine-creative-20261101`. Historical accepted scenario evidence remains [reuse-evidence](../reuse-evidence.md).
+Corrected HTML-only live artifact/browser proof is recorded after final verification. TypeScript/build and fifteen tests pass before service writes.
 
-| Check | Fresh result |
-| --- | --- |
-| Installed overlay handoff | Run `145dd920-d844-4961-b239-2322467e9ced` succeeded; request `a4c409ba-724f-46d3-a601-2b97d2d3007f`. |
-| Artifact retrieval | `weekend-camera-v1/index.html` retrieved through public adapter; no truncation. Editable `source.json` retained remotely. |
-| Local browser | Title, aperture, copy visible; transparent body; no external scripts or browser console warnings/errors. [Screenshot](creative-artifacts/overlay-browser.png), [offline HTML](creative-artifacts/overlay.html). No new OBS verification. |
-| HyperFrames handoff | Run `fb7a3a55-e891-4dcd-a12e-40cafe6da99d` followed task `2a69c8a7-03ac-4923-b629-3dddc8f94d4f` to failure, without resubmission. |
-| Render result | Existing Sealos runtime reports desktop frame renderer unavailable. MP4 absent; dimensions/duration/frames/playback unverified. [Exact receipt](creative-artifacts/video-task.json), [editable source](creative-artifacts/video-source.html). |
-| Status truthfulness | Outer authoring run reported succeeded despite failed render. Adapter reads render receipt, returns failed with `RENDERER_UNAVAILABLE`, does not return MP4 as available artifact. |
-| Local checks | TypeScript/build pass; thirteen tests pass, including duplicate suppression, failed render receipt, invalid recipe/input, Origin policy and unusable localhost delivery URL. |
+## Historical correction
 
-Issue #43 has fresh connection/handoff/artifact proof. Issue #44 remains incomplete: existing renderer unavailable. No successful video or installed HyperFrames package version claim. Existing source `apps/daemon/src/media/index.ts:3948–3965` has explicit `HYPERFRAMES_BROWSER_PATH` daemon override; absent that override and desktop registration, it throws recorded error. Runtime/config investigation must precede any proposed change.
-
-Commands, with authorization already injected server-side:
-
-```sh
-mise exec -- bun scripts/creative-demo.ts list
-mise exec -- bun scripts/creative-demo.ts project 'Stream Machine QA' stream-machine-qa-UNIQUE
-mise exec -- bun scripts/creative-demo.ts start stream-machine-qa-UNIQUE overlay UUID
-mise exec -- bun scripts/creative-demo.ts run UUID
-mise exec -- bun scripts/creative-demo.ts artifact stream-machine-qa-UNIQUE ENTRY
-```
-
-Shared administrative connection remains single-tenant. Project ID selection does not establish multi-user authorization. Generated HTML/source is untrusted artifact text; tool never executes it.
+Earlier MP4 interpretation was wrong. Trial image rolled back; original service health200, anonymousHTML401, authenticatedHTML200, MCP22tools, unchanged non-image configuration. No owned render tasks pending. Upstream runtime issue5 closed NOT_PLANNED. [Historical diagnosis](creative-renderer-repair.md) and failed receipts remain audit records, not operating instructions.
