@@ -1,6 +1,6 @@
 # Observed broadcast duration
 
-`src/analytics/register.ts` exports `registerAnalyticsTools(server)` for the integration owner. It registers `stream_machine_streaming_metric`. The main server does not register this tool yet.
+`src/analytics/register.ts` exports `registerAnalyticsTools(server)` and the main server calls it. It registers `stream_machine_streaming_metric`. The tool is available through bundled stdio MCP; no graphical UI is required.
 
 The tool calculates duration from an explicitly user-supplied report. It does not fetch a provider, verify report authenticity, infer missing sessions, or claim Creator Dashboard access. `complete` describes supplied coverage, not independently verified completeness.
 
@@ -26,4 +26,8 @@ This fixture is synthetic, not a provider export or account claim:
 
 Session union spans two hours. Its intersection with coverage spans 105 minutes: `105 * 60 = 6300` seconds, `6300 / 3600 = 1.75` hours. The uncovered interval 11:45–12:00 spans 900 seconds. Coverage status is `partial`; overlapping sessions do not double-count.
 
-Run `bun test tests/broadcast-duration.test.ts tests/analytics-registration.test.ts` from the issue worktree. Expected result: 18 passing tests. The MCP test connects an actual in-memory client and server, invokes the tool, checks structured results, and rejects an invalid timezone. No browser view exists for this module-only integration slot.
+Run `bun test tests/broadcast-duration.test.ts tests/analytics-registration.test.ts` from the issue worktree. Expected result: 18 passing tests. The MCP test connects an actual in-memory client and server, invokes the tool, checks structured results, and rejects an invalid timezone. No browser view exists for this chat-first calculation.
+
+## Bundled integration verification
+
+Run `mise run smoke` to build the server and invoke the synthetic sample through a real stdio MCP client. This branch advertises 28 tools. Smoke validates 6,300 seconds, 1.75 hours, partial coverage, the exact 900-second gap, and unverified user-supplied provenance. `mise run package` creates the plugin archive and runs its package smoke check. These checks do not contact analytics providers.
