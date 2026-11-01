@@ -1,81 +1,87 @@
-# Integration inventory
+# Integration choices
 
-Status: source review and architecture recommendations. No external server installed, vendored, connected, or exercised by this review. User reports existing OpenDesign Cloud deployment/plugin and Stream Deck hardware; deployed contracts and device state remain unverified here.
+Stream Machine uses existing plugins and local MCP servers to avoid maintaining copies of their authentication and device controls. This document explains the proposed integrations and the constraints found during source review.
 
-Repository: https://github.com/prime-optimal/stream-machine-plugin
+The review did not install, connect, or run external servers. The user reported an existing OpenDesign Cloud deployment and plugin, plus Stream Deck hardware. The review did not verify that deployment or the device state. Version numbers below describe the inspected source, not current releases.
 
-Project: [Stream Machine #18](https://github.com/users/prime-optimal/projects/18)
+The repository is [prime-optimal/stream-machine-plugin](https://github.com/prime-optimal/stream-machine-plugin).
 
-Default labels: `feat`, `phase:architecture`, `priority:p1`.
+The project board is [Stream Machine #18](https://github.com/users/prime-optimal/projects/18).
+
+The default issue labels are `feat`, `phase:architecture`, and `priority:p1`.
 
 ## Adoption policy
 
-Prefer an existing authenticated plugin connection when available. Otherwise use a pinned local MCP dependency behind a narrow adapter. Vendor source only when justified by missing capabilities, with license/provenance review and explicit maintenance ownership. Registry presence, repository existence, and working integration are separate facts.
+An existing authenticated plugin is the first choice because it retains the provider's connection and hosting. A local MCP dependency is the next choice when the task needs access to a device or local process. An adapter translates Stream Machine capabilities into calls to that dependency.
 
-Record upstream repository, commit/release, transport, execution location, authentication, supported actions, side effects, license, and verification status for each adapter. Preserve upstream credentials and host connection selection. Never infer connection IDs or register placeholder endpoints.
+The design calls for each dependency to use a specific release or commit. Copying source into this repository would also require a license review, a source record, and a named maintainer. A repository or directory listing alone does not prove that an integration works.
+
+Each adapter's record identifies the upstream repository, version, transport, execution location, authentication, supported actions, side effects, license, and verification status. The host retains credential handling and connection selection. Stream Machine uses only verified connection IDs and endpoints.
 
 ## Primary candidates
 
-| Integration | Verified source contract | Recommendation |
+The proposed choices reflect each integration's execution and authentication requirements.
+
+| Integration | Source review finding | Proposed choice |
 | --- | --- | --- |
-| Twitch | Existing Stream Makeover user OAuth core; no reusable EventSub delivery implementation established | Extract auth domain later; implement explicit Helix capabilities behind adapter |
-| Stream Deck | Python stdio server; native profile authoring default; separate USB server | Optional local dependency; inventory and preview first |
-| OBS | Go stdio MCP server over OBS WebSocket; separate localhost dashboard/screenshot HTTP | Optional local dependency; enforce action allowlist outside upstream server |
-| OpenDesign Cloud | User already has deployment/plugin; upstream repo includes local stdio project API | Reuse existing plugin, verify its deployed contract independently |
-| Canva | Prefer existing plugin connection | Discover actual tools/auth before choosing recipe actions |
-| HyperFrames | Existing project CLI-based authoring and portable HTML output | Optional local renderer; dedicated plugin remains unverified after directory search returned no result |
+| Twitch | Stream Makeover has user OAuth code. The review established no reusable EventSub delivery implementation. | Extract the authentication code later and expose specific Helix actions through an adapter. |
+| Stream Deck | A Python stdio server writes native profiles. A separate server controls USB devices. | Use an optional local dependency, starting with inventory and previews. |
+| OBS | A Go stdio MCP server connects to OBS WebSocket. Separate HTTP endpoints provide a dashboard and screenshots. | Use an optional local dependency with an adapter that permits specific actions. |
+| OpenDesign Cloud | The user reports an existing deployment and plugin. The upstream repository includes a local stdio project API. | Reuse the plugin after verifying its deployed tools and authentication. |
+| Canva | This review did not verify the plugin's tools or authentication. | Prefer an existing plugin connection after those checks. |
+| HyperFrames | The existing project uses its CLI to author portable HTML. A directory search found no dedicated plugin. | Use an optional local renderer unless a suitable plugin is verified. |
 
 ## Stream Deck
 
-[prime-optimal/streamdeck-mcp](https://github.com/prime-optimal/streamdeck-mcp) declares package `0.3.0`, Python ≥3.11, and two commands: profile writer `streamdeck-mcp`, USB server `streamdeck-mcp-usb`. [Package contract](https://github.com/prime-optimal/streamdeck-mcp/blob/main/pyproject.toml), [stdio entrypoint](https://github.com/prime-optimal/streamdeck-mcp/blob/main/profile_server.py#L953).
+[prime-optimal/streamdeck-mcp](https://github.com/prime-optimal/streamdeck-mcp) declares version `0.3.0` and requires Python 3.11 or later. The `streamdeck-mcp` command starts the profile writer. The `streamdeck-mcp-usb` command starts the USB server. [Package definition](https://github.com/prime-optimal/streamdeck-mcp/blob/main/pyproject.toml), [stdio entrypoint](https://github.com/prime-optimal/streamdeck-mcp/blob/main/profile_server.py#L953).
 
-Profile writer reads/writes Elgato ProfilesV3 with V2 fallback, discovers installed actions, reuses configured buttons/dials, generates icons, and creates executable shell scripts. Default workflow targets macOS/Windows Elgato app; USB mode supports headless/Linux setups. Nine profile tools declared in source. [Tool declarations](https://github.com/prime-optimal/streamdeck-mcp/blob/main/profile_server.py#L299), [README](https://github.com/prime-optimal/streamdeck-mcp/blob/main/README.md#L150).
+The profile writer reads and writes Elgato ProfilesV3, with ProfilesV2 as a fallback. It discovers installed actions, reuses configured buttons and dials, generates icons, and creates executable shell scripts. The default workflow targets the Elgato app on macOS and Windows. USB mode supports Linux and headless setups. [Tool declarations](https://github.com/prime-optimal/streamdeck-mcp/blob/main/profile_server.py#L299), [installation options](https://github.com/prime-optimal/streamdeck-mcp/blob/main/README.md#L150).
 
-Profile mutation requires quit→write→relaunch because Elgato app can overwrite file changes. macOS can automate that cycle; Windows instructions require manual quit/relaunch. Treat this as explicit workflow impact. Avoid generic script creation in first live recipe. [Write constraints](https://github.com/prime-optimal/streamdeck-mcp/blob/main/README.md#L230).
+Profile updates require the Elgato app to quit before a write and restart afterward. Otherwise, the app can overwrite the changed files. The macOS workflow can automate that cycle. The Windows instructions require the user to quit and restart the app. This interruption belongs in the recipe preview. The first live recipe excludes general-purpose script creation because executable scripts require a separate review of their effects. [Write constraints](https://github.com/prime-optimal/streamdeck-mcp/blob/main/README.md#L230).
 
-MIT core; retain notices if redistributing. Bundled MDI assets have separate license. Fork retains upstream package identity, so generic package install may resolve upstream instead of this fork. Pin selected source deliberately. [LICENSE](https://github.com/prime-optimal/streamdeck-mcp/blob/main/LICENSE), [MDI license](https://github.com/prime-optimal/streamdeck-mcp/blob/main/streamdeck_assets/MDI-LICENSE).
+The core uses the MIT license, which requires notices in redistributed copies. Bundled MDI assets have a separate license. The fork retains the upstream package identity, so a generic package installation may select the upstream version. Stream Machine therefore needs an explicit source version. [MIT license](https://github.com/prime-optimal/streamdeck-mcp/blob/main/LICENSE), [MDI license](https://github.com/prime-optimal/streamdeck-mcp/blob/main/streamdeck_assets/MDI-LICENSE).
 
 ## OBS
 
-[prime-optimal/agentic-obs](https://github.com/prime-optimal/agentic-obs) starts MCP with `StdioTransport`. Its HTTP listener serves dashboard/screenshots, not remote MCP. Defaults point to localhost OBS WebSocket; OBS credentials/config are stored locally in SQLite. [Transport](https://github.com/prime-optimal/agentic-obs/blob/main/internal/mcp/server.go#L297), [config](https://github.com/prime-optimal/agentic-obs/blob/main/config/config.go#L64).
+[prime-optimal/agentic-obs](https://github.com/prime-optimal/agentic-obs) starts MCP with `StdioTransport`. Its HTTP listener provides the dashboard and screenshots. It does not provide remote MCP access. The default OBS WebSocket address is localhost, and the server stores OBS credentials and configuration in local SQLite. [Transport implementation](https://github.com/prime-optimal/agentic-obs/blob/main/internal/mcp/server.go#L297), [configuration](https://github.com/prime-optimal/agentic-obs/blob/main/config/config.go#L64).
 
-README advertises scene/source/audio controls, recording/streaming, presets, screenshots, automation, resources, and prompts. Tool count is documentation-reported, not independently reconciled. Runtime discovery is authoritative. [README](https://github.com/prime-optimal/agentic-obs/blob/main/README.md#L9).
+The README lists controls for scenes, sources, audio, recording, and streaming. It also describes presets, screenshots, automation, resources, and prompts. The review did not reconcile the documented tool count with the implementation. An adapter must discover the tools available from the running server. [Documented features](https://github.com/prime-optimal/agentic-obs/blob/main/README.md#L9).
 
-Group configuration is not sufficient authorization: Core combines reads with broadcast writes, and meta tools can change enabled groups. Adapter must enforce action policy independently. First live checks should list status/scenes only. Never start/stop a broadcast as incidental verification. [Groups](https://github.com/prime-optimal/agentic-obs/blob/main/config/config.go#L159), [meta tools](https://github.com/prime-optimal/agentic-obs/blob/main/README.md#L288).
+Tool groups cannot enforce the required permissions. The Core group combines reads with broadcast changes, and meta tools can enable other groups. The adapter must check each action independently. Initial live verification is limited to status and scene lists. It must never start or stop a broadcast. [Tool groups](https://github.com/prime-optimal/agentic-obs/blob/main/config/config.go#L159), [meta tools](https://github.com/prime-optimal/agentic-obs/blob/main/README.md#L288).
 
-Actual LICENSE is MIT despite stale README placeholder. Module/install examples retain upstream identity; pin chosen fork. [LICENSE](https://github.com/prime-optimal/agentic-obs/blob/main/LICENSE).
+The `LICENSE` file specifies MIT, although the README contains an outdated license placeholder. The module and installation examples retain the upstream identity. An explicit source version is needed to select the intended fork. [MIT license](https://github.com/prime-optimal/agentic-obs/blob/main/LICENSE).
 
 ## OpenDesign Cloud
 
-Preserve existing deployment and plugin. Upstream [nexu-io/open-design](https://github.com/nexu-io/open-design) package inspected at `0.25.1`; local stdio MCP proxies daemon project operations. Tools include brief collection, project/artifact/file operations, and design-run lifecycle. [Package](https://github.com/nexu-io/open-design/blob/main/package.json), [tools](https://github.com/nexu-io/open-design/blob/main/apps/daemon/src/mcp.ts#L365), [transport](https://github.com/nexu-io/open-design/blob/main/apps/daemon/src/mcp.ts#L2059).
+The existing deployment and plugin avoid the need for a second server. The inspected [nexu-io/open-design](https://github.com/nexu-io/open-design) package declares version `0.25.1`. Its local stdio MCP process forwards project operations to the daemon. Tools collect briefs, manage projects and artifacts, read and write files, and control design runs. [Package definition](https://github.com/nexu-io/open-design/blob/main/package.json), [tool declarations](https://github.com/nexu-io/open-design/blob/main/apps/daemon/src/mcp.ts#L365), [transport implementation](https://github.com/nexu-io/open-design/blob/main/apps/daemon/src/mcp.ts#L2059).
 
-Upstream `mcp-oauth.ts` handles outbound OAuth to other MCP servers; it does not establish inbound authentication for user's deployed endpoint. Discover deployed tools, auth, and artifact references before binding recipes. [OAuth direction](https://github.com/nexu-io/open-design/blob/main/apps/daemon/src/mcp-oauth.ts#L1).
+The upstream `mcp-oauth.ts` handles outbound OAuth to other MCP servers. That code does not establish how the user's deployed endpoint authenticates incoming requests. Recipe integration still requires verification of that endpoint's tools, authentication, and artifact references. [OAuth client implementation](https://github.com/nexu-io/open-design/blob/main/apps/daemon/src/mcp-oauth.ts#L1).
 
-Apache-2.0 core; bundled templates/skills can retain separate licenses. No reason to copy the daemon into Stream Machine. [LICENSE](https://github.com/nexu-io/open-design/blob/main/LICENSE), [third-party license note](https://github.com/nexu-io/open-design/blob/main/README.md#L735).
+The core uses Apache-2.0. Bundled templates and skills can retain separate licenses. Reusing the existing connection avoids copying and maintaining the daemon in Stream Machine. [Apache-2.0 license](https://github.com/nexu-io/open-design/blob/main/LICENSE), [third-party license note](https://github.com/nexu-io/open-design/blob/main/README.md#L735).
 
 ## Twitch capability boundaries
 
-Developer account/API access does not replace each streamer's user authorization. Scope requests follow selected capabilities. Keep app tokens, user tokens, and plugin caller identity distinct. [Twitch authentication](https://dev.twitch.tv/docs/authentication/).
+A developer account with API access does not replace each streamer's authorization. Requested scopes depend on the selected capability. App tokens, user tokens, and the plugin caller's identity have distinct roles in the design. [Twitch authentication](https://dev.twitch.tv/docs/authentication/).
 
-Channel updates require user authorization with `channel:manage:broadcast`. Official clip download requires the applicable `channel:manage:clips` or `editor:manage:clips` grant; listing clips is not downloading them. [Channel updates](https://dev.twitch.tv/docs/api/reference/#modify-channel-information), [clip downloads](https://dev.twitch.tv/docs/api/reference/#get-clips-download).
+Channel updates require user authorization with `channel:manage:broadcast`. Official clip downloads require the applicable `channel:manage:clips` or `editor:manage:clips` grant. A tool that lists clips does not necessarily download them. [Channel updates](https://dev.twitch.tv/docs/api/reference/#modify-channel-information), [clip downloads](https://dev.twitch.tv/docs/api/reference/#get-clips-download).
 
-Analytics must name its dataset: Twitch's developer analytics endpoints cover extensions/games, not the full broadcaster Creator Dashboard. Store collected event statistics with explicit coverage and timestamps. [Twitch insights](https://dev.twitch.tv/docs/insights/).
+Twitch's developer analytics endpoints cover extensions and games. They do not expose the full broadcaster Creator Dashboard. Stream Machine therefore needs to name each analytics dataset and record the coverage and timestamps of collected event statistics. [Twitch insights](https://dev.twitch.tv/docs/insights/).
 
-EventSub webhook subscription creation uses an app token plus required user grants; WebSocket subscriptions use user tokens. Select transport only when execution location and unattended behavior are decided. [Subscription management](https://dev.twitch.tv/docs/eventsub/manage-subscriptions/).
+EventSub webhook subscription creation uses an app token plus the required user grants. WebSocket subscriptions use user tokens. The transport choice depends on where the subscription runs and whether delivery must continue while chat is closed. [Subscription management](https://dev.twitch.tv/docs/eventsub/manage-subscriptions/).
 
 ## Additional source-reviewed candidates
 
-These candidates remain unbound. Findings below describe inspected source; no runtime compatibility or authentication verification performed.
+These candidates have no configured connection. The review inspected their source but did not verify runtime compatibility or authentication.
 
-| Candidate | Boundary found | Decision |
+| Candidate | Source review finding | Proposed choice |
 | --- | --- | --- |
-| [mcp-igdb](https://github.com/prime-optimal/mcp-igdb) | Stdio relay through Pipeworx, not direct IGDB API adapter; MIT LICENSE present | Optional game metadata capability only after relay dependency/auth review |
-| [obs-twitch-mcp](https://github.com/prime-optimal/obs-twitch-mcp) | Broad FastMCP tools; startup includes chat/spam-ban behavior; auth helper emits tokens and uses local JSON storage | Requires adaptation before adoption; never start as harmless discovery |
-| [twitch-mcp-server](https://github.com/prime-optimal/twitch-mcp-server) | App-token, read-only Twurple stdio; no user OAuth/EventSub/download; undocumented GraphQL comments path | Possible read adapter reference; exclude undocumented comments path |
-| [yt-media-info-mcp](https://github.com/prime-optimal/yt-media-info-mcp) | Metadata/transcripts/search, no media downloads; stdio frontend plus Python service; HTTP auth optional and default bind broad | Do not label downloader; keep service private if adopted |
+| [mcp-igdb](https://github.com/prime-optimal/mcp-igdb) | It relays stdio requests through Pipeworx rather than calling IGDB directly. An MIT `LICENSE` file is present. | Consider game metadata after reviewing the relay dependency and its authentication. |
+| [obs-twitch-mcp](https://github.com/prime-optimal/obs-twitch-mcp) | It exposes broad FastMCP tools. Startup includes chat handling and spam bans. Its authentication helper emits tokens and stores them in local JSON. | Adapt the server before adoption. Starting it is not a harmless discovery check. |
+| [twitch-mcp-server](https://github.com/prime-optimal/twitch-mcp-server) | It uses app tokens for read-only Twurple calls over stdio. It has no user OAuth, EventSub, or downloads. Its comments code uses undocumented GraphQL. | Consider the read operations as a reference. Exclude the undocumented comments code. |
+| [yt-media-info-mcp](https://github.com/prime-optimal/yt-media-info-mcp) | It provides metadata, transcripts, and search, but no media downloads. It combines a stdio frontend with a Python service. HTTP authentication is optional, and the default service address is not restricted to loopback. | Treat it as a metadata service. Keep the service private if adopted. |
 
-MIT LICENSE files found for IGDB/media candidates. OBS/Twitch candidate package declarations mention MIT, but standalone license files were not found during review. Review redistribution notices before copying source. No vendoring planned.
+The review found MIT `LICENSE` files in `mcp-igdb` and `yt-media-info-mcp`. The package declarations for `obs-twitch-mcp` and `twitch-mcp-server` mention MIT, but the review found no standalone license files. Copying their source would require a review of redistribution notices. The current proposal copies none of these implementations.
 
 ## First adapter acceptance
 
-Verify one harmless record before scale: a profile/status query, scene list, deck inventory, or design artifact read. Record provider version, normalized capability result, and limitations. Add writes only after preview describes exact target/change and server-side policy enforces authorized operation. Optional dependency failure must leave unrelated recipes usable.
+An adapter's first verification covers one harmless result, such as a profile query, scene list, deck inventory, or design artifact. The record includes the provider version, the adapter's result, and known limits. Writes require a preview of the exact target and change, plus server-side authorization. Failure of an optional dependency must leave unrelated recipes usable.
