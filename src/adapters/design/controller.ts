@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import { CreativeJournal, type Operation } from "./journal";
 import { CreativeError, type CreativeProvider } from "./provider";
-import { startVideo } from "../hyperframes/video";
+import { startVideo, VIDEO_RECEIPT } from "../hyperframes/video";
 
 export const startSchema = z.object({ requestId: z.uuid(), project: z.string().min(1).max(128), recipe: z.enum(["overlay", "video"]), title: z.string().trim().min(1).max(48).default("WEEKEND / STUDIO") }).strict();
 const listed = z.array(z.object({ id: z.string(), name: z.string().optional(), title: z.string().optional() }));
@@ -53,6 +53,12 @@ export class CreativeController {
     if (terminal.has(operation.status)) return operation;
     if (operation.runId) {
       const result = z.object({ status, previewUrl: z.string().optional() }).parse(await this.provider.call("get_run", { runId: operation.runId }));
+      if (operation.recipe === "video" && result.status === "succeeded") {
+        const text = z.string().parse(await this.provider.call("get_file", { project: operation.project, path: VIDEO_RECEIPT }));
+        const receipt = z.object({ taskId: z.string(), status: z.string() }).parse(JSON.parse(text));
+        if (!["done", "succeeded"].includes(receipt.status)) return this.journal.save({ ...operation, taskId: receipt.taskId, status: "failed" });
+        return this.journal.save({ ...operation, taskId: receipt.taskId, status: "succeeded" });
+      }
       return this.journal.save({ ...operation, status: result.status, ...(result.previewUrl ? { previewUrl: result.previewUrl } : {}) });
     }
     if (operation.taskId) {

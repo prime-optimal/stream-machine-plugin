@@ -20,7 +20,9 @@ Server-only `STREAM_MACHINE_DESIGN_AUTHORIZATION` carries existing proxy authori
 
 Operation journal defaults to private `~/.local/state/stream-machine/creative.sqlite`; optional absolute `STREAM_MACHINE_CREATIVE_STATE_DIR` selects private location. Same UUID and inputs never submit again. Changed inputs with same UUID fail. Lost acknowledgment remains `unknown`; inspect existing project before consciously creating another operation. Do not delete journal to retry. Provider run also receives original UUID. HyperFrames submission has no documented provider idempotency key; journal reservation precedes scaffold/render.
 
-Status polls returned run/task only. Media polling uses existing project task-list API with `includeDone=1`, equivalent task ownership to daemon workflow; no local renderer. Current public proxy injects daemon bearer authorization, so CLI tool-token wait path must not be guessed. Cancellation unsupported in this slice; do not equate disconnect with cancellation.
+Status polls returned run only; hosted HyperFrames skill follows original media task through `od media wait` and writes its task receipt. Completed video requires terminal successful render receipt. Existing project task-list API remains available for inspection of earlier direct media tasks. Cancellation unsupported in this slice; do not equate disconnect with cancellation.
+
+Direct media integration trial exposed deployed MCP `write_file` normalization: `.hyperframes-cache` becomes `_hyperframes-cache`, leaving generated composition unchanged. Final recipe commissions installed HyperFrames skill to edit actual hidden source and use existing `od media scaffold` → `od media generate` → `od media wait`. No service change required. Media HTTP requests include deployment's configured Origin, as required by existing reverse proxy policy.
 
 ## Verification
 
