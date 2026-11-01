@@ -27,7 +27,7 @@ Official example host: `production.assets.clips.twitchcdn.net`. No complete CDN 
 
 ## Implementation adjustments
 
-The smoke script also belongs to this issue because registration adds two tools. This branch expects 29. User authorized this change. #40 adds its tool independently; reconcile counts and preserve all tool assertions when integrating branches.
+The smoke script also belongs to this issue because registration adds two tools. The initial branch expected 29. User authorized this change. After merging main's #53 profile tool, this branch expects 30 in both source and packaged smoke checks. #40 adds its tool independently; reconcile counts and preserve all tool assertions when integrating branches.
 
 Review renamed the synchronous connect result's new field to `additionalScopes`. It describes explicit flags without misreporting preserved grants. `TwitchService.begin` returns full effective `requestedScopes`. The storage deadline covers network waits, not stalled filesystem operations. Safe cleanup waits rather than racing pending writes.
 

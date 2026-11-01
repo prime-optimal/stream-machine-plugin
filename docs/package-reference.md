@@ -19,13 +19,13 @@ The command in `mcp.json` resolves optional private credentials with fnox, then 
 | `stream_machine_preview` | Returns proposed channel updates without applying them. |
 | `stream_machine_reset` | Disconnects the fictional account. |
 
-The server also registers three OBS tools, four USB Stream Deck tools, five Twitch tools, five creative tools, and four worker controls. `mise run smoke` verifies the current total of 27 and the mock boundary. The UI resource uses `text/html;profile=mcp-app`.
+The server also registers three OBS tools, four USB Stream Deck tools, six Twitch tools, five creative tools, and four worker controls. `mise run smoke` verifies the current total of 28 and the mock boundary. The profile read returns the connected account description, photo, and offline image. See the [Twitch profile reference](twitch-profile.md). The UI resource uses `text/html;profile=mcp-app`.
 
 ## State and limits
 
-The fictional sample remains mock-only. The provider tools perform real operations and report failures without substituting sample data. Title and button writes require the corresponding preview flow. The background worker starts separately and remains paused until explicitly armed.
+The fictional demo remains mock-only. The provider tools perform real operations and report failures without substituting demo data. Title and button writes require the corresponding preview flow. The independent worker starts separately and remains paused until explicitly armed.
 
-The fictional sample's connection state lasts for the current MCP process. A restart disconnects that sample account. Real Twitch credentials use the encrypted local store. Creative requests and worker event IDs have separate local records. The prototype does not provide multi-user authentication.
+The fictional demo's connection state lasts for the current MCP process. A restart disconnects that demo account. Real Twitch credentials use the encrypted local store. Creative requests and worker event IDs have separate local records. The prototype does not provide multi-user authentication.
 
 The local browser preview is a development page, not a hosted MCP endpoint. Packaging does not upload or install the plugin. A successful browser test does not verify native host rendering.
 

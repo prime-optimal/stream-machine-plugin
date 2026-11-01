@@ -19,9 +19,13 @@ try {
     args: selected.args.map(value => value.replaceAll("${PLUGIN_ROOT}", root)),
     cwd: selected.cwd.replaceAll("${PLUGIN_ROOT}", root), stderr: "pipe",
   }), { timeout: 60_000 });
-  assert.equal((await client.listTools()).tools.length, 27);
+  const { tools } = await client.listTools();
+  assert.equal(tools.length, 30);
+  assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_profile" && tool.annotations?.readOnlyHint));
+  assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_clip"));
+  assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_download_clip"));
   const result = await client.callTool({ name: "stream_machine_open", arguments: {} });
   assert.ok(!result.isError);
   const status = await client.callTool({ name: "stream_machine_twitch_status", arguments: {} });
-  process.stdout.write(JSON.stringify({ packageVersion: manifest.version, tools: 27, fnoxLaunch: "passed", twitchConfigured: !status.isError }) + "\n");
+  process.stdout.write(JSON.stringify({ packageVersion: manifest.version, tools: tools.length, fnoxLaunch: "passed", twitchConfigured: !status.isError }) + "\n");
 } finally { await client.close(); }

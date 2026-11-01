@@ -5,7 +5,7 @@ description: Set up Stream Machine, check existing streaming tools, and start on
 
 # Start a Stream Machine demo
 
-Open `stream_machine_open`. Explain that real controls and the fictional sample are separate. Use the user's requested demo when clear. Otherwise, ask which demo they want.
+Open `stream_machine_open`. Explain that real controls and the fictional demo are separate. Use the user's requested demo when clear. Otherwise, ask which demo they want.
 
 ## Check the selected connection
 
@@ -15,7 +15,7 @@ Use the relevant read tool before an action:
 - OBS: `stream_machine_obs_preflight`.
 - Stream Deck: `stream_machine_streamdeck_inventory`.
 - OpenDesign: `stream_machine_creative_list`.
-- Background worker: `stream_machine_worker_status`.
+- Independent worker: `stream_machine_worker_status`.
 
 A missing connection does not block unrelated demos. Never substitute mock results for a failed real check. Never request tokens or passwords in chat. The private package uses fnox references to the owner's 1Password items.
 
@@ -41,7 +41,7 @@ HyperFrames produces editable, playable HTML. Do not request MP4 rendering or in
 
 The worker starts separately through the trusted packaged CLI and starts paused. Arm only the configured account, event, and OBS action requested by the user. Pause prevents new alerts. Keep the desktop awake.
 
-For a fictional sample, use `stream_machine_connect_demo`, `stream_machine_list_recipes`, and `stream_machine_preview`. Label its results as mock data. `stream_machine_reset` resets only that sample.
+For a fictional demo, use `stream_machine_connect_demo`, `stream_machine_list_recipes`, and `stream_machine_preview`. Label its results as mock data. `stream_machine_reset` resets only that sample.
 
 ## Examples
 

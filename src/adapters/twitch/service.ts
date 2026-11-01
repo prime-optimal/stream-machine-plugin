@@ -8,6 +8,7 @@ export class TwitchTitleService {
   constructor(readonly accounts: TwitchAccountProvider, private client = new TwitchChannelClient(), private now = Date.now) {}
   async status() { return this.accounts.withAccount(async ({ account }) => ({ mode: "live", account: { ...account, scopes: [...account.scopes] } })); }
   async channel() { return this.accounts.withAccount(async access => ({ mode: "live", channel: await this.client.read(access) })); }
+  async profile() { return this.accounts.withAccount(async access => ({ mode: "live", source: "https://api.twitch.tv/helix/users", profile: await this.client.readProfile(access) })); }
   async preview(title: string) {
     if (!title.trim() || [...title].length > 140) throw new TwitchFault("INVALID_TITLE");
     for (const [id, p] of this.previews) if (p.expiresAt <= this.now()) this.previews.delete(id);

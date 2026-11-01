@@ -50,4 +50,33 @@ Demo worker PID `91601` runs from `stream-machine-demo/src/worker/main.ts` with 
 
 [PR #76](https://github.com/prime-optimal/stream-machine-plugin/pull/76) contains implementation commit `9abfe617d2e766fae3790db07c414c97b82b80a1`. [Published issue evidence](https://github.com/prime-optimal/stream-machine-plugin/issues/39#issuecomment-6564710998) was read back successfully. [Follow-up account evidence](https://github.com/prime-optimal/stream-machine-plugin/issues/39#issuecomment-6564721088) corrects the initial cache blocker and records the verified missing clip grant. That comment was also read back. No visual attachment is claimed because real playback remains unverified.
 
-The read-back confirmed #39 `OPEN` and Board status `In Progress`. Real acceptance checkboxes remain unchecked. PR remains unmerged. After push and fetch, `mise run git:handoff` returned 0 and confirmed a clean worktree matching upstream. GitHub reports PR merge state `DIRTY` against current main. The integration owner must reconcile branch changes, including the authorized smoke inventory conflict. This task does not overwrite sibling integration files or merge. No issue close is authorized.
+The read-back confirmed #39 `OPEN` and Board status `In Progress`. Real acceptance checkboxes remain unchecked. PR remains unmerged. After push and fetch, `mise run git:handoff` returned 0 and confirmed a clean worktree matching upstream. Before reconciliation, GitHub reported PR merge state `DIRTY` against main. The reconciliation record below supersedes that blocker. No GitHub PR merge or issue close is authorized.
+
+## Reconcile main with clip tools
+
+The user authorized a normal merge of `origin/main` at `de577ad`, containing merged #53 and PR #75, into issue branch HEAD `6ea8957`. Binding, physical path, clean status, and both revisions were checked before `git merge --no-commit --no-ff origin/main`. Only `scripts/smoke.ts` conflicted.
+
+The resolution preserves `stream_machine_twitch_profile` and both clip tools. `scripts/smoke.ts:12-15` and `scripts/package-smoke.ts:23-26` now assert exactly 30 tools and all three names. The profile read-only assertion remains. Twitch registration retains the clip consent flag and lazy shared runtime while adding main's profile dispatch. No `src/server.ts` or sibling worktree edits were made.
+
+Review answers:
+
+- Simplification: retain existing registration and add only inventory assertions. No new abstraction or runtime behavior is needed.
+- Writing: historical 29-tool results remain labeled as earlier evidence. This section records current 30-tool validation. The package report derives its printed count from the actual inventory.
+- Statechart: no lifecycle or transition changed during reconciliation. The clip chart and main's profile behavior need no state changes.
+
+Independent read-only review confirmed main's client, service, and profile tests match `de577ad`, while clip modules, auth, and clip tests match `6ea8957`. No actionable merge regression was found.
+
+Validation before the merge commit used Bun 1.4.4 on macOS arm64:
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `mise run check` | 0 | TypeScript passed |
+| Targeted clip, OAuth, profile, and title tests through `mise exec -- bun test` | 0 | 50 tests passed, 332 assertions |
+| `mise run test` | 0 | 107 tests passed, 684 assertions |
+| `mise run build` | 0 | Bundles built |
+| `mise run smoke` | 0 | Exactly 30 tools and UI resource |
+| `mise run package` | 0 | 118 archive entries inspected |
+| `mise run hooks:check` | 0 | Markdown, whitespace, and staged-secret checks passed |
+| `mise exec -- fnox --non-interactive -c <primary encrypted overlay> exec -- bun scripts/package-smoke.ts` | 0 | Packaged launcher exposed 30 tools; existing Twitch connection configured |
+
+The packaged check used the authorized existing encrypted overlay without copying or refreshing it. It called status, not connect or download. Missing clip consent, real download, and playback acceptance remain unchanged. No broadcasts, title changes, or worker controls ran. Other task worktrees and the demo worker remain separate and untouched.
