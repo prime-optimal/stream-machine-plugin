@@ -4,7 +4,7 @@ Use the existing Twitch connection to download a clip owned by the connected bro
 
 ## Authorize and download
 
-1. Call `stream_machine_twitch_connect` with `{"manageClips":true}`. Open `connectUrl` and approve Twitch access. Existing scopes remain requested during reconnect. `additionalScopes` lists only the permissions selected by this tool call; OAuth adds stored grants when you open the URL.
+1. Call `stream_machine_twitch_connect` with `{}`. Review the [current permission policy](../reviews/83-twitch-scope-audit.md). Open `connectUrl` and approve Twitch access. Existing scopes remain requested during reconnect. `requestedScopes` contains the product policy plus stored grants. `grantedScopes` and `missingScopes` describe stored permissions without claiming consent is complete.
 2. Call `stream_machine_twitch_status`. Confirm the account and `channel:manage:clips` scope.
 3. Call `stream_machine_twitch_clip` with `{"clipId":"YOUR_CLIP_ID"}`. Check the returned source and broadcaster.
 4. Call `stream_machine_twitch_download_clip` with the same input. A successful result contains `clip`, `format`, and `artifact` with an absolute path, byte count, SHA-256, and completion timestamp.

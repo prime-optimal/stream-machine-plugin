@@ -21,9 +21,9 @@ A missing connection does not block unrelated demos. Never substitute mock resul
 
 ## Connect Twitch
 
-If the user requests a title update and the account is disconnected, call `stream_machine_twitch_connect` with `manageBroadcast: true`. Open the returned URL for Twitch consent. The registered callback is `http://localhost:4017/api/twitch/callback`.
+Call `stream_machine_twitch_connect` to connect or upgrade missing permissions. Initial consent requests the owner's 12-permission policy. Only `channel:manage:broadcast` for title updates and `channel:manage:clips` for own-channel clip downloads support implemented privileged actions. The other ten permissions cover future chat, followers, subscriptions, cheers, rewards, clip creation, and bot use. They do not enable active features. The full list and Twitch excess-scope policy conflict appear in the returned `disclosure` and [scope reference](../../docs/reviews/83-twitch-scope-audit.md). Broadcaster consent does not authorize a separate bot account. Existing grants are retained. Review `requiredScopes`, `grantedScopes`, `missingScopes`, and `requestedScopes` before opening the returned consent URL. The registered callback is `http://localhost:4017/api/twitch/callback`.
 
-Read the account after consent. Use `preview-recipe` for the exact title preview and browser approval. OAuth consent does not approve an arbitrary title.
+Read `stream_machine_twitch_status` after consent. Missing permissions require reconnect, not disconnect. Consent does not change a title, download a clip, or arm a worker. Read the account after consent. Use `preview-recipe` for the exact title preview and browser approval. OAuth consent does not approve an arbitrary title.
 
 ## Use local devices
 

@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { twitchFeatures } from "../src/auth/permissions";
 import { McpServer } from "@modelcontextprotocol/server";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
@@ -15,6 +16,7 @@ test("Twitch assembly exposes strict clip tools without initializing OAuth", asy
   try {
     await server.connect(b); await client.connect(a);
     const { tools } = await client.listTools();
+    expect(tools.map(tool => tool.name).sort()).toEqual(Object.values(twitchFeatures).flatMap(feature => feature.tools).sort());
     expect(tools.map(t => t.name)).toContain("stream_machine_twitch_clip");
     expect(tools.map(t => t.name)).toContain("stream_machine_twitch_download_clip");
     expect(tools.find(t => t.name === "stream_machine_twitch_download_clip")?.annotations?.readOnlyHint).toBe(false);

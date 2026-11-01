@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { requiredTwitchScopes } from "../src/auth/permissions";
 import { TwitchChannelClient } from "../src/adapters/twitch/client";
 import { TwitchTitleService, TITLE_SCOPE } from "../src/adapters/twitch/service";
 import type { TwitchAccess, TwitchAccountProvider } from "../src/auth/twitch";
@@ -34,6 +35,10 @@ describe("Twitch live boundary with explicit fake provider", () => {
     const status = await f.service.status(); const channel = await f.service.channel(); const preview = await f.service.preview("Proposed");
     expect(channel.channel).toMatchObject({ broadcasterId: "123", title: "Original", categoryId: "509658" });
     expect(preview.before.title).toBe("Original"); expect(preview.after.title).toBe("Proposed");
+    expect(status.account.scopes).toEqual([TITLE_SCOPE]);
+    expect(status.reconnectRequired).toBe(true);
+    expect(status.missingScopes).toEqual(requiredTwitchScopes.filter(scope => scope !== TITLE_SCOPE));
+    expect(preview.executable).toBe(true);
     expect(JSON.stringify({ status, channel, preview })).not.toContain("SECRET_TOKEN_SENTINEL");
     expect(f.stats()).toEqual({ reads: 2, writes: 0 });
   });
@@ -79,8 +84,8 @@ test("local OAuth callback and human approval form preserve trusted boundary", a
   let title = "Original", writes = 0, exchanges = 0;
   const fake: typeof fetch = Object.assign(async (input: string | URL | Request, init?: RequestInit) => {
     const url = String(input);
-    if (url.includes("/oauth2/token")) { exchanges++; return Response.json({ access_token: "LOCAL_TOKEN_SENTINEL", refresh_token: "LOCAL_REFRESH_SENTINEL", expires_in: 3600, token_type: "bearer", scope: [TITLE_SCOPE] }); }
-    if (url.includes("/oauth2/validate")) return Response.json({ client_id: "client", user_id: "123", scopes: [TITLE_SCOPE], expires_in: 3600 });
+    if (url.includes("/oauth2/token")) { exchanges++; return Response.json({ access_token: "LOCAL_TOKEN_SENTINEL", refresh_token: "LOCAL_REFRESH_SENTINEL", expires_in: 3600, token_type: "bearer", scope: [...requiredTwitchScopes] }); }
+    if (url.includes("/oauth2/validate")) return Response.json({ client_id: "client", user_id: "123", scopes: [...requiredTwitchScopes], expires_in: 3600 });
     if (url.includes("/helix/users")) return Response.json({ data: [{ id: "123", login: "creator", display_name: "Creator" }] });
     if (url.includes("/helix/channels")) {
       if (init?.method === "PATCH") { writes++; title = "Proposed"; return new Response(null, { status: 204 }); }
@@ -91,13 +96,13 @@ test("local OAuth callback and human approval form preserve trusted boundary", a
   const runtime = createLocalTwitchRuntime({ TWITCH_CLIENT_ID: "client", TWITCH_CLIENT_SECRET: "secret", TWITCH_TOKEN_ENCRYPTION_KEY: btoa("a".repeat(32)), STREAM_MACHINE_TWITCH_STORE: ":memory:" }, fake, port);
   if (!runtime) throw new Error("Test runtime missing");
   try {
-    const { connectUrl } = runtime.connect(true);
+    const { connectUrl } = await runtime.connect(true);
     const start = await fetch(connectUrl, { redirect: "manual" });
     expect(start.status).toBe(302);
     expect(start.headers.get("referrer-policy")).toBe("no-referrer");
     const location = start.headers.get("location"); if (!location) throw new Error("OAuth redirect missing");
     const state = new URL(location).searchParams.get("state");
-    expect(new URL(location).searchParams.get("scope")).toBe(TITLE_SCOPE);
+    expect(new URL(location).searchParams.get("scope")).toBe(requiredTwitchScopes.join(" "));
     const stateCookie = start.headers.get("set-cookie")?.split(";")[0] ?? "";
     const callback = `http://localhost:${port}/api/twitch/callback?state=${state}&code=test-code`;
     expect((await fetch(callback)).status).toBe(400);

@@ -66,6 +66,14 @@ nouns:
       deprecated: [recent-work state]
     - canonical: Work browser
       deprecated: [Work web]
+    - canonical: UI evidence
+      deprecated: [UI proof]
+    - canonical: usability evidence
+      deprecated: [usability proof]
+    - canonical: not evidence that
+      deprecated: [not proof that]
+    - canonical: preserve evidence
+      deprecated: [preserve proof]
 rejected:
   - term: mock
     reason: Names the mock data layer and status value (status "mock" in catalog.ts); demo names the user-facing account.
@@ -117,3 +125,7 @@ rejected:
     reason: Response is generic; acknowledgment is a specific dispatch confirmation.
   - term: creator
     reason: Clipper made a clip; creator also means the streamer using the plugin.
+  - term: scope
+    reason: Scope is the OAuth identifier (requiredScopes); permission is the user-facing label.
+  - term: authorize
+    reason: Authorize is the OAuth action; consent is the user's approval.

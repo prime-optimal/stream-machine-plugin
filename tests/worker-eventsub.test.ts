@@ -1,4 +1,5 @@
 import { afterEach, expect, test } from "bun:test";
+import { twitchFeatures } from "../src/auth/permissions";
 import { createTwitchEventSource, TWITCH_EVENTSUB_URL, type ChannelUpdateSubscription } from "../src/events/eventsub";
 import type { WorkerEvent } from "../src/events/contracts";
 import type { ConnectionState } from "../src/worker/contracts";
@@ -49,6 +50,7 @@ test("real local socket welcome subscribes channel.update v2 before online; vali
   h.sockets[0].send(welcome("session-one"));
   await until(() => h.subscriptions.length === 1);
   expect(h.states).toEqual(["connecting"]);
+  expect(twitchFeatures.channelUpdate.events).toEqual([`${h.subscriptions[0]?.type}:${h.subscriptions[0]?.version}`]);
   expect(h.subscriptions[0]).toEqual({ ...subscription, transport: { method: "websocket", session_id: "session-one" } });
   h.sockets[0].send(notification("Before subscription"));
   await Bun.sleep(10);

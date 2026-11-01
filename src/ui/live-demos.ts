@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { twitchConsentSummary, requiredTwitchScopes } from "../auth/permissions";
 import type { ToolRequest, ToolResult } from "./tool-transport";
 
 const record = z.record(z.string(), z.unknown());
-const fields = new Set("mode status provider obsVersion resolution currentProgramScene streaming recording scene source text refreshAcknowledged visibility durationMs previousProgramScene observedAt serial deck_type key_count rows columns id name title categoryName login displayName scopes previewId expiresAt executable requiredScope page label writes ownership notice released storedConfigurationVerified physicalPressVerified keeperRequired url requestId project recipe runId taskId file failureCode entry mime binary truncated connection fixture inFlight ledgerSize received attempted succeeded duplicates skipped error code message ok endpoint".split(" "));
+const fields = new Set("mode status provider obsVersion resolution currentProgramScene streaming recording scene source text refreshAcknowledged visibility durationMs previousProgramScene observedAt serial deck_type key_count rows columns id name title categoryName login displayName scopes requiredScopes implementedScopes futureScopes grantedScopes requestedScopes missingScopes retainedScopes reconnectRequired disclosure grantSource previewId expiresAt executable requiredScope page label writes ownership notice released storedConfigurationVerified physicalPressVerified keeperRequired url requestId project recipe runId taskId file failureCode entry mime binary truncated connection fixture inFlight ledgerSize received attempted succeeded duplicates skipped error code message ok endpoint".split(" "));
 const groups = new Set("scenes devices layout position input button account channel before after project projects scenarios skills files status error".split(" "));
 function object(value: unknown): Record<string, unknown> { const parsed = record.safeParse(value); return parsed.success ? parsed.data : {}; }
 function text(value: unknown): string { return typeof value === "string" ? value : ""; }
@@ -22,7 +23,9 @@ function summary(value: unknown, depth = 0): string[] {
     if (groups.has(key) && typeof item === "object") return summary(item, depth + 1);
     if (!fields.has(key)) return [];
     if (["string", "number", "boolean"].includes(typeof item)) return [`${key}: ${String(item).slice(0, 240)}`];
-    if (key === "scopes" && Array.isArray(item)) return [`scopes: ${item.filter(value => typeof value === "string").join(", ")}`];
+    if (key.endsWith("Scopes") || key === "scopes") {
+      if (Array.isArray(item)) return [`${key}: ${item.filter(value => typeof value === "string").join(", ") || "(none)"}`];
+    }
     return [];
   }).slice(0, 35);
 }
@@ -111,10 +114,13 @@ export function createLiveDemos(request: ToolRequest): HTMLElement {
   deck.action("Release demo page + USB", () => void deck.invoke("streamdeck_release", {}, true));
   for (const input of [serial, key, destination]) input.addEventListener("input", () => { deckPreview = ""; deck.refresh(); });
 
-  const twitch = card("03 / Twitch title", "Connect requests channel:manage:broadcast. Review exact title, approve in browser, then apply approved preview here.");
+  const twitch = card("03 / Twitch title", `${twitchConsentSummary} Existing grants are retained. Consent performs no channel action. Review the exact title and approve it separately before applying.`);
+  const permissions = element("details");
+  permissions.append(element("summary", "Exact requested permissions"), element("pre", requiredTwitchScopes.join("\n")));
+  twitch.controls.before(permissions);
   let titlePreview = "";
   twitch.action("Check connection", () => void twitch.invoke("twitch_status"));
-  twitch.action("Connect Twitch · request title access", () => void (async () => { const data = await twitch.invoke("twitch_connect", { manageBroadcast: true }); twitch.link("Open Twitch connection", data?.connectUrl ?? data?.url); })());
+  twitch.action("Connect or reconnect Twitch · 12 permissions", () => void (async () => { const data = await twitch.invoke("twitch_connect"); twitch.link("Open Twitch connection", data?.connectUrl ?? data?.url); })());
   twitch.action("Read current channel", () => void twitch.invoke("twitch_channel"));
   const title = twitch.field("Proposed stream title", "", "text", 140);
   twitch.action("Preview title · no write", () => void (async () => {
