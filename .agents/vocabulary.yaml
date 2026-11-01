@@ -18,6 +18,8 @@ nouns:
       deprecated: [OpenDesign Cloud]
     - canonical: read-back
       deprecated: [readback]
+    - canonical: overlay renderer
+      deprecated: [graphics engine]
 rejected:
   - term: mock
     reason: Names the mock data layer and status value (status "mock" in catalog.ts); demo names the user-facing account.
