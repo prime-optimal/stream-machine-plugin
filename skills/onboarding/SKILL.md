@@ -48,5 +48,5 @@ assistant: "I'll open Stream Machine, offer the demo connection, and preview a r
 <example>
 Context: The user asks to connect their real Twitch account.
 user: "Connect my Twitch channel."
-assistant: "Live Twitch authorization isn't implemented in this release. I can connect the demo account so you can try recipe previews."
+assistant: "Real Twitch authorization isn't implemented in this release. I can connect the demo account so you can try recipe previews."
 </example>

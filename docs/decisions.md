@@ -33,7 +33,7 @@ The initial architecture deferred these decisions until the stated need arose.
 
 | Decision | Trigger for resolution |
 | --- | --- |
-| Live Twitch OAuth code reuse and support for multiple accounts | The first real account connection requires these choices. |
+| Real Twitch OAuth code reuse and support for multiple accounts | The first real account connection requires these choices. |
 | Hosted runtime and user isolation | The server needs multiple users, mobile access, or web access. |
 | EventSub transport and a worker that remains available | The first recipe needs unattended events. |
 | A bridge from cloud services to local tools | Cloud events must control desktop tools while chat is closed. |

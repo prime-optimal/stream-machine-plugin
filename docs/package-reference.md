@@ -16,7 +16,7 @@ The command in `mcp.json` is `bun ${PLUGIN_ROOT}/dist/server.js`. The server reg
 | `stream_machine_workspace` | Returns the demo workspace and declares a thread entrypoint. |
 | `stream_machine_connect_demo` | Selects the fictional Twitch account. |
 | `stream_machine_list_recipes` | Returns the recipe catalog and capability status. |
-| `stream_machine_preview` | Returns proposed channel changes without applying them. |
+| `stream_machine_preview` | Returns proposed channel updates without applying them. |
 | `stream_machine_reset` | Disconnects the fictional account. |
 
 The `mise run smoke` task checks the tool count and discovery over stdio. It also reads the UI resource, whose MIME type is `text/html;profile=mcp-app`.

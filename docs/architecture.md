@@ -136,7 +136,7 @@ The table guides design choices, but it does not verify availability in this pro
 
 ## Later execution paths
 
-Live Twitch account linking is a later phase, after the demo contracts stabilize. EventSub needs its own subscription registry, renewal handling, reconciliation of subscription state, duplicate detection, replay protection, and unattended credential validation. Reliable event delivery cannot depend on a chat completion or an open browser session.
+Real Twitch account linking is a later phase, after the demo contracts stabilize. EventSub needs its own subscription registry, renewal handling, reconciliation of subscription state, duplicate detection, replay protection, and unattended credential validation. Reliable event delivery cannot depend on a chat completion or an open browser session.
 
 A future hosted worker may process events while chat is closed. To act on desktop devices, that worker would need an authenticated connection or a supported host tunnel. The design must also cover device pairing, permissions for each action, expiry, duplicate detection, and offline behavior. This work is deferred because a desktop host can already coordinate local processes without such a connection.
 
