@@ -5,6 +5,10 @@ nouns:
       deprecated: [simulated]
     - canonical: prototype
       deprecated: [scaffold]
+    - canonical: channel updates
+      deprecated: [channel changes]
+    - canonical: channel update
+      deprecated: [channel change]
 rejected:
   - term: mock
     reason: Names the mock data layer and status value (status "mock" in catalog.ts); demo names the user-facing account.
@@ -18,3 +22,9 @@ rejected:
     reason: Integration inventory and risk, distinct from a provider.
   - term: apply
     reason: Names the absent apply tool.
+  - term: hardware
+    reason: Hardware also means physical-test category; not interchangeable with device.
+  - term: task
+    reason: Task also names mise tasks and generic work; not a synonym for issue.
+  - term: invited streamer
+    reason: Streamer is the role in milestone and issue titles; user is the account concept.

@@ -1,6 +1,6 @@
 # Stream Machine
 
-Stream Machine provides reusable workflows for streamers. The prototype lets you select a mock Twitch account, choose a recipe, and preview channel changes.
+Stream Machine provides reusable workflows for streamers. The prototype lets you select a mock Twitch account, choose a recipe, and preview channel updates.
 
 The plugin includes a local MCP server, onboarding skills, a capability catalog, and a responsive MCP App. It declares native entrypoints for the app.
 
