@@ -2,7 +2,7 @@
 
 This chart describes the local request lifecycle of `TranscriptionService` for [issue #85](https://github.com/prime-optimal/stream-machine-plugin/issues/85). It follows an explicit invocation through file validation, one upload attempt, response reading, and local cleanup.
 
-The model represents two possible service callers sharing one process-wide request slot. Closing one service prevents that instance from accepting another call. The other instance can still use the slot after cleanup.
+The model represents two possible service callers sharing one process-wide request reservation. Closing one service prevents that instance from accepting another call. The other instance can still use the reservation after cleanup.
 
 ## Chart
 
@@ -32,14 +32,14 @@ stateDiagram-v2
   s6 --> s2: close service [may have been processed] or cancel or time out [may have been processed] or result unavailable after dispatch or transcript accepted
 ```
 
-A cancellation or timeout before dispatch uploads nothing. After dispatch, an unavailable result can mean OpenAI processed the audio. Local cleanup releases the request slot; it does not prove that remote processing stopped. A new upload requires another explicit invocation.
+A cancellation or timeout before dispatch uploads nothing. After dispatch, an unavailable result can mean OpenAI processed the audio. Local cleanup releases the request reservation; it does not prove that remote processing stopped. A new upload requires another explicit invocation.
 
 ## Checked rules
 
 | Invariant | Meaning |
 | --- | --- |
-| `OneLocalOperation` | At most one local operation holds the shared slot. |
-| `ReservationMatchesOwner` | The active operation owns the slot until cleanup. Idle and closed states hold no slot. |
+| `OneLocalOperation` | At most one local operation holds the shared reservation. |
+| `ReservationMatchesOwner` | The active operation owns the reservation until cleanup. Idle and closed states hold no reservation. |
 | `UploadRequiresChecks` | Dispatch requires an available key and validated source. |
 | `OneSendPerInvocation` | One invocation dispatches at most once. No failure transition resubmits it. |
 | `CancellationBeforeUpload` | Cancellation before dispatch leaves the upload count at zero. |
