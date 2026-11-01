@@ -74,6 +74,18 @@ nouns:
       deprecated: [not proof that]
     - canonical: preserve evidence
       deprecated: [preserve proof]
+    - canonical: request reservation
+      deprecated: [request slot]
+    - canonical: shared reservation
+      deprecated: [shared slot]
+    - canonical: the reservation
+      deprecated: [the slot]
+    - canonical: no reservation
+      deprecated: [no slot]
+    - canonical: release reservation
+      deprecated: [release slot]
+    - canonical: reservation free
+      deprecated: [slot free]
 rejected:
   - term: mock
     reason: Names the mock data layer and status value (status "mock" in catalog.ts); demo names the user-facing account.
@@ -133,3 +145,5 @@ rejected:
     reason: Hosted worker is a future cloud process; independent worker is the implemented local one.
   - term: asset
     reason: Assets is a workspace name; artifact is a generated output.
+  - term: dispatch
+    reason: Dispatch is the send moment; upload is the multipart action; dispatch also used elsewhere.

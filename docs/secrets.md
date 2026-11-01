@@ -14,6 +14,10 @@ Normal `fnox exec` runs use the local age-encrypted cache without calling `op`. 
 
 The helper tasks depend on the workstation configuration, 1Password access, and an available age identity. A clone alone does not provide those prerequisites. Setup does not authorize creating or changing 1Password items.
 
+## OpenAI transcription
+
+`OPENAI_API_KEY` is optional for other tools. Its committable configuration is a 1Password reference. Refresh the encrypted local cache after adding or rotating it, then restart the server. The local preview forwards the key only to its server child. Smoke and package discovery do not upload audio. See [the transcription guide](demos/transcription.md).
+
 ## Refresh credentials intentionally
 
 After expiry or rotation, run `mise run fnox-sync` explicitly to fetch source values again and refresh the local ciphertext cache. Do not expect cached runs to fetch rotated values automatically. If sync fails, fix provider access or the missing identity before retrying. Do not print credentials to diagnose the failure.

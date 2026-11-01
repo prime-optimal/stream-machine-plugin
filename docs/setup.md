@@ -55,6 +55,10 @@ The task writes `docs/packages/stream-machine-0.2.0.tar.gz`. It prints the archi
 
 To install the archive, use your host's supported plugin installation flow. For requirements and package contents, see the [package reference](package-reference.md).
 
+## Transcribe a local recording
+
+Follow [Transcribe one local audio file](demos/transcription.md) for the explicit OpenAI upload tool. `OPENAI_API_KEY` is optional for other workflows. Discovery and smoke checks do not upload audio.
+
 ## Choose optional providers
 
 Read the [integration inventory](integrations.md) before you enable a provider. Use each provider's supported installation and connection flow. Never paste credentials into chat.
