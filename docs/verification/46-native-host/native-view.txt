@@ -1,0 +1,194 @@
+- banner:
+  - link "Stream Machine home":
+    - /url: "#top"
+    - text: streammachine
+    - generic: YOUR STREAM. YOUR SYSTEM.
+  - generic: Live demos + mock preview
+  - button "Reset demo":
+    - generic: Reset
+- main:
+  - paragraph: CONNECTED TO YOUR TOOLS
+  - heading "Live demos" [level=1]
+  - paragraph: Real services. Each action runs only when clicked. Start with a read check.
+  - article:
+    - heading "01 / OBS alert" [level=2]
+    - paragraph: Show alert switches program to Stream Machine Demo. Broadcast and recording stay unchanged. Visibility requires checking OBS.
+    - button "Check OBS"
+    - button "List scenes"
+    - text: Alert text
+    - textbox "Alert text": Hello from Stream Machine
+    - button "Show 4-second alert · switch program"
+    - button "Replay saved alert · switch program"
+    - status: Not checked
+  - article:
+    - heading "02 / Stream Deck button" [level=2]
+    - paragraph: Fresh blank Original 3×5 deck only. Apply claims USB and resets display. Quit Elgato first; keep this server running for presses.
+    - text: Device serial
+    - textbox "Device serial"
+    - text: Key index (0–14)
+    - spinbutton "Key index (0–14)": "0"
+    - text: Button opens HTTP(S) URL
+    - textbox "Button opens HTTP(S) URL": http://127.0.0.1:4318/?preview=1
+    - button "Read USB inventory"
+    - button "Preview button · no writes" [disabled]
+    - button "Apply reviewed preview · claim USB" [disabled]
+    - button "Release demo page + USB"
+    - status: Not checked
+  - article:
+    - heading "03 / Twitch title" [level=2]
+    - paragraph: Connect requests channel:manage:broadcast. Review exact title, approve in browser, then apply approved preview here.
+    - button "Check connection"
+    - button "Connect Twitch · request title access"
+    - button "Read current channel"
+    - text: Proposed stream title
+    - textbox "Proposed stream title"
+    - button "Preview title · no write" [disabled]
+    - button "Apply browser-approved title" [disabled]
+    - status: Not checked
+  - article:
+    - heading "04 / Create HTML overlays" [level=2]
+    - paragraph: Uses the existing OpenDesign service and HyperFrames HTML workflow. Start submits one job. Poll checks the original request only.
+    - button "List projects + installed recipes"
+    - text: Exact project ID
+    - textbox "Exact project ID": stream-machine-1793568369396
+    - text: New isolated project name
+    - textbox "New isolated project name": Stream Machine demo
+    - button "Create isolated project"
+    - text: Overlay heading
+    - textbox "Overlay heading": WEEKEND / STUDIO
+    - text: Recipe
+    - combobox "Recipe":
+      - option "Static editable HTML overlay" [selected]
+      - option "HyperFrames HTML overlay"
+    - generic: New request ready. Start generates one request ID, retained even if response is lost.
+    - button "Start once · submit generation"
+    - button "Poll original run" [disabled]
+    - button "Read artifact references" [disabled]
+    - button "New request · allow another generation"
+    - status: Not checked
+  - article:
+    - heading "05 / Local event worker" [level=2]
+    - paragraph: Start worker separately from terminal. Arm enables configured event-to-OBS action. Pause blocks new actions; in-flight action may finish. Keep desktop awake.
+    - button "Read worker status"
+    - button "Arm configured event → OBS action"
+    - button "Pause new actions"
+    - button "Stop worker"
+    - status: Not checked
+  - generic "Mock preview · fictional account, no live changes"
+  - paragraph: THE STREAMER'S WORKSPACE
+  - heading "Less setup. More stream." [level=1]:
+    - text: Less setup.
+    - text: More stream.
+  - paragraph:
+    - text: Bring your tools together. Pick a workflow.
+    - text: Make your next stream your best one.
+  - text: WORKSPACE STATUS
+  - strong: Demo channel ready
+  - text: Sample Streamer
+  - list "Setup progress":
+    - text: Connect a channel
+    - generic: "2"
+    - text: Choose a recipe
+    - generic: "3"
+    - text: Preview the change
+  - heading "Sample Streamer is ready to explore." [level=2]
+  - paragraph: Sample channel connected. Every action stays inside this demo.
+  - generic: Demo connected
+  - region "One recipe. A smoother stream.":
+    - paragraph: YOUR PLAYBOOK
+    - heading "One recipe. A smoother stream." [level=2]
+    - generic: 3 recipes
+    - button "01 Prepare channel details Preview title and category before your next stream. Available in demo" [pressed]:
+      - generic: "01"
+      - generic: Prepare channel details
+      - generic: Preview title and category before your next stream.
+      - generic: Available in demo
+    - 'button "02 Build a clip kit Future: clip metadata, download, and artwork handoff. Coming later ↗" [disabled]':
+      - generic: "02"
+      - generic: Build a clip kit
+      - generic: "Future: clip metadata, download, and artwork handoff."
+      - generic: Coming later
+      - generic: ↗
+    - 'button "03 Prepare a Stream Deck page Future: inspect local actions and preview a button layout. Coming later ↗" [disabled]':
+      - generic: "03"
+      - generic: Prepare a Stream Deck page
+      - generic: "Future: inspect local actions and preview a button layout."
+      - generic: Coming later
+      - generic: ↗
+    - heading "Set the scene" [level=3]
+    - generic: Sample data
+    - paragraph: Draft a title and category for the demo channel.
+    - generic: Stream title
+    - textbox "Stream title":
+      - /placeholder: "Tonight: good music, great company"
+      - text: "Native host verification #46"
+    - generic: Category
+    - generic: From demo catalog
+    - combobox "Category":
+      - option "Just Chatting (demo)"
+      - option "Street Fighter 6 (demo)" [selected]
+    - button "Preview channel update":
+      - text: Preview channel update
+    - paragraph: Preview only · Nothing is published
+  - region "Your next stream, prepared.":
+    - paragraph: ACTION PREVIEW
+    - heading "Your next stream, prepared." [level=2]
+    - generic: Mock preview
+    - paragraph: For Sample Streamer
+    - text: CURRENT · DEMO
+    - heading "Welcome to the demo stream" [level=3]
+    - generic: Just Chatting (demo)
+    - text: PROPOSED
+    - 'heading "Native host verification #46" [level=3]'
+    - generic: Street Fighter 6 (demo)
+    - list:
+      - generic: Would update channel title and category after future live authorization.
+      - generic: This preview performs no Twitch requests and cannot be executed.
+    - generic: Preview only. Live execution is unavailable in this demo.
+  - region "Your tools, working together.":
+    - paragraph: BUILT TO CONNECT
+    - heading "Your tools, working together." [level=2]
+    - generic: Adapters are placeholders in this demo
+    - article:
+      - heading "Channel preview" [level=3]
+      - generic: Flexible runtime
+      - generic: Mock
+      - paragraph: Fictional account and category data only.
+    - article:
+      - heading "Twitch account" [level=3]
+      - generic: Cloud service
+      - generic: Not configured
+      - paragraph: Live OAuth adapter is planned; demo connection is available.
+    - article:
+      - heading "Clip downloads" [level=3]
+      - generic: Cloud service
+      - generic: Not configured
+      - paragraph: Official download API adapter and account grants required.
+    - article:
+      - heading "EventSub" [level=3]
+      - generic: Cloud service
+      - generic: Not configured
+      - paragraph: Durable receiver and subscription manager planned.
+    - article:
+      - heading "OBS" [level=3]
+      - generic: Desktop MCP
+      - generic: Not configured
+      - paragraph: Optional desktop MCP provider; no bridge required for desktop use.
+    - article:
+      - heading "Stream Deck" [level=3]
+      - generic: Desktop MCP
+      - generic: Not configured
+      - paragraph: Optional desktop MCP provider; hardware untouched.
+    - article:
+      - heading "Design tools" [level=3]
+      - generic: Cloud service
+      - generic: Not configured
+      - paragraph: Reuse existing OpenDesign Cloud or Canva connection when available.
+    - article:
+      - heading "HyperFrames" [level=3]
+      - generic: Desktop MCP
+      - generic: Not configured
+      - paragraph: Optional authoring/render adapter; not included in this package.
+  - generic: SM / 001
+  - generic: Built around your stream.
+  - generic: Demo environment · No live services
