@@ -46,6 +46,12 @@ nouns:
       deprecated: [stopping the dependency]
     - canonical: independent worker
       deprecated: [background worker, detached worker, event worker]
+    - canonical: onboarding skill
+      deprecated: [setup skill]
+    - canonical: clip scope
+      deprecated: [clip permission]
+    - canonical: clip scopes
+      deprecated: [clip permissions]
 rejected:
   - term: mock
     reason: Names the mock data layer and status value (status "mock" in catalog.ts); demo names the user-facing account.
@@ -85,3 +91,5 @@ rejected:
     reason: Live controls also means overlay playback controls; preview server is the process, not the page.
   - term: job
     reason: Creative job is a generation task; request ID identifies a call. Different things.
+  - term: dependency
+    reason: Dependency also means package, adapter, and local MCP dependencies across docs.
