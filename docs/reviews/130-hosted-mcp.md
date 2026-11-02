@@ -22,19 +22,21 @@ Issue: [#130](https://github.com/prime-optimal/stream-machine-plugin/issues/130)
 
 ## Ownership and deployment
 
-The Site source is independent and ignored under `docs/hosted-oauth-site/`. A reviewable patch will be saved with this report. This task is the sole Site deployment owner. Issue #136 supplies its storage patch from a separate worktree; that task owns its implementation and evidence. The combined Site build must pass before publication.
+The Site source lives in its independent [Site source repository](https://git.chatgpt-team.site/666e1336-c60a-4924-bd62-1205dddbd6f7/appgprj_6ae8040442d481918f55ca79cca3b9b2.git). This repository keeps no copy of it. This task's Site commits are `fe62739` through `45f2862`. Issue #136 supplied the storage code, and that task owns its implementation and evidence.
 
 Do not mark #130 complete before its required PR is merged. Keep its board status at `In Progress` while awaiting merge.
 
 ## Source review anchors
 
 - [Shared definitions](../../src/adapters/twitch/tool-register.ts#L12) keep nine strict schemas in one place. [Title apply](../../src/adapters/twitch/service.ts#L35) acquires the owner lease before reading the current channel.
-- The [Site source patch](130-hosted-site.patch) contains the authenticated handler, owner-bound access, generation checks, and retained execution leases. Its paths are relative to the independent Site repository, not this repository's runtime. It uses zero context to pass the repository's whitespace check; apply with `git apply --unidiff-zero`. Reverse application was checked against the deployed source.
+- The Site commits `fe62739` through `45f2862` contain the authenticated handler, owner-bound access, generation checks, and retained execution leases. Review them in the Site source repository.
 - [Onboarding](../../skills/onboarding/SKILL.md#choose-the-local-fallback) keeps hosted authentication failures on the hosted path and requires an explicit desktop choice. [Default configuration](../../mcp.json) contains only the verified remote endpoint; [local configuration](../../mcp.local.json) retains the fnox launch.
 
 ## Published result
 
-Sites version 5 deployed source `45f286258326a5b9c27515c715b24d4df09357e5` in deployment `appgdep_6ae81dcbfbd88191a4e297b69802ad95`, with environment revision 2 and `has_mcp: true`. The [Site](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site) remains public. D1 migrations are additive; the existing KLabFM connection survived publication with all twelve baseline scopes.
+Sites version 5 deployed source `45f286258326a5b9c27515c715b24d4df09357e5` in deployment `appgdep_6ae81dcbfbd88191a4e297b69802ad95`, with environment revision 2 and `has_mcp: true`. The [Site](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site) remains public. D1 migrations are additive. The existing KLabFM connection survived publication with all twelve baseline scopes.
+
+Later Site versions changed clip behavior. Version 8 fixed hosted clip fetches for #136 (see the [storage review](136-hosted-user-storage.md)). Version 9 deployed source `7a6d5d591b20192565c60aaca61ad2c5668fbabd` in `appgdep_6ae82a7ad38c8191a8f8f0f24de70f0e` and made completed clip URLs public for #143 (see the [public clip review](143-public-clips.md)).
 
 Sites returned `https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/mcp` as both the MCP endpoint and OAuth resource. Its protected-resource metadata names `https://auth.openai.com` as the authorization server. Anonymous and forged-identity POSTs to `/mcp` return 401. The read-only browser route also returns 401 for anonymous and forged-identity requests.
 
@@ -42,8 +44,10 @@ The in-app browser successfully read KLabFM's live title, `K-Lab Discovery - EDC
 
 ![Live hosted KLabFM connection and channel read](130-hosted-channel.jpg)
 
-Native plugin discovery confirmed that the Site's canonical private plugin already exists and is installed. This chat still has the earlier local tool inventory. A fresh chat must load the hosted tools before claiming a native host call. No actual phone session, production clip acquisition, reconnect/disconnect on a phone, or live title mutation was performed. Fixture tests do not establish those results. Issue #140 retains host acceptance work.
+Native plugin discovery confirmed that the Site's canonical private plugin exists and is installed. On November 1, 2026, a fresh Codex CLI 0.166.0 session called the hosted tools through the Site-provisioned app. Preflight, status, channel, profile, and connect returned live KLabFM data on version 5. Clip lookup and download failed there with `TWITCH_UNAVAILABLE`, because Workers rejects `fetch` with `redirect: "error"`.
+
+After the version 8 fix, the same path downloaded two KLabFM clips. "COMRADE DIMPS" stored 23,167,834 bytes, and "CAR CAR" stored 23,172,694 bytes. On version 9, an anonymous GET of each returned URL matched the SHA-256 that the tool reported. Nobody has tested a phone session, reconnect or disconnect on a phone, or a live title change. Issue #140 retains host acceptance work.
 
 Fallback is an explicit workflow and separate configuration, not automatic failover inside the old local process. The broader provider-routing work in #132 and #133 is not claimed complete. An in-flight request can outlive cancellation; ambiguous writes remain consumed and are never replayed. A clip deadline can race a metadata insert, so a reported timeout does not guarantee that no private artifact was completed. Issue #136 owns that storage implementation.
 
-Root verification: 191 tests, TypeScript, bundled smoke, package archives, local package launch, and check-only hooks passed. Site verification: 79 tests, TypeScript, production build, staged-content secret checks, and deployment passed. [Retained worktree inventory](130-retained-worktrees.md) records other owners' trees and processes. This task's preview server was stopped; the Site source is clean and pushed.
+Root verification at the original PR head: 191 tests, TypeScript, bundled smoke, package archives, local package launch, and check-only hooks passed. Site verification: 79 tests, TypeScript, production build, staged-content secret checks, and deployment passed. This task's preview server was stopped. The Site source is clean and pushed.

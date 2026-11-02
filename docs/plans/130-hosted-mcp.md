@@ -15,7 +15,7 @@ Implement [#130](https://github.com/prime-optimal/stream-machine-plugin/issues/1
 
 The RepoPrompt builder covered identity, reuse, persistent approval, desktop isolation, fallback, and deployment evidence. Its proposed `/api/mcp` path is corrected to `/mcp` by the Sites contract. Sites explicitly authenticates MCP callers and forwards a Site-scoped user ID; an additional identity stack is unnecessary. The builder's private deployment assumption is superseded by the user's public Site setting, verified during coordination with #136. Public pages do not authorize anonymous tool or data access.
 
-Issue #136 owns private clip storage in a separate worktree. This task owns the Site deployment and integrates its patch only after its checks pass. No desktop device bridge or automatic mutation retry is added.
+Issue #136 owns clip storage in a separate worktree. This task owns the Site deployment and integrates the storage code only after its checks pass. No desktop device bridge or automatic mutation retry is added.
 
 ## Verification boundaries
 

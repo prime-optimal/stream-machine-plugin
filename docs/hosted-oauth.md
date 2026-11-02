@@ -71,4 +71,4 @@ The [reviewable Site patch](reviews/122-hosted-oauth-scopes.patch) includes runt
 
 ## Hosted MCP integration
 
-The Site now hosts authenticated Twitch MCP tools. Version 5 deployed source `45f286258326a5b9c27515c715b24d4df09357e5` and preserves the existing Twitch connection. The earlier standalone-test descriptions above record historical scope. Use the [hosted MCP guide](hosted-mcp.md) for the current default, local fallback, and verification limits.
+The Site now hosts authenticated Twitch MCP tools. Version 5 deployed source `45f286258326a5b9c27515c715b24d4df09357e5` and preserved the existing Twitch connection. Version 9, source `7a6d5d591b20192565c60aaca61ad2c5668fbabd`, is the current deployment. The earlier standalone-test descriptions above record historical scope. Use the [hosted MCP guide](hosted-mcp.md) for the current default, local fallback, and verification limits.
