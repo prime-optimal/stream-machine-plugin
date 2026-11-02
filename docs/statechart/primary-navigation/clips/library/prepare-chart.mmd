@@ -1,0 +1,25 @@
+---
+title: "Prepare a bounded clip batch"
+---
+stateDiagram-v2
+  s0: Gallery
+  s1: Discovering unsaved clips
+  s2: Stopped
+  s3: Discovery failed#59; no writes
+  s4: Confirm the bounded batch
+  s5: Preparing clips serially
+  s6: Stopping after the current clip
+  s7: Preparation finished
+  s8: Finished#59; some saves unconfirmed
+  [*] --> s0
+  s0 --> s1: you press Prepare all
+  s1 --> s2: you cancel
+  s1 --> s3: discovery fails
+  s1 --> s4: discovery stops at its bound or cursor ends
+  s4 --> s2: you cancel
+  s4 --> s5: you confirm Prepare N clips
+  s5 --> s2: you cancel
+  s5 --> s6: you cancel
+  s6 --> s2: the accepted request settles
+  s5 --> s7: all dispatched clips have settled
+  s5 --> s8: all dispatched clips have settled

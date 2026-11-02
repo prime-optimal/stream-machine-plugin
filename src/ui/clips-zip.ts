@@ -54,5 +54,5 @@ export function createZip(request: ToolRequest, openLink: OpenLink) {
     return node;
   }
 
-  return { view, dispose() { revision++; views.clear(); } };
+  return { view, reset() { revision++; state = { kind: "idle" }; paint(); }, dispose() { revision++; views.clear(); } };
 }

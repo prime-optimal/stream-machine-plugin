@@ -2,13 +2,14 @@ import { button, el, externalLink, type OpenLink } from "./clips-dom";
 import { createPlayer } from "./clips-player";
 import {
   formatBytes, formatDate, formatDuration, formatOffset, formatViews, safeHttpsUrl, thumbnailHosts, twitchHosts,
-  type ClipItem,
+  siteMediaUrl, type ClipItem, type PreparationResult,
 } from "./clips-state";
 
-export function createDetail(options: { openLink: OpenLink; zip: HTMLElement; back: () => void; save: (clip: ClipItem) => Promise<string | null> }) {
+export function createDetail(options: { openLink: OpenLink; zip: HTMLElement; back: () => void; siteOrigin: () => string; prepare: (clip: ClipItem, retry?: boolean) => Promise<PreparationResult> }) {
   const element = el("section", "", "clip-detail");
   element.hidden = true;
-  const player = createPlayer();
+  const player = createPlayer(options.siteOrigin);
+  let revision = 0;
   const body = el("div");
   const heading = el("h2", "", "clip-detail-title");
   heading.tabIndex = -1;
@@ -26,6 +27,7 @@ export function createDetail(options: { openLink: OpenLink; zip: HTMLElement; ba
   }
 
   function show(clip: ClipItem, library: "site" | "local") {
+    const mine = ++revision;
     heading.textContent = clip.title || "Untitled clip";
     const poster = safeHttpsUrl(clip.thumbnailUrl, thumbnailHosts) || null;
     rows.replaceChildren();
@@ -44,21 +46,29 @@ export function createDetail(options: { openLink: OpenLink; zip: HTMLElement; ba
     storage.replaceChildren();
     let saveAction: HTMLElement | undefined;
     if (clip.stored) {
-      const file = safeHttpsUrl(clip.stored.downloadUrl);
+      const file = siteMediaUrl(clip.stored.downloadUrl, options.siteOrigin());
       storage.append(el("p", "Saved on the Site.", "clips-note"));
       if (file) storage.append(externalLink("Download MP4", file, options.openLink, "clip-link"));
     } else if (library === "site") {
       const message = el("p", "", "clips-error");
       message.hidden = true;
-      const save = button("Save to play", () => void (async () => {
+      let retry = false;
+      const save = button("Play clip", () => void (async () => {
         save.disabled = true; save.textContent = "Saving…"; message.hidden = true;
-        const failure = await options.save(clip);
-        if (failure === null) return;
-        save.disabled = false; save.textContent = "Save to play";
-        message.textContent = failure; message.hidden = false;
+        const result = await options.prepare(clip, retry);
+        if (mine !== revision || element.hidden) return;
+        if (result.kind === "ready") {
+          show({ ...clip, stored: result.stored }, library);
+          player.start(result.stored.playbackUrl, poster);
+          return;
+        }
+        if (result.kind === "cancelled") return;
+        retry = result.kind === "failed";
+        save.disabled = !retry; save.textContent = retry ? "Retry save and play" : "Save unconfirmed";
+        message.textContent = result.message; message.hidden = false;
       })(), "primary play-button");
       saveAction = save;
-      storage.append(el("p", "Save a copy to the Site to play it here and include it in ZIP downloads."), message);
+      storage.append(el("p", "Play saves one copy to the Site, then plays it here. The saved copy is also available for ZIP downloads."), message);
     } else {
       storage.append(el("p", "Not on Site", "clips-note"), el("p", "This is the local server. It cannot read or write Site storage, so saving and ZIP downloads are unavailable here."));
     }
@@ -69,6 +79,7 @@ export function createDetail(options: { openLink: OpenLink; zip: HTMLElement; ba
   }
 
   function hide() {
+    revision++;
     player.stop();
     element.hidden = true;
   }
