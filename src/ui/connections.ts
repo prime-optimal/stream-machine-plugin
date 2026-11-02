@@ -8,8 +8,9 @@ const accountSchema = z.object({
 const statusSchema = z.object({ twitch: z.object({ mode: z.literal("live"), account: accountSchema }) });
 const connectSchema = z.object({ twitch: z.object({
   mode: z.literal("live"), connectUrl: z.string(), requestedScopes: z.array(z.string()),
-  retainedScopes: z.array(z.string()), disclosure: z.string().min(1),
+  retainedScopes: z.array(z.string()), disclosure: z.string().min(1), browserRequested: z.boolean().default(false),
 }) });
+const preflightSchema = z.object({ twitch: z.object({ mode: z.literal("live"), status: z.literal("ready") }) });
 const faultSchema = z.object({ error: z.object({ code: z.string() }) });
 type Verified = { account: z.infer<typeof accountSchema>; checkedAt: string };
 export type CheckState =
@@ -17,7 +18,7 @@ export type CheckState =
   | { kind: "verified"; value: Verified } | { kind: "failed"; message: string; previous: Verified | null };
 export type ConnectState =
   | { kind: "idle" } | { kind: "creating" }
-  | { kind: "link"; url: string; requested: string[]; retained: string[]; disclosure: string }
+  | { kind: "link"; url: string; requested: string[]; retained: string[]; disclosure: string; browserRequested: boolean }
   | { kind: "failed"; message: string };
 export function connectionUrl(value: string): string {
   const url = new URL(value);
@@ -27,7 +28,8 @@ export function connectionUrl(value: string): string {
 }
 function fault(result: ToolResult) {
   const parsed = faultSchema.safeParse(result.structuredContent);
-  if (parsed.success || result.isError) throw new Error("Access not verified. Check local Twitch setup or reconnect.");
+  if (parsed.success) throw new Error(parsed.data.error.code);
+  if (result.isError) throw new Error("TWITCH_UNAVAILABLE");
 }
 export function createConnectionState(request: ToolRequest, changed: () => void, invalidateTitle: () => void) {
   let check: CheckState = { kind: "not_checked" };
@@ -56,33 +58,40 @@ export function createConnectionState(request: ToolRequest, changed: () => void,
       }
       notify();
     },
-    async startConnect() {
+    async startConnect(openBrowser = false) {
       if (disposed || connect.kind === "creating") return;
       const attempt = ++revision;
       invalidateTitle(); check = { kind: "not_checked" }; previous = null;
       connect = { kind: "creating" }; notify();
       try {
-        const result = await request("stream_machine_twitch_connect");
+        if (openBrowser) {
+          const preflight = await request("stream_machine_twitch_preflight");
+          if (disposed || revision !== attempt) return;
+          fault(preflight); preflightSchema.parse(preflight.structuredContent);
+        }
+        const result = await request("stream_machine_twitch_connect", openBrowser ? { openBrowser: true } : undefined);
         if (disposed || revision !== attempt) return;
         fault(result);
         const { twitch } = connectSchema.parse(result.structuredContent);
         if (!requiredTwitchScopes.every(scope => twitch.requestedScopes.includes(scope))) throw new Error("Incomplete consent response.");
-        connect = { kind: "link", url: connectionUrl(twitch.connectUrl), requested: twitch.requestedScopes,
+        if (openBrowser && !twitch.browserRequested) throw new Error("TWITCH_BROWSER_OPEN_FAILED");
+        connect = { kind: "link", browserRequested: twitch.browserRequested, url: connectionUrl(twitch.connectUrl), requested: twitch.requestedScopes,
           retained: twitch.retainedScopes, disclosure: twitch.disclosure };
-      } catch {
+      } catch (error) {
         if (disposed || revision !== attempt) return;
-        connect = { kind: "failed", message: "Connection URL unavailable. Check local Twitch setup before trying again." };
+        const code = error instanceof Error ? error.message : "";
+        const message = code === "TWITCH_LOCAL_PORT_BUSY" ? "Twitch authorization port 4017 is in use by another session or app. Close that session, then try again." :
+          code === "TWITCH_BROWSER_OPEN_FAILED" ? "The authorization browser could not be opened. Check your default browser, then try again. No automatic retry." :
+          "Connection URL unavailable. Check local Twitch setup before trying again.";
+        connect = { kind: "failed", message };
       }
       notify();
     },
     dispose() { disposed = true; revision++; },
   };
 }
-export async function openConnection(url: string, open: (url: string) => Promise<{ isError?: boolean }>): Promise<boolean> {
-  try { return !(await open(connectionUrl(url))).isError; } catch { return false; }
-}
 export function createConnections(options: {
-  request: ToolRequest; invalidateTitle: () => void; open?: (url: string) => Promise<{ isError?: boolean }>;
+  request: ToolRequest; invalidateTitle: () => void;
 }) {
   const element = document.createElement("div"); element.className = "connections-panel";
   const model = createConnectionState(options.request, render, options.invalidateTitle);
@@ -117,7 +126,7 @@ export function createConnections(options: {
     }
     element.append(status,
       action("Recheck Twitch access", () => void model.recheck(), check.kind === "checking" || connect.kind === "creating"),
-      action("Connect or reconnect Twitch · 12 permissions", () => void model.startConnect(), connect.kind === "creating"));
+      action("Connect or reconnect Twitch · 12 permissions", () => void model.startConnect(true), connect.kind === "creating"));
     const disclosure = node("details", "");
     disclosure.append(node("summary", "Consent and exact required permissions"), node("p", twitchConsentSummary),
       node("p", "Existing grants are retained. Consent makes no channel change."), node("pre", requiredTwitchScopes.join("\n")));
@@ -130,23 +139,11 @@ export function createConnections(options: {
     if (connect.kind === "creating") element.append(node("p", "Creating connection URL…"));
     if (connect.kind === "failed") element.append(node("p", connect.message));
     if (connect.kind === "link") {
-      element.append(node("p", "Connection link ready. Approve permissions in your browser, then return and check the connection."));
+      element.append(node("p", connect.browserRequested ? "Browser requested. Approve permissions in your browser, then return and recheck Twitch access." :
+        "Connection ready. Open Twitch authorization, then return and recheck Twitch access."));
       disclosure.append(node("p", connect.disclosure), node("p", `Requested: ${connect.requested.join(", ")}`),
         node("p", `Retained extra grants: ${connect.retained.join(", ") || "None"}`));
-      const link = node("a", "Open Twitch authorization");
-      link.href = connect.url; link.target = "_blank"; link.rel = "noopener noreferrer";
-      const fallback = node("p", "If opening fails, copy this address into your normal browser.");
-      const address = node("input", ""); address.value = connect.url; address.readOnly = true;
-      address.setAttribute("aria-label", "Twitch authorization address");
-      const open = options.open;
-      if (open) link.addEventListener("click", event => {
-        event.preventDefault();
-        void openConnection(connect.url, open).then(ok => {
-          fallback.textContent = ok ? "Browser requested. Return here and recheck access after authorization." :
-            "Host could not open authorization. Copy the address into your normal browser. No automatic retry.";
-        });
-      });
-      element.append(link, fallback, address);
+      element.append(action("Open Twitch authorization", () => void model.startConnect(true)));
     }
     element.append(node("p", "Other connections are not available here yet."));
     if (ownedFocus) {

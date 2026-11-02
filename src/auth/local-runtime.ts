@@ -1,4 +1,5 @@
 import { homedir } from "node:os";
+import { openDesktopBrowser } from "./desktop-browser";
 import { join } from "node:path";
 import { LocalConnectionStore } from "./local-store";
 import { TwitchClient, TwitchError } from "./upstream/client";
@@ -10,8 +11,20 @@ import { TwitchChannelClient } from "../adapters/twitch/client";
 import { stateHash } from "./upstream/crypto";
 const OWNER = "local-desktop-owner";
 export const TWITCH_CALLBACK = "http://localhost:4017/api/twitch/callback";
+function bindCallback(port: number, handler: (request: Request) => Response | Promise<Response>) {
+  try { return Bun.serve({ hostname: "127.0.0.1", port, fetch: handler }); }
+  catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "EADDRINUSE") throw new TwitchFault("TWITCH_LOCAL_PORT_BUSY");
+    throw error;
+  }
+}
+export function preflightTwitch(environment: Record<string, string | undefined> = process.env, port = 4017) {
+  if (!environment.TWITCH_CLIENT_ID || !environment.TWITCH_CLIENT_SECRET || !environment.TWITCH_TOKEN_ENCRYPTION_KEY) throw new TwitchFault("TWITCH_NOT_CONFIGURED");
+  const probe = bindCallback(port, () => new Response(null, { status: 503 })); probe.stop(true);
+  return { mode: "live", status: "ready", callbackUrl: `http://localhost:${port}/api/twitch/callback` };
+}
 const htmlEscape = (value: string) => value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll('"', "&quot;");
-export function createLocalTwitchRuntime(environment: Record<string, string | undefined> = process.env, fetcher: typeof fetch = fetch, port = 4017) {
+export function createLocalTwitchRuntime(environment: Record<string, string | undefined> = process.env, fetcher: typeof fetch = fetch, port = 4017, launchBrowser = openDesktopBrowser) {
   const ORIGIN = `http://localhost:${port}`;
   const callbackUrl = `${ORIGIN}/api/twitch/callback`;
   const clientId = environment.TWITCH_CLIENT_ID, clientSecret = environment.TWITCH_CLIENT_SECRET, encryptionSecret = environment.TWITCH_TOKEN_ENCRYPTION_KEY;
@@ -37,7 +50,7 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
   const response = (body: string, status = 200, headers: Record<string, string> = {}) => new Response(body, { status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "Content-Security-Policy": "default-src 'none'; form-action 'self'; frame-ancestors 'none'", ...headers } });
   function listen() {
     if (server) return;
-    server = Bun.serve({ hostname: "127.0.0.1", port, async fetch(request) {
+    server = bindCallback(port, async request => {
       const url = new URL(request.url);
       if (request.headers.get("host") !== `localhost:${port}`) return response("Invalid host", 403);
       try {
@@ -85,18 +98,24 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
         if (failures.length > 10) failures.shift();
         return response("Twitch request failed. Return to Stream Machine and check connection status before retrying authorization.", 400);
       }
-    } });
+    });
     server.unref();
   }
   return {
     accounts, titles,
     diagnostics() { return failures.map(failure => ({ ...failure })); },
-    async connect(_manage = false, _manageClips = false) {
+    preflight() {
+      return server ? { mode: "live", status: "ready", callbackUrl } : preflightTwitch(environment, port);
+    },
+    async connect(_manage = false, _manageClips = false, openBrowser = false) {
       listen();
       const previous = await store.get(OWNER);
       const granted = previous?.scopes ?? [];
+      if (openBrowser) {
+        try { await launchBrowser(`${ORIGIN}/connect`); } catch { throw new TwitchFault("TWITCH_BROWSER_OPEN_FAILED"); }
+      }
       return {
-        mode: "live", connectUrl: `${ORIGIN}/connect`, callbackUrl,
+        browserRequested: openBrowser, mode: "live", connectUrl: `${ORIGIN}/connect`, callbackUrl,
         ...twitchPermissions(granted), requestedScopes: requestedTwitchScopes(granted),
         retainedScopes: granted.filter(scope => !requiredTwitchScopes.includes(scope)),
         disclosure: twitchConsentDisclosure, grantSource: "stored",

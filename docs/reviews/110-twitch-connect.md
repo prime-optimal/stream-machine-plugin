@@ -1,41 +1,64 @@
-# Twitch Connections port conflict
+# Twitch connection button review
 
-## Finding
+## Problem and cause
 
-Connections failed because another installed Stream Machine process already owned the local OAuth port. The connection response and UI schema agree.
+The desktop Connections panel could recheck access but initially reported Connection URL unavailable on Connect. Another installed plugin server owned callback port 4017. The runtime threw `EADDRINUSE`; registration converted that error to `TWITCH_UNAVAILABLE`, which the UI masked as a setup failure.
 
-The older process, PID `70122`, started on November 1, 2026 at 17:14:51 local time. It ran the installed `0.3.0/dist/server.js` and listened on `127.0.0.1:4017`. It was another plugin server, not a preview fixture.
+PID 70122 started at 17:14:51 local time on November 1, 2026. After an approved stop, the same installed Connect tool returned the expected URL. The verification process then released its listener. The user confirmed that the panel could create the link, but clicking it did not open authorization.
 
-Sources: `src/auth/local-runtime.ts:36-39` starts the listener, `:94-95` starts it during Connect, and `src/adapters/twitch/register.ts:37-40` maps an address conflict to `TWITCH_UNAVAILABLE`. Status checks do not start this listener. `src/ui/connections.ts:73-75` hides the tool error behind the connection URL message.
+The connection response and UI schema agreed. No schema relaxation or token refresh was needed.
+
+## Implemented behavior
+
+The Connections button now checks configuration and callback-port availability, then calls the existing Connect tool with `openBrowser: true`. The local desktop process requests the default browser directly. A later Open Twitch authorization button uses the same explicit path. Normal use requires no URL copying or host `openLink` call.
+
+Empty Connect inputs remain link-only. A successful launch request does not establish account access. Only an explicit Twitch status recheck verifies the account.
+
+Preflight binds and releases a temporary probe without initializing the account store. A runtime that already owns the listener reports ready. Connect still checks the actual bind because another process can claim the port after preflight. Occupied ports return `TWITCH_LOCAL_PORT_BUSY`; no browser is requested.
+
+The browser helper accepts only `http://localhost:4017/connect`, uses an argument vector without a shell, suppresses process output, and bounds the launch request to ten seconds. Launch failure returns `TWITCH_BROWSER_OPEN_FAILED`. Neither failure triggers an automatic retry or process termination.
+
+The callback remains fixed. [Twitch requires a registered redirect URI](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/). The UI resource changed to `workspace-v3.html` to distinguish the new controls from cached HTML.
+
+Sources: `src/auth/local-runtime.ts:14`, `src/auth/desktop-browser.ts:17`, `src/adapters/twitch/register.ts:13`, `src/ui/connections.ts:61`, and `skills/onboarding/SKILL.md:24`.
 
 ## Verification
 
 | Check | Exit | Result |
 | --- | --- | --- |
-| Synthetic two-runtime reproduction | 0 | First Connect succeeded; second threw `EADDRINUSE` on an isolated port |
-| Installed Connect before recovery | Tool error | `TWITCH_UNAVAILABLE` |
-| `lsof -nP -iTCP:4017 -sTCP:LISTEN` before recovery | 0 | PID `70122` owned the port |
-| Approved `kill -TERM 70122` | 0 | Older plugin server stopped |
-| Listener check after stop | 1 | No listener |
-| Installed Connect after recovery | Success | Returned `http://localhost:4017/connect` and current consent fields |
-| Listener check after successful call | 0 | Current plugin process `81960` owned the port |
-| Approved `kill -TERM 81960` | 0 | Released verification listener so the panel can acquire the port |
-| Final listener check | 1 | No listener |
+| Initial onboarding regressions | 1 | Three failures against unchanged runtime and UI |
+| Initial browser-helper regressions | 1 | Missing helper reproduced |
+| Integrated focused tests | 0 | 20 tests passed |
+| `mise run check` | 0 | TypeScript passed |
+| `mise run test` | 0 | 171 tests passed, 970 assertions |
+| `mise run build` | 0 | UI, server, and worker bundles built |
+| `mise run smoke` | 0 | 32 tools and UI resource passed over stdio MCP |
+| `mise run package` | 0 | Archive built and inspected |
+| Synthetic browser checks | Passed | Direct action, explicit reopen, launch error, and busy-port error |
+| TLC | 0 | 71 states, 118 steps; eight invariants and deadlock check passed |
 
-The synthetic reproduction used two runtimes, an ephemeral port, separate in-memory stores, fake credentials, and a fetcher that throws on any provider request. Both runtimes closed afterward. No real token refresh, OAuth grant, browser authorization, or provider write ran.
+The [browser evidence](../verification/110-twitch-onboarding/README.md) uses real MCP registration, an isolated callback runtime, and a stub browser launcher. It records three explicit launch attempts, zero provider requests, and no hidden retry. No real OAuth grant or token refresh ran.
 
-The direct tool result changed from error to success after the conflicting listener stopped. Native panel confirmation is pending. Desktop computer inspection is blocked by the host tool.
+The [checked onboarding model](../statechart/110-twitch-onboarding/README.md) includes the race between a ready probe and a failed Connect bind. Actual MCP tests replay that sequence and preserve the unrelated listener.
 
-## Remaining work
+Desktop ChatGPT has not yet verified the updated package. Computer-use access to that app is blocked. The user must install and refresh the new build before native acceptance can be claimed.
 
-Operational recovery frees the port but does not fix concurrent plugin sessions. Issue #110 stays open and In Progress. A durable fix must report the port conflict clearly and safely coordinate listener ownership. Do not trust an arbitrary process merely because it owns port 4017.
+## Required review findings
 
-OAuth state uses shared SQLite, but title previews and approval guards remain process-local. Any shared-listener design must preserve those boundaries and verify matching runtime configuration and consent policy.
+1. Simplification: extend the existing Connect tool with one optional flag. Reuse the existing transport, consent fields, and revision guards. Remove Twitch-specific host-link wiring. Keep the probe in the runtime module rather than add a listener-sharing protocol.
+2. Documentation: onboarding now checks the callback port and explains explicit browser opt-in, error recovery, and the status recheck. Browser-request success and authenticated account verification stay distinct.
+3. Statechart: added the bounded onboarding model and generated chart. The existing broader Connections proposal does not describe callback listener ownership, so the new model covers this implementation without rewriting that proposal.
 
-## Review
+The larger context-builder plan proposed extra response states, a separate preflight module, and a two-step prepare/open flow. This implementation uses existing tool error envelopes and one direct Connect action. These choices preserve the tested boundaries with fewer states and files.
 
-1. Simplification: no source change is needed to establish the cause. Avoid speculative URL parsing or schema changes.
-2. Documentation: this report distinguishes a successful tool response from native panel verification. The original screenshot shows the generic failure, not missing credentials.
-3. Statechart: no runtime behavior changed. Existing navigation models do not describe cross-process OAuth listener ownership. A durable ownership change needs its own checked model and regression tests.
+## Retained work and processes
 
-No completed runtime fix is claimed. Repository build and domain tests were not needed for process-only recovery. Dependency installation and hook setup both exited 0 in the isolated worktree.
+[Worktree snapshot](110-retained-worktrees.json) records paths before the final fix commit. Primary main has unrelated edits to `mise.toml`, `package.json`, and `src/ui/twitch_login.png`; the active #113 checkout also has tool configuration edits and `scripts/ui-audit.ts`. Those belong to the user or sibling UI-audit session and were preserved. Main was not fast-forwarded while another writer was active.
+
+Local-only history remains on the #109 update checkout, #86 review checkout, #105 release checkout, #83 scope checkout, #46 native checkout, #85 transcription checkout, and #81 UX checkout. Each has one commit absent from remote refs except #81, which has three. These belong to their respective task sessions. Their owners must reconcile or push them before cleanup; this task removes none.
+
+Other installed MCP processes remain for existing chats. The observed runtime PIDs were 16471, 67862, and 67877, with their fnox and Bun wrappers. Their owners are the open plugin sessions. No worker or real preview appeared in the scoped scan. Only the approved stale listener and this task\u0027s own verification listener were stopped. The synthetic browser fixture and QA tab also stopped. Generated `dist`, dependency links, and the package archive remain as ignored build outputs.
+
+## Delivery limits
+
+Issue #110 remains open and In Progress while the required change awaits merge and native verification. No installed cache, live credentials, grant policy, broadcaster state, or active device profile was edited. The approved stale-server stops were operational recovery, not an automatic runtime policy.

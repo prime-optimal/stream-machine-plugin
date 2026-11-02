@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { connectionUrl, createConnectionState, openConnection } from "../src/ui/connections";
+import { connectionUrl, createConnectionState } from "../src/ui/connections";
 import { requiredTwitchScopes, twitchPermissions } from "../src/auth/permissions";
 import type { ToolResult } from "../src/ui/tool-transport";
 
@@ -84,13 +84,15 @@ describe("Twitch Connections", () => {
       "http://owner:secret@localhost:4017/connect", "http://localhost:4017/connect?next=other", "http://localhost:4017/connect#token"])
       expect(() => connectionUrl(url)).toThrow();
   });
-  test("SDK link denial, timeout and unsafe URL use fallback without retries", async () => {
-    let attempts = 0;
-    const denied = async () => { attempts++; return { isError: true }; };
-    expect(await openConnection("http://localhost:4017/connect", denied)).toBe(false);
-    expect(attempts).toBe(1);
-    expect(await openConnection("javascript:alert(1)", denied)).toBe(false); expect(attempts).toBe(1);
-    expect(await openConnection("http://localhost:4017/connect", async () => { throw Error("timeout"); })).toBe(false);
-    expect(await openConnection("http://localhost:4017/connect", async () => ({}))).toBe(true);
+  test("busy port and browser failures stay actionable without automatic retries", async () => {
+    for (const [code, message] of [["TWITCH_LOCAL_PORT_BUSY", "port 4017 is in use"], ["TWITCH_BROWSER_OPEN_FAILED", "browser could not be opened"]]) {
+      let attempts = 0;
+      const model = createConnectionState(async name => { if (name.endsWith("preflight") && code !== "TWITCH_LOCAL_PORT_BUSY") return { structuredContent: { twitch: { mode: "live", status: "ready" } } }; attempts++; return { isError: true, structuredContent: { error: { code } } }; }, () => {}, () => {});
+      await model.startConnect(true);
+      const state = model.state();
+      expect(state.connect.kind === "failed" && state.connect.message).toContain(message);
+      expect(state.check.kind).toBe("not_checked");
+      expect(attempts).toBe(1);
+    }
   });
 });

@@ -1,0 +1,44 @@
+---
+title: "Twitch authorization checks and explicit browser request"
+---
+stateDiagram-v2
+  s0: Not checked
+  s1: Starting callback listener
+  s2: Checking Twitch access
+  s3: Checking callback port for authorization
+  s4: Checking callback port
+  s5: Access not verified
+  s6: Chat authorization link ready
+  s7: Callback port in use
+  s8: Callback port available
+  s9: Ready to start authorization
+  s10: Account verified by explicit check
+  s11: Requesting authorization browser
+  s12: Browser could not be opened
+  s13: Browser requested, access not verified
+  [*] --> s0
+  s0 --> s1: chat requests a link without opening it
+  s0 --> s2: you recheck Twitch access
+  s0 --> s3: you choose Connect in the plugin
+  s0 --> s4: onboarding checks the port
+  s1 --> s7: another process owns the port at bind
+  s1 --> s6: the session owns the callback listener
+  s2 --> s5: authenticated read fails
+  s2 --> s10: authenticated read succeeds
+  s3 --> s7: another process owns the port
+  s3 --> s9: port is available or owned by this session
+  s4 --> s7: another process owns the port
+  s4 --> s8: port is available or owned by this session
+  s6 --> s2: you recheck Twitch access
+  s7 --> s1: chat requests a link without opening it
+  s7 --> s2: you recheck Twitch access
+  s7 --> s3: you choose Connect in the plugin
+  s8 --> s1: chat requests a link without opening it
+  s8 --> s2: you recheck Twitch access
+  s8 --> s3: you choose Connect in the plugin
+  s9 --> s1: the plugin requests authorization
+  s1 --> s11: the session owns the callback listener
+  s11 --> s12: desktop rejects or times out
+  s11 --> s13: desktop accepts the browser request
+  s12 --> s2: you recheck Twitch access
+  s13 --> s2: you recheck Twitch access
