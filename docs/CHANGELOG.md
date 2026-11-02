@@ -1,3 +1,16 @@
+## 0.10.0 (2026-11-02)
+
+### Feat
+
+- **streamdeck**: mirror OBS scenes in a one-page streamer layout (#219)
+- apply Stream Machine shell styling (#210)
+- split OBS into a local MCP server (#191) (#209)
+- apply Stream Machine shell styling (#194) (#208)
+
+### Fix
+
+- clarify clip save action (#195) (#206)
+
 ## 0.9.1 (2026-11-02)
 
 ### Fix
