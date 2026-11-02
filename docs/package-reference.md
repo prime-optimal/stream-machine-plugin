@@ -4,7 +4,7 @@ The prototype package runs on a desktop host that supports local stdio MCP. The 
 
 The package contains portable and compatibility manifests, `fnox.toml` secret references, skills, the bundled server and UI, worker bundles, documentation, and dependency notices. It does not need `node_modules` inside the archive. Secret values and runtime databases are excluded.
 
-The `mise run package` task regenerates `docs/packages/stream-machine-0.2.0.tar.gz`. Git ignores this generated archive.
+The `mise run package` task regenerates `docs/packages/stream-machine-0.3.0.tar.gz`. Git ignores this generated archive.
 
 ## Server and tools
 

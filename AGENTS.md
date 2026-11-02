@@ -93,7 +93,7 @@ Follow these rules throughout the task:
 - Fetch remote refs, then run `mise run git:handoff` after the final push. The task worktree must be clean and match its upstream.
 - Inspect other retained worktrees and running processes. At handoff, name each dirty worktree, local-only commit, or running process that remains. Give its owner and next step.
 - If a completion check fails, report the path, blocker, owner, and next step. Do not claim that the task is complete.
-- Use Commitizen through `mise run changelog:preview` and `mise run changelog`. Review and commit the generated `docs/CHANGELOG.md` when preparing a release. Do not create release tags or publish as part of routine commits.
+- Use Commitizen through `mise run changelog:preview` and `mise run changelog`. Review and commit the generated `docs/CHANGELOG.md` when preparing a release. Do not create release tags or publish as part of routine commits. Use the release preparation tasks and workflow described in [the Git workflow](docs/git-workflow.md#prepare-a-release-pr) for synchronized versions and release PRs.
 
 ## Finish the issue
 

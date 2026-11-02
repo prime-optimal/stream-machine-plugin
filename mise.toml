@@ -85,5 +85,13 @@ run = "uv run --no-project --with commitizen==4.19.3 cz changelog"
 description = "Preview changelog without writing files"
 run = "uv run --no-project --with commitizen==4.19.3 cz changelog --dry-run"
 
+[tasks."release:preview"]
+description = "Preview next release with Commitizen without writing files"
+run = "uv run scripts/release-plan.py preview"
+
+[tasks."release:prepare"]
+description = "Prepare synchronized release files without commits or tags"
+run = "uv run scripts/release-plan.py prepare"
+
 [env]
 HK_MISE = "1"

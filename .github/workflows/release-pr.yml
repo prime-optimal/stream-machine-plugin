@@ -1,0 +1,102 @@
+name: Prepare release PR
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: release-pr
+  cancel-in-progress: false
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac
+      - run: mise run install
+      - name: Prepare version and changelog
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          mise run release:prepare | tee "$RUNNER_TEMP/release-plan.json"
+          jq -r 'to_entries[] | "\(.key)=\(.value)"' "$RUNNER_TEMP/release-plan.json" >> "$GITHUB_OUTPUT"
+      - name: Check generated release
+        if: steps.release.outputs.changed == 'true'
+        run: |
+          mise run check
+          mise run test
+          mise run smoke
+          mise run package
+          mise run hooks:check
+      - name: Reject stale source or foreign release branch
+        if: steps.release.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE: ${{ steps.release.outputs.source }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(gh api "repos/$GH_REPO/git/ref/heads/main" --jq .object.sha)" = "$SOURCE"
+          prs=$(gh api "repos/$GH_REPO/pulls?head=${GH_REPO%/*}:automation/release&state=open")
+          test "$(jq length <<< "$prs")" -le 1
+          jq -e --arg repo "$GH_REPO" 'all(.[]; .user.login == "github-actions[bot]" and .base.ref == "main" and .head.repo.full_name == $repo)' <<< "$prs"
+          refs=$(gh api "repos/$GH_REPO/git/matching-refs/heads/automation/release")
+          head=$(jq -r '.[] | select(.ref == "refs/heads/automation/release") | .object.sha' <<< "$refs")
+          if [ -n "$head" ]; then
+            commit=$(gh api "repos/$GH_REPO/commits/$head")
+            parent=$(jq -r '.parents[0].sha' <<< "$commit")
+            git merge-base --is-ancestor "$parent" "$SOURCE"
+            jq -e '
+              .author.login == "github-actions[bot]" and
+              .committer.login == "github-actions[bot]" and
+              (.commit.message | test("^chore\\(release\\): prepare [0-9]+\\.[0-9]+\\.[0-9]+\\n\\nRelease-Source: [a-f0-9]{40}\\n?$")) and
+              (.parents | length == 1) and
+              (.commit.message | contains("Release-Source: " + $parent)) and
+              (.files | length > 0) and
+              all(.files[]; .filename | IN(".cz.toml", ".release-state.json", "package.json", "plugin.json", "src/version.ts", "docs/CHANGELOG.md"))
+            ' --arg parent "$parent" <<< "$commit"
+          fi
+          paths=$(git diff --name-only)
+          while IFS= read -r path; do
+            case "$path" in
+              .cz.toml|.release-state.json|package.json|plugin.json|src/version.ts|docs/CHANGELOG.md) ;;
+              *) echo "Unexpected release path: $path" >&2; exit 1 ;;
+            esac
+          done <<< "$paths"
+      - name: Open or update release PR
+        if: steps.release.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676
+        with:
+          token: ${{ github.token }}
+          branch: automation/release
+          base: main
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          commit-message: |
+            chore(release): prepare ${{ steps.release.outputs.version }}
+
+            Release-Source: ${{ steps.release.outputs.source }}
+          title: "chore(release): prepare ${{ steps.release.outputs.version }}"
+          add-paths: |
+            .cz.toml
+            .release-state.json
+            package.json
+            plugin.json
+            src/version.ts
+            docs/CHANGELOG.md
+          body: |
+            Prepare ${{ steps.release.outputs.version }} from ${{ steps.release.outputs.source }}.
+            Previous release boundary: ${{ steps.release.outputs.boundary }}.
+            Commitizen 4.19.3 calculates the version and changelog.
+            Checks: TypeScript, tests, stdio smoke, package, and check-only hooks.
+            Review and merge manually. No tags, publishing, approval, or automatic merge.
