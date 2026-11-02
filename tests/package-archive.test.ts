@@ -27,6 +27,7 @@ async function fixture() {
   await writeFile(join(root, "docs/nested/guide.md"), "Fixture guide\n");
   await writeFile(join(root, "dist/server.js"), "Fixture server\n");
   await writeFile(join(root, "dist/obs-server.js"), "Fixture OBS server\n");
+  await writeFile(join(root, "dist/streamdeck-action.js"), "Fixture Stream Deck action runner\n");
   return root;
 }
 

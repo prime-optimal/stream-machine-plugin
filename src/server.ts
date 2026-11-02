@@ -63,7 +63,9 @@ export function createServer(_html: string) {
   // registerAnalyticsTools(server);
   // const transcription = registerTranscriptionTool(server);
   // registerMediaTools(server, new MediaInfoService(clips, transcription));
-  server.server.onclose = () => { /* transcription.close(); */ void deck.close().catch(() => process.stderr.write("Stream Deck cleanup failed.\n")); };
+  let closing: Promise<void> | undefined;
+  const shutdown = () => closing ??= deck.close().catch(() => { process.stderr.write("Stream Deck cleanup failed.\n"); });
+  server.server.onclose = () => { /* transcription.close(); */ void shutdown(); };
   // Desktop exposes only OBS and Stream Deck (#159).
   // server.registerResource("stream-machine-workspace", UI_URI, {
   //   mimeType: "text/html;profile=mcp-app",
@@ -76,5 +78,5 @@ export function createServer(_html: string) {
   //     },
   //   }],
   // }));
-  return server;
+  return Object.assign(server, { shutdown });
 }

@@ -1,13 +1,13 @@
 ---
 name: preview-recipe
-description: Preview a Stream Machine Twitch title through the hosted stream-machine server, set a Stream Deck button with the stream-machine-desktop server, and browse, save, and zip the channel's Twitch clips through the hosted server.
+description: Preview a Stream Machine Twitch title through the hosted stream-machine server, build and edit a Stream Deck streamer layout with the stream-machine-streamdeck server, and browse, save, and zip the channel's Twitch clips through the hosted server.
 ---
 
 # Preview and run a selected demo
 
 Read the provider first. Use the account or device returned by that provider, not a guessed identifier.
 
-Use this plugin's hosted `stream-machine` server for Twitch and clips. Keep every Twitch step on that connection. The local `stream-machine-obs` server provides OBS tools and `stream-machine-desktop` provides Stream Deck tools. Neither provides a Twitch fallback. If the Stream Machine Site plugin is also installed, keep the whole task on one connection and never replay a mutation through the other.
+Use this plugin's hosted `stream-machine` server for Twitch and clips. Keep every Twitch step on that connection. The local `stream-machine-obs` server provides OBS tools and `stream-machine-streamdeck` provides Stream Deck tools. Neither provides a Twitch fallback. If the Stream Machine Site plugin is also installed, keep the whole task on one connection and never replay a mutation through the other.
 
 ## Update a Twitch title
 
@@ -20,20 +20,21 @@ Use this plugin's hosted `stream-machine` server for Twitch and clips. Keep ever
 
 An expired preview needs a new preview. A changed account or current title also needs a new review. Never automatically retry an ambiguous write.
 
-## Set one Stream Deck button
+## Build a Stream Deck layout
 
-1. Call `stream_machine_streamdeck_inventory`.
-2. Select the user's original 3×5 device.
-3. Call `stream_machine_streamdeck_preview` with its serial, a key index from 0 to 14, and the requested HTTP URL.
-4. Show the exact button and explain that the USB process must remain running.
-5. If the user has authorized setup, call `stream_machine_streamdeck_apply` with the returned preview ID.
-6. Distinguish configuration read-back from a physical press. Ask for one press only when physical proof is still needed.
+1. Call `stream_machine_streamdeck_inventory` and select the user's Stream Deck Original (3×5) by serial.
+2. Call `stream_machine_streamdeck_layout_preview` with the serial. Optionally pass `scenes` (OBS scene names, in order, up to 5) and `channel` (a Twitch login) to add the chat, activity, and channel buttons. The tool reads OBS and writes nothing to the deck.
+3. Show the user the grid: keys 0–4 are scene buttons, 5 MIC, 6 DESK AUDIO, 8 REC, 9 GO LIVE, 10 STREAM MGR, and with a channel also 11 CHAT, 12 ACTIVITY, and 14 MY CHANNEL. The preview expires after five minutes.
+4. Warn that GO LIVE toggles streaming and REC toggles recording.
+5. Only with the user's authorization, call `stream_machine_streamdeck_layout_apply` with the preview ID. It refuses while the Elgato Stream Deck app runs, replaces the `stream-machine` USB page, and reads each button back.
+6. To edit one key, call `stream_machine_streamdeck_button_update` (`key` 0–14, optional `label`, and an `action` of scene, mic, desktop-audio, record, stream, or an HTTP/HTTPS url). To empty a key, call `stream_machine_streamdeck_button_clear`.
+7. Call `stream_machine_streamdeck_release` when done. Pass `deleteLayout: true` to also delete the `stream-machine` page.
 
-Do not claim the device while another demo process or Elgato app owns it. `stream_machine_streamdeck_release` removes this session's demo page and releases USB.
+Button presses only work while the server process keeps running, and OBS actions need OBS WebSocket on `ws://localhost:4455` without a password. Distinguish configuration read-back from a physical press. Ask for one press only when physical proof is still needed.
 
 ## Browse, save, and zip clips
 
-Use the hosted server's tools. `stream-machine-desktop` does not expose clip tools.
+Use the hosted server's tools. `stream-machine-streamdeck` does not expose clip tools.
 
 To browse or search clips, call `stream_machine_clips_library`. Pass `startedAt` and `endedAt` (RFC 3339) to filter by date and `first` (1 to 100, default 24) to set the page size. To read more, call it again with the returned `cursor` until `cursor` is `null`. Each item shows whether the clip is saved to the Site in `stored`.
 

@@ -12,7 +12,7 @@
       "args": ["${PLUGIN_ROOT}/dist/obs-server.js"],
       "cwd": "${PLUGIN_ROOT}"
     },
-    "stream-machine-desktop": {
+    "stream-machine-streamdeck": {
       "type": "stdio",
       "command": "bun",
       "args": ["${PLUGIN_ROOT}/dist/server.js"],

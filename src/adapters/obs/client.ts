@@ -12,13 +12,14 @@ const allowedRequests = new Set([
   "SetSceneItemEnabled", "SetSceneItemTransform", "SetCurrentProgramScene",
   "PressInputPropertiesButton", "GetSourceScreenshot",
   "RemoveScene", "RemoveInput", "GetGroupList", "GetGroupSceneItemList",
+  "GetSpecialInputs", "ToggleInputMute", "ToggleRecord", "ToggleStream",
 ]);
 export async function withObs<T>(run: (request: (name: string, data?: Record<string, unknown>) => Promise<Record<string, unknown>>) => Promise<T>, endpoint = OBS_ENDPOINT): Promise<T> {
   const socket = new WebSocket(endpoint);
   const pending = new Map<string, { resolve: (value: Record<string, unknown>) => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> }>();
   let identified = false;
-  let resolveReady: () => void = () => {};
-  let rejectReady: (error: Error) => void = () => {};
+  let resolveReady: () => void = () => { };
+  let rejectReady: (error: Error) => void = () => { };
   const ready = new Promise<void>((resolve, reject) => { resolveReady = resolve; rejectReady = reject; });
   const fail = (error: Error) => {
     rejectReady(error);

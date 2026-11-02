@@ -5,89 +5,155 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { UsbProvider, type DeckProvider, STREAMDECK_REVISION } from "./provider";
+import { KEY_COUNT, LAYOUT_PAGE, actionCommand, actionRunner, button, deckAction, streamerLayout, type DeckButton } from "./layout";
+import { obsScenes, type SceneReader } from "./obs-scenes";
 
 const devicesSchema = z.array(z.object({ serial: z.string(), deck_type: z.string(), key_count: z.number().int() }));
 const buttonSchema = z.object({ key: z.number(), text: z.string().nullable(), action: z.string().nullable() });
-export const buttonInput = z.strictObject({
-  serial: z.string().min(1), key: z.number().int().min(0).max(14).default(0),
-  url: z.string().url().refine((value) => ["http:", "https:"].includes(new URL(value).protocol), "HTTP(S) URL required"),
+const key = z.number().int().min(0).max(KEY_COUNT - 1);
+export const layoutInput = z.strictObject({
+  serial: z.string().min(1),
+  channel: z.string().min(1).max(25).optional().describe("Twitch login for chat, activity, and channel buttons"),
+  scenes: z.array(z.string().min(1).max(200)).min(1).max(5).optional().describe("OBS scene names for the top row, in order. Default: the first 5 scenes in OBS order"),
 });
-export type ButtonInput = z.infer<typeof buttonInput>;
-export function openUrlCommand(url: string) {
-  const normalized = new URL(url).href;
-  if (!["http:", "https:"].includes(new URL(normalized).protocol)) throw new Error("HTTP(S) URL required");
-  return `/usr/bin/open '${normalized.replaceAll("'", "'\\''")}'`;
-}
+export const buttonInput = z.strictObject({ key, label: z.string().min(1).max(24).optional(), action: deckAction });
+export const clearInput = z.strictObject({ key });
+export const releaseInput = z.strictObject({ deleteLayout: z.boolean().default(false) });
+
+interface Plan { id: string; expires: number; serial: string; buttons: DeckButton[]; commands: string[] }
 
 export class StreamDeckWorkspace {
-  private pending: { id: string; expires: number; page: string; input: ButtonInput; action: string } | undefined;
+  private pending: Plan | undefined;
   private busy = false;
-  private connected = false;
-  private ownedPage: string | undefined;
-  constructor(private readonly provider: DeckProvider = new UsbProvider()) {}
+  private serial: string | undefined;
+  private applied = false;
+  constructor(
+    private readonly provider: DeckProvider = new UsbProvider(),
+    private readonly scenes: SceneReader = obsScenes,
+    private readonly runner: () => string[] = actionRunner,
+  ) { }
 
   async inventory() {
     const devices = devicesSchema.parse(JSON.parse(await this.provider.call("streamdeck_list_devices")));
     return {
       provider: "streamdeck-mcp-usb", revision: STREAMDECK_REVISION,
       devices: [...new Map(devices.map((device) => [device.serial, device])).values()].map((device) => ({
-        ...device, layout: device.deck_type === "Stream Deck Original" && device.key_count === 15 ? { rows: 3, columns: 5 } : null,
+        ...device, layout: device.deck_type === "Stream Deck Original" && device.key_count === KEY_COUNT ? { rows: 3, columns: 5 } : null,
       })),
       nativeProfilesAvailable: existsSync(join(homedir(), "Library/Application Support/com.elgato.StreamDeck/ProfilesV3")),
       pages: await this.provider.call("streamdeck_list_pages"),
-      note: "USB pages are separate from Elgato profiles. Inventory does not connect/reset the deck. No existing native action is claimed.",
+      layoutApplied: this.applied,
+      note: "USB pages are separate from Elgato profiles. Inventory does not connect/reset the deck.",
     };
   }
 
-  async preview(raw: unknown) {
-    if (this.busy) throw new Error("Stream Deck operation busy");
-    const input = buttonInput.parse(raw);
-    const inventory = await this.inventory();
-    if (!inventory.devices.some((device) => device.serial === input.serial && device.layout)) throw new Error("Selected Original 3×5 deck missing");
-    const plan = { id: randomUUID(), expires: Date.now() + 300_000, page: `sm-demo-${randomUUID()}`, input, action: openUrlCommand(input.url) };
+  async previewLayout(raw: unknown) {
+    const input = layoutInput.parse(raw);
+    await this.requireDeck(input.serial);
+    const obs = await this.scenes.scenes(5, input.scenes);
+    if (!obs.scenes.length) throw new Error("OBS has no scenes to place on the deck");
+    const buttons = streamerLayout(obs.scenes, input.channel);
+    const runner = this.runner();
+    const plan: Plan = { id: randomUUID(), expires: Date.now() + 300_000, serial: input.serial, buttons, commands: buttons.map((item) => actionCommand(item.action, runner)) };
     this.pending = plan;
-    return { ...plan, position: { row: Math.floor(input.key / 5) + 1, column: input.key % 5 + 1 }, label: "OPEN DEMO", writes: false,
-      mode: "usb-test-page", ownership: "Apply claims USB and resets its display. Quit Elgato first. Keeper process must remain running for presses.",
-      notice: "Fresh blank deck only. Does not edit Elgato profiles. Fixed native /usr/bin/open action; no generated script." };
+    return {
+      previewId: plan.id, expiresAt: new Date(plan.expires).toISOString(), page: LAYOUT_PAGE, currentObsScene: obs.current,
+      grid: buttons.map((item) => ({ key: item.key, row: Math.floor(item.key / 5) + 1, column: item.key % 5 + 1, label: item.label, action: item.action })),
+      deckWrites: false,
+      notice: "Apply claims the USB deck and replaces its display. Quit the Elgato Stream Deck app first. Keep this server running so presses reach OBS. GO LIVE toggles streaming in OBS.",
+    };
   }
 
-  async apply(previewId: string) {
-    if (this.busy) throw new Error("Stream Deck operation busy");
+  async applyLayout(previewId: string) {
     const plan = this.pending;
     if (!plan || plan.id !== previewId || plan.expires < Date.now()) throw new Error("Preview missing, expired, or already attempted");
-    if (this.connected) throw new Error("Demo already owns USB; close before replacing demo");
-    if (spawnSync("/usr/bin/pgrep", ["-x", "Stream Deck"]).status === 0) throw new Error("Quit Elgato Stream Deck before USB ownership");
-    this.busy = true;
     this.pending = undefined;
+    return this.exclusive(async () => {
+      await this.requireDeck(plan.serial);
+      if (this.serial && this.serial !== plan.serial) throw new Error("Another deck is claimed; release it first");
+      if (!this.serial) {
+        if (spawnSync("/usr/bin/pgrep", ["-x", "Stream Deck"]).status === 0) throw new Error("Quit Elgato Stream Deck before USB ownership");
+        await this.provider.call("streamdeck_connect", { serial: plan.serial });
+        this.serial = plan.serial;
+      }
+      const pages = (await this.provider.call("streamdeck_list_pages")).split("\n").map((line) => line.replace(/^\W+/u, "").trim());
+      if (!pages.includes(LAYOUT_PAGE)) await this.provider.call("streamdeck_create_page", { name: LAYOUT_PAGE });
+      await this.provider.call("streamdeck_switch_page", { name: LAYOUT_PAGE });
+      this.applied = true;
+      await this.provider.call("streamdeck_clear_all");
+      await this.provider.call("streamdeck_set_buttons", { buttons: plan.buttons.map((item, index) => this.providerButton(item, plan.commands[index]!)) });
+      const verified = [];
+      for (const [index, item] of plan.buttons.entries()) verified.push(await this.readback(item, plan.commands[index]!));
+      return { page: LAYOUT_PAGE, serial: plan.serial, buttons: verified, storedConfigurationVerified: true, physicalPressVerified: false, keeperRequired: true };
+    });
+  }
+
+  async updateButton(raw: unknown) {
+    const input = buttonInput.parse(raw);
+    return this.exclusive(async () => {
+      this.requireApplied();
+      const item = button(input.key, input.action, input.label);
+      const command = actionCommand(item.action, this.runner());
+      await this.provider.call("streamdeck_clear_button", { key: item.key });
+      await this.provider.call("streamdeck_set_button", this.providerButton(item, command));
+      return { page: LAYOUT_PAGE, button: await this.readback(item, command), physicalPressVerified: false };
+    });
+  }
+
+  async clearButton(raw: unknown) {
+    const input = clearInput.parse(raw);
+    return this.exclusive(async () => {
+      this.requireApplied();
+      await this.provider.call("streamdeck_clear_button", { key: input.key });
+      const readback = buttonSchema.parse({ text: null, action: null, ...JSON.parse(await this.provider.call("streamdeck_get_button", { key: input.key })) });
+      if (readback.text || readback.action) throw new Error("Button still configured after clear; inspect before retrying");
+      return { page: LAYOUT_PAGE, key: input.key, cleared: true };
+    });
+  }
+
+  async release(raw: unknown = {}) {
+    const input = releaseInput.parse(raw);
+    await this.close(input.deleteLayout);
+    return { released: true, layoutDeleted: input.deleteLayout };
+  }
+
+  async close(deleteLayout = false) {
     try {
-      const inventory = await this.inventory();
-      if (!inventory.devices.some((device) => device.serial === plan.input.serial && device.layout)) throw new Error("Selected deck missing");
-      await this.provider.call("streamdeck_connect", { serial: plan.input.serial });
-      this.connected = true;
-      await this.provider.call("streamdeck_create_page", { name: plan.page });
-      this.ownedPage = plan.page;
-      await this.provider.call("streamdeck_switch_page", { name: plan.page });
-      await this.provider.call("streamdeck_set_button", { key: plan.input.key, text: "OPEN\nDEMO", bg_color: [42, 25, 100], text_color: [255, 255, 255], font_size: 18, action: plan.action });
-      const readback = buttonSchema.parse(JSON.parse(await this.provider.call("streamdeck_get_button", { key: plan.input.key })));
-      if (readback.action !== plan.action || readback.text !== "OPEN\nDEMO") throw new Error("Button readback differs; inspect before retrying");
-      return { page: plan.page, serial: plan.input.serial, button: readback, storedConfigurationVerified: true, physicalPressVerified: false,
-        keeperRequired: true, url: plan.input.url };
+      if (this.serial && this.applied && deleteLayout) {
+        await this.provider.call("streamdeck_switch_page", { name: "main" });
+        await this.provider.call("streamdeck_delete_page", { name: LAYOUT_PAGE });
+      }
     } finally {
-      this.busy = false;
+      if (this.serial) await this.provider.call("streamdeck_disconnect").catch(() => undefined);
+      await this.provider.close();
+      this.serial = undefined;
+      this.applied = false;
+      this.pending = undefined;
     }
   }
 
-  async close() {
-    try {
-      if (this.ownedPage) {
-        await this.provider.call("streamdeck_switch_page", { name: "main" });
-        await this.provider.call("streamdeck_delete_page", { name: this.ownedPage });
-        this.ownedPage = undefined;
-      }
-    } finally {
-      if (this.connected) await this.provider.call("streamdeck_disconnect").catch(() => undefined);
-      await this.provider.close();
-      this.connected = false;
-    }
+  private async requireDeck(serial: string) {
+    const inventory = await this.inventory();
+    if (!inventory.devices.some((device) => device.serial === serial && device.layout)) throw new Error("Selected Original 3×5 deck missing");
+  }
+
+  private requireApplied() {
+    if (!this.serial || !this.applied) throw new Error("Apply a layout first; this server does not own the deck");
+  }
+
+  private async exclusive<T>(run: () => Promise<T>) {
+    if (this.busy) throw new Error("Stream Deck operation busy");
+    this.busy = true;
+    try { return await run(); } finally { this.busy = false; }
+  }
+
+  private providerButton(item: DeckButton, command: string) {
+    return { key: item.key, text: item.label, bg_color: item.color, text_color: [255, 255, 255], font_size: 16, action: command };
+  }
+
+  private async readback(item: DeckButton, command: string) {
+    const readback = buttonSchema.parse(JSON.parse(await this.provider.call("streamdeck_get_button", { key: item.key })));
+    if (readback.action !== command || readback.text !== item.label) throw new Error(`Button ${item.key} read-back differs; inspect before retrying`);
+    return { key: item.key, label: item.label, action: item.action };
   }
 }
