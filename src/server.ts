@@ -9,6 +9,7 @@ import { registerCreativeTools } from "./adapters/design/register";
 import { registerWorkerTools } from "./worker/register";
 import { registerGameTools } from "./adapters/igdb/register";
 import { registerTranscriptionTool } from "./adapters/openai/transcription-register";
+import { registerAnalyticsTools } from "./analytics/register";
 
 export const UI_URI = "ui://stream-machine/workspace-v4.html";
 const descriptions: Record<ToolName, string> = {
@@ -48,6 +49,7 @@ export function createServer(html: string) {
   registerCreativeTools(server);
   registerWorkerTools(server);
   registerGameTools(server);
+  registerAnalyticsTools(server);
   const transcription = registerTranscriptionTool(server);
   server.server.onclose = () => { transcription.close(); void deck.close().catch(() => process.stderr.write("Stream Deck cleanup failed.\n")); };
   server.registerResource("stream-machine-workspace", UI_URI, {
