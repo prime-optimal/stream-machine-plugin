@@ -52,7 +52,7 @@ export function createClips(options: { request: ToolRequest; openLink: OpenLink;
   const galleryZip = zip.view();
 
   const search = el("input");
-  search.type = "search"; search.placeholder = "Search title, category, clipper"; search.maxLength = 100;
+  search.type = "search"; search.placeholder = "Search clips"; search.maxLength = 100;
   search.setAttribute("aria-label", "Search clips");
   const category = el("select");
   category.setAttribute("aria-label", "Filter by category");
@@ -79,11 +79,11 @@ export function createClips(options: { request: ToolRequest; openLink: OpenLink;
       frame.append(image);
     } else frame.append(el("span", "No thumbnail", "thumb-missing"));
     frame.append(el("span", formatDuration(clip.durationSeconds), "clip-duration"));
-    if (clip.stored) frame.append(el("span", "On Site", "clip-stored"));
+    if (clip.stored) frame.append(el("span", "Saved", "clip-stored"));
     const meta = el("span", "", "clip-meta");
     meta.append(
       el("strong", clip.title || "Untitled clip"),
-      el("span", `${clip.game.name ?? "Unknown category"} · ${clip.creator.name ?? "Unknown clipper"}`),
+      el("span", `${clip.game.name ?? "Unknown"} · ${clip.creator.name ?? "Unknown"}`),
       el("span", `${formatDate(clip.createdAt)} · ${formatViews(clip.viewCount)}`),
     );
     node.append(frame, meta);
@@ -99,7 +99,7 @@ export function createClips(options: { request: ToolRequest; openLink: OpenLink;
 
   function paintHeader() {
     header.replaceChildren();
-    if (account) header.append(el("p", `${account.displayName} · @${account.login} · ${storage === "site" ? "Site library" : "Local server, no Site storage"}`, "clips-account"));
+    if (account) header.append(el("p", `${account.displayName} · @${account.login}${storage === "site" ? "" : " · Saving isn't available here"}`, "clips-account"));
     if (storage === "site") header.append(bulk.element, galleryZip);
   }
 
@@ -109,16 +109,16 @@ export function createClips(options: { request: ToolRequest; openLink: OpenLink;
     const shown = visibleClips(items, filter, sort);
     grid.replaceChildren(...shown.map(card));
     more.replaceChildren();
-    if (load.kind === "loading") status.textContent = items.length ? "Loading more clips…" : "Loading your clips…";
+    if (load.kind === "loading") status.textContent = items.length ? "Loading…" : "Loading your clips…";
     else if (load.kind === "failed") status.textContent = "";
     else if (load.kind === "idle") status.textContent = "";
-    else if (items.length === 0) status.textContent = "This channel has no clips yet.";
-    else if (shown.length === 0) status.textContent = `No loaded clips match. ${cursor ? "Load more to search older clips." : ""}`;
-    else status.textContent = `Showing ${shown.length} of ${items.length} loaded ${items.length === 1 ? "clip" : "clips"}${cursor ? "; more are available." : "."}`;
+    else if (items.length === 0) status.textContent = "No clips yet.";
+    else if (shown.length === 0) status.textContent = cursor ? "No matches. Load more to search older clips." : "No matches.";
+    else status.textContent = "";
     if (load.kind === "failed") {
       const failure = el("p", load.message, "clips-error");
       failure.setAttribute("role", "alert");
-      more.append(failure, button(items.length ? "Try loading more again" : "Try again", () => void fetchPage(items.length > 0)));
+      more.append(failure, button("Try again", () => void fetchPage(items.length > 0)));
     } else if (cursor && load.kind === "ready") more.append(button("Load more", () => void fetchPage(true)));
   }
 
@@ -135,7 +135,7 @@ export function createClips(options: { request: ToolRequest; openLink: OpenLink;
       const page = parseLibrary(result.structuredContent ?? (result.isError ? { error: { code: "CLIP_UNAVAILABLE" } } : null));
       if (identity && identity !== page.account.id) {
         setAccount(null);
-        load = { kind: "failed", message: "The Twitch account changed. Reload the gallery before continuing." };
+        load = { kind: "failed", message: "The Twitch account changed. Reload your clips." };
         paint(); return;
       }
       identity = page.account.id;
@@ -144,7 +144,7 @@ export function createClips(options: { request: ToolRequest; openLink: OpenLink;
       load = { kind: "ready" };
     } catch (cause) {
       if (mine !== revision) return;
-      load = { kind: "failed", message: cause instanceof ClipLibraryError ? cause.message : "Could not reach the clip library. Try again." };
+      load = { kind: "failed", message: cause instanceof ClipLibraryError ? cause.message : "Couldn't load your clips. Try again." };
     }
     paint();
   }

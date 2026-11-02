@@ -87,7 +87,7 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
           await completion.result;
           return response("", 302, { Location: `${ORIGIN}/connected`, "Set-Cookie": "sm_twitch_state=; HttpOnly; SameSite=Lax; Path=/api/twitch; Max-Age=0" });
         }
-        if (url.pathname === "/connected" && request.method === "GET") return response("<h1>Twitch connected</h1><p>Return to Stream Machine. No channel changes made.</p>");
+        if (url.pathname === "/connected" && request.method === "GET") return response("<h1>Twitch connected</h1><p>You can close this tab and return to Stream Machine.</p>");
         if (url.pathname === "/approve") {
           const id = url.searchParams.get("id") ?? "";
           if (request.method === "POST") {
@@ -96,20 +96,20 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
             if (!originIsSameOrigin || !cookiePresent) {
               failures.push({ class: "ApprovalGuard", code: "approval_rejected", status: 403, originIsSameOrigin, originIsNull: request.headers.get("origin") === "null", cookiePresent });
               if (failures.length > 10) failures.shift();
-              return response("Approval rejected", 403);
+              return response("Couldn't approve. Go back to Stream Machine and try again.", 403);
             }
             await titles.approve(id);
-            return response("<h1>Title approved</h1><p>Return to Stream Machine to apply this exact preview.</p>");
+            return response("<h1>Title approved</h1><p>You can close this tab and return to Stream Machine.</p>");
           }
           if (request.method !== "GET") return response("Method rejected", 405);
           const p = await titles.approvalDetails(id);
-          return response(`<h1>Approve Twitch title</h1><p>Account: ${htmlEscape(p.account)}</p><p>Current: ${htmlEscape(p.before)}</p><p>Proposed: ${htmlEscape(p.after)}</p><form method="post"><button type="submit">Approve exact title change</button></form>`, 200, { "Referrer-Policy": "same-origin", "Set-Cookie": `sm_approval=${approvalSession}; HttpOnly; SameSite=Strict; Path=/approve; Max-Age=300` });
+          return response(`<h1>Approve title change</h1><p>Account: ${htmlEscape(p.account)}</p><p>Current: ${htmlEscape(p.before)}</p><p>New: ${htmlEscape(p.after)}</p><form method="post"><button type="submit">Approve</button></form>`, 200, { "Referrer-Policy": "same-origin", "Set-Cookie": `sm_approval=${approvalSession}; HttpOnly; SameSite=Strict; Path=/approve; Max-Age=300` });
         }
         return response("Not found", 404);
       } catch (error) {
         failures.push(error instanceof TwitchError ? { class: "TwitchError", code: error.code, status: error.status } : { class: "Error", code: "local_callback_failed", status: 500 });
         if (failures.length > 10) failures.shift();
-        return response("Twitch request failed. Return to Stream Machine and check connection status before retrying authorization.", 400);
+        return response("Couldn't connect to Twitch. Go back to Stream Machine and check the connection.", 400);
       }
     });
     server.unref();

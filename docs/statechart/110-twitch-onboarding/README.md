@@ -88,7 +88,7 @@ The chart hides these steps because they do not change what you see: another pro
 
 Issue #157 adds a step that this model does not cover. After hosted `stream_machine_twitch_status` verifies the account, the onboarding skill calls the hosted `stream_machine_open`, which opens the hosted Stream Machine menu. That step uses no callback port, so none of the rules above apply to it.
 
-The port checks, the replace flow, and the idle release describe the desktop fallback only. In the desktop workspace, the UI now shows a link to the Site first and places the preflight, **Connect with Twitch**, and **Stop the other chat and connect** inside a **Use desktop fallback** disclosure. The hosted Connect action runs no preflight, requests no browser, and opens only the Site URL through the host. The `src/ui/connections.ts` line numbers in the correspondence list above predate this change and have drifted.
+The port checks, the replace flow, and the idle release describe the desktop fallback only. In the desktop workspace, the UI first tells you to connect from the Stream Machine menu in ChatGPT. It places the preflight, **Connect with Twitch**, and **Stop the other chat and connect** inside a **Connect on this computer instead** disclosure. The hosted Connect action runs no preflight, requests no browser, and opens only the Site URL through the host. The `src/ui/connections.ts` line numbers in the correspondence list above predate this change and have drifted.
 
 ## Regenerate the checked artifacts
 

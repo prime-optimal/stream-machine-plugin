@@ -106,7 +106,7 @@ function setRuntime(next: Runtime, nextOrigin: string): void {
   navigation.show(visibleSections(runtime));
   badge.hidden = false;
   home.activate(runtime === "hosted");
-  badge.textContent = runtime === "hosted" ? "Hosted" : "Desktop workspace";
+  badge.textContent = runtime === "hosted" ? "Hosted" : "Desktop";
   desktopNote.hidden = runtime !== "hosted";
   renderCards();
   connections.refresh();
@@ -115,7 +115,7 @@ function setRuntime(next: Runtime, nextOrigin: string): void {
 function accept(result: ToolResult): void {
   const data = result.structuredContent as Snapshot | { error?: { message?: string } } | undefined;
   if (result.isError || (data && "error" in data)) {
-    throw new Error(data && "error" in data ? data.error?.message || "That action could not be completed." : "That action could not be completed.");
+    throw new Error(data && "error" in data ? data.error?.message || "Couldn't do that. Try again." : "Couldn't do that. Try again.");
   }
   const open = openSchema.safeParse(data);
   if (open.success) {
@@ -123,7 +123,7 @@ function accept(result: ToolResult): void {
     if (open.data.runtime === "hosted") { error = ""; render(); if (galleryPage) navigation.select("clips", false); return; }
   }
   if (!data || !("mode" in data) || data.mode !== "mock" || !Array.isArray(data.recipes)) {
-    throw new Error("The demo returned an unexpected response. Try opening Stream Machine again.");
+    throw new Error("Something went wrong. Try opening Stream Machine again.");
   }
   snapshot = data;
   if (!categoryDraft) categoryDraft = data.categories[0]?.id ?? "";
@@ -149,7 +149,7 @@ async function call(name: string, args: Record<string, unknown> = {}): Promise<v
       void extensions.modelContext.update({ structuredContent: { mode: "mock", page: "recipes", recipeId: selectedRecipe, previewId: snapshot?.preview?.id ?? null } }).catch(() => {});
     }
   } catch (cause) {
-    error = cause instanceof Error ? cause.message : "Something went wrong. Please try again.";
+    error = cause instanceof Error ? cause.message : "Something went wrong. Try again.";
   } finally {
     busy = false;
     render();
@@ -158,8 +158,8 @@ async function call(name: string, args: Record<string, unknown> = {}): Promise<v
 
 function renderPreview(): string {
   const preview = snapshot?.preview;
-  if (!preview) return `<section class="preview empty-preview" aria-labelledby="preview-title"><span class="icon-tile">${icon("layers")}</span><p class="eyebrow">ACTION PREVIEW</p><h2 id="preview-title">See it before you change it.</h2><p>Your proposed title and category will appear here, side by side with the demo channel.</p><span class="quiet-badge">No changes sent to Twitch</span></section>`;
-  return `<section class="preview ready-preview" aria-labelledby="preview-title"><div class="section-top"><div><p class="eyebrow">ACTION PREVIEW</p><h2 id="preview-title">Your next stream, prepared.</h2></div><span class="badge accent">Mock preview</span></div><p class="muted">For ${escape(preview.account.displayName)}</p><div class="comparison"><div class="before"><span class="field-label">CURRENT · DEMO</span><h3>${escape(preview.before.title)}</h3><span class="category-chip">${escape(preview.before.categoryName)}</span></div><div class="comparison-arrow">${icon("arrow")}</div><div class="after"><span class="field-label">PROPOSED</span><h3>${escape(preview.after.title)}</h3><span class="category-chip">${escape(preview.after.categoryName)}</span></div></div><ul class="effects">${preview.effects.map((effect) => `<li>${icon("check")}<span>${escape(effect)}</span></li>`).join("")}</ul><div class="preview-foot">${icon("check")}<span>Preview only. Live execution is unavailable in this demo.</span></div></section>`;
+  if (!preview) return `<section class="preview empty-preview" aria-labelledby="preview-title"><span class="icon-tile">${icon("layers")}</span><h2 id="preview-title">Preview</h2><p>Your title and category will appear here.</p></section>`;
+  return `<section class="preview ready-preview" aria-labelledby="preview-title"><div class="section-top"><h2 id="preview-title">Preview</h2><span class="badge accent">Demo</span></div><p class="muted">For ${escape(preview.account.displayName)}</p><div class="comparison"><div class="before"><span class="field-label">CURRENT</span><h3>${escape(preview.before.title)}</h3><span class="category-chip">${escape(preview.before.categoryName)}</span></div><div class="comparison-arrow">${icon("arrow")}</div><div class="after"><span class="field-label">NEW</span><h3>${escape(preview.after.title)}</h3><span class="category-chip">${escape(preview.after.categoryName)}</span></div></div><ul class="effects">${preview.effects.map((effect) => `<li>${icon("check")}<span>${escape(effect)}</span></li>`).join("")}</ul><div class="preview-foot">${icon("check")}<span>Demo only. Nothing is changed.</span></div></section>`;
 }
 
 function render(): void {
@@ -167,7 +167,7 @@ function render(): void {
   const connected = snapshot?.connection.status === "demo";
   const recipes = snapshot?.recipes ?? [];
   const recipe = recipes.find((item) => item.id === selectedRecipe);
-  mockPanel.innerHTML = `<h1 tabindex="-1">Mock demo</h1><button class="icon-button reset" type="button" ${busy || !snapshot ? "disabled" : ""}>Reset mock demo</button><details class="mock-workspace" ${mockOpen ? "open" : ""}><summary>Mock preview · fictional account, no live changes</summary><div class="intro"><div><p class="eyebrow">THE STREAMER'S WORKSPACE</p><h1>Less setup.<br><span>More stream.</span></h1><p class="intro-copy">Bring your tools together. Pick a workflow.<br class="desktop-break"> Make your next stream your best one.</p></div><div class="session-card"><span class="session-symbol">${icon("play")}</span><div><span class="field-label">WORKSPACE STATUS</span><strong>${connected ? "Demo channel ready" : "Ready when you are"}</strong><span>${connected ? escape(snapshot?.connection.account?.displayName) : "Start with a sample Twitch account"}</span></div></div></div><div id="error" class="error-banner" role="alert" aria-live="assertive" ${error ? "" : "hidden"}>${escape(error)}</div><ol class="steps" aria-label="Setup progress"><li class="${connected ? "complete" : "active"}"><span>${connected ? icon("check") : "1"}</span>Connect a channel</li><li class="${connected ? "active" : ""}"><span>2</span>Choose a recipe</li><li class="${snapshot?.preview ? "active" : ""}"><span>3</span>Preview the change</li></ol><section class="connection-card"><div class="connection-icon">${icon("connect")}</div><div class="connection-copy"><h2>${connected ? `${escape(snapshot?.connection.account?.displayName)} is ready to explore.` : "First, make yourself at home."}</h2><p>${connected ? "Sample channel connected. Every action stays inside this demo." : "Try the full workflow with sample data. No Twitch sign-in needed."}</p></div>${connected ? '<span class="badge connected"><span class="dot"></span>Demo connected</span>' : `<button class="primary connect" type="button" ${busy || !snapshot ? "disabled" : ""}>${busy ? "Loading…" : "Use demo Twitch account"}${icon("arrow")}</button>`}</section><div class="workspace-grid"><section class="recipe-section" aria-labelledby="recipes-title"><div class="section-top"><div><p class="eyebrow">YOUR PLAYBOOK</p><h2 id="recipes-title">One recipe. A smoother stream.</h2></div><span class="count">${recipes.length} recipes</span></div><div class="recipes">${recipes.map((item, index) => `<button type="button" class="recipe ${item.id === selectedRecipe ? "selected" : ""}" data-recipe="${escape(item.id)}" aria-pressed="${item.id === selectedRecipe}" ${!item.available || busy ? "disabled" : ""}><span class="recipe-number">${String(index + 1).padStart(2, "0")}</span><span class="recipe-body"><span class="recipe-title">${escape(item.name)}</span><span class="recipe-description">${escape(item.description)}</span><span class="recipe-state">${item.available ? "Available in demo" : "Coming later"}</span></span><span class="recipe-end">${item.available ? icon(item.id === selectedRecipe ? "check" : "arrow") : "↗"}</span></button>`).join("") || '<div class="loading-state" role="status">Loading your workspace…</div>'}</div><form id="preview-form" class="recipe-form"><div class="form-heading"><span class="small-icon">${icon("layers")}</span><h3>Set the scene</h3><span class="badge subtle">Sample data</span></div><p class="muted">Draft a title and category for the demo channel.</p><fieldset ${!connected || busy || !recipe?.available ? "disabled" : ""}><label for="channel-title">Stream title</label><input id="channel-title" name="title" type="text" value="${escape(titleDraft)}" placeholder="Tonight: good music, great company" maxlength="140" required /><div class="label-row"><label for="channel-category">Category</label><span>From demo catalog</span></div><select id="channel-category" name="categoryId" required>${snapshot?.categories.map((category) => `<option value="${escape(category.id)}" ${category.id === categoryDraft ? "selected" : ""}>${escape(category.name)}</option>`).join("") ?? ""}</select><button class="primary preview-button" type="submit">${busy ? "Preparing…" : "Preview channel update"}${icon("arrow")}</button></fieldset>${!connected ? '<p class="form-hint">Connect the demo account to start.</p>' : '<p class="form-hint">Preview only · Nothing is published</p>'}</form></section>${renderPreview()}</div><footer><span class="footer-mark">SM / 001</span><span>Built around your stream.</span><span>Demo environment · No live services</span></footer></details>`;
+  mockPanel.innerHTML = `<h1 tabindex="-1">Mock demo</h1><button class="icon-button reset" type="button" ${busy || !snapshot ? "disabled" : ""}>Reset demo</button><details class="mock-workspace" ${mockOpen ? "open" : ""}><summary>Demo with sample data</summary><div id="error" class="error-banner" role="alert" aria-live="assertive" ${error ? "" : "hidden"}>${escape(error)}</div><ol class="steps" aria-label="Setup progress"><li class="${connected ? "complete" : "active"}"><span>${connected ? icon("check") : "1"}</span>Connect a channel</li><li class="${connected ? "active" : ""}"><span>2</span>Choose a recipe</li><li class="${snapshot?.preview ? "active" : ""}"><span>3</span>Preview the change</li></ol><section class="connection-card"><div class="connection-icon">${icon("connect")}</div><div class="connection-copy"><h2>${connected ? `${escape(snapshot?.connection.account?.displayName)} is connected` : "Demo account"}</h2></div>${connected ? '<span class="badge connected"><span class="dot"></span>Connected</span>' : `<button class="primary connect" type="button" ${busy || !snapshot ? "disabled" : ""}>${busy ? "Loading…" : "Use demo account"}${icon("arrow")}</button>`}</section><div class="workspace-grid"><section class="recipe-section" aria-labelledby="recipes-title"><div class="section-top"><h2 id="recipes-title">Recipes</h2></div><div class="recipes">${recipes.map((item, index) => `<button type="button" class="recipe ${item.id === selectedRecipe ? "selected" : ""}" data-recipe="${escape(item.id)}" aria-pressed="${item.id === selectedRecipe}" ${!item.available || busy ? "disabled" : ""}><span class="recipe-number">${String(index + 1).padStart(2, "0")}</span><span class="recipe-body"><span class="recipe-title">${escape(item.name)}</span><span class="recipe-description">${escape(item.description)}</span>${item.available ? "" : '<span class="recipe-state">Coming soon</span>'}</span><span class="recipe-end">${item.available ? icon(item.id === selectedRecipe ? "check" : "arrow") : "↗"}</span></button>`).join("") || '<div class="loading-state" role="status">Loading…</div>'}</div><form id="preview-form" class="recipe-form"><div class="form-heading"><span class="small-icon">${icon("layers")}</span><h3>Channel update</h3></div><fieldset ${!connected || busy || !recipe?.available ? "disabled" : ""}><label for="channel-title">Stream title</label><input id="channel-title" name="title" type="text" value="${escape(titleDraft)}" placeholder="Tonight: good music, great company" maxlength="140" required /><div class="label-row"><label for="channel-category">Category</label></div><select id="channel-category" name="categoryId" required>${snapshot?.categories.map((category) => `<option value="${escape(category.id)}" ${category.id === categoryDraft ? "selected" : ""}>${escape(category.name)}</option>`).join("") ?? ""}</select><button class="primary preview-button" type="submit">${busy ? "Preparing…" : "Preview"}${icon("arrow")}</button></fieldset>${!connected ? '<p class="form-hint">Connect the demo account to start.</p>' : ""}</form></section>${renderPreview()}</div></details>`;
   document.querySelector(".connect")?.addEventListener("click", () => void call("stream_machine_connect_demo"));
   document.querySelector(".reset")?.addEventListener("click", () => void call("stream_machine_reset"));
   document.querySelectorAll<HTMLButtonElement>("[data-recipe]").forEach((button) => button.addEventListener("click", () => {
@@ -198,7 +198,7 @@ app.ontoolresult = (result) => {
   const data = result.structuredContent;
   if (!data || typeof data !== "object" || !("mode" in data || "runtime" in data)) return;
   if ("mode" in data && data.mode !== "mock") return;
-  try { rememberDraft(); accept(result); } catch (cause) { showError(cause instanceof Error ? cause.message : "Could not load the workspace."); }
+  try { rememberDraft(); accept(result); } catch (cause) { showError(cause instanceof Error ? cause.message : "Couldn't load Stream Machine."); }
 };
 app.addEventListener("hostcontextchanged", applyHost);
 app.onteardown = async () => { clipAccountStatus.invalidate(); connections.dispose(); clips.dispose(); home.dispose(); return {}; };
@@ -208,22 +208,21 @@ shell.innerHTML = '<header class="app-header"><span class="brand">Stream Machine
 root.append(shell);
 const main = shell.querySelector("main")!;
 const badge = shell.querySelector<HTMLElement>("#runtime-badge")!;
-function panel(section: Exclude<Section, "mock">, description: string, content?: HTMLElement) {
+function panel(section: Exclude<Section, "mock">, content?: HTMLElement) {
   const node = document.createElement("section");
   node.dataset.view = section; node.className = "workspace-panel";
   const heading = document.createElement("h1"); heading.tabIndex = -1; heading.textContent = sectionLabels[section];
-  const note = document.createElement("p"); note.textContent = description;
-  node.append(heading, note);
+  node.append(heading);
   if (content) node.append(content);
   main.append(node); return node;
 }
 const panels = {
-  home: panel("home", "Choose a workspace. Opening Clips, Connections, or Tools does not run a provider action.", home.element),
-  assets: panel("assets", "Existing static and HyperFrames HTML authoring. No asset library, images, or video editor.", liveDemos.assets),
-  clips: panel("clips", "Every clip on your connected channel. Select a clip to see its details and play a saved copy.", clips.element),
-  streamdeck: panel("streamdeck", "Original 3×5 USB demo controls only. Not an Elgato profile editor.", liveDemos.streamdeck),
-  connections: panel("connections", "Twitch account and permissions. Other provider setup remains limited.", connections.element),
-  tools: panel("tools", "Existing explicit actions. Check each action's side effects before running it.", liveDemos.tools),
+  home: panel("home", home.element),
+  assets: panel("assets", liveDemos.assets),
+  clips: panel("clips", clips.element),
+  streamdeck: panel("streamdeck", liveDemos.streamdeck),
+  connections: panel("connections", connections.element),
+  tools: panel("tools", liveDemos.tools),
   mock: mockPanel,
 };
 main.append(mockPanel);
@@ -232,7 +231,7 @@ const navigation = createNavigation(shell.querySelector("nav")!, panels, section
 });
 const cards = document.createElement("div"); cards.className = "home-actions";
 const desktopNote = document.createElement("p"); desktopNote.className = "desktop-note"; desktopNote.hidden = true;
-desktopNote.textContent = "OBS, Stream Deck, creative, and worker controls run in the desktop workspace. Ask ChatGPT to open the Stream Machine workspace on your desktop.";
+desktopNote.textContent = "Open Stream Machine in the ChatGPT desktop app to use this.";
 function renderCards() {
   cards.replaceChildren(...visibleSections(runtime).filter(section => section !== "home").map(section => {
     const button = document.createElement("button"); button.type = "button"; button.className = "live-button";
@@ -249,5 +248,5 @@ if (standalone) {
   void app.connect().then(async () => {
     applyHost();
     if (!snapshot) await call("stream_machine_open");
-  }).catch(() => { const alert = shell.querySelector<HTMLElement>("#host-error")!; alert.hidden = false; alert.textContent = "Could not connect to the host. Reopen Stream Machine to try again."; });
+  }).catch(() => { const alert = shell.querySelector<HTMLElement>("#host-error")!; alert.hidden = false; alert.textContent = "Couldn't connect. Reopen Stream Machine and try again."; });
 }

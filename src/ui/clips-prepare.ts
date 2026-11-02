@@ -28,7 +28,7 @@ export function createPreparation(options: {
     let result: PreparationResult;
     try {
       result = resolveArchive(await options.request("stream_machine_clips_archive", { clipId: job.clip.id }), job.clip.id, options.siteOrigin);
-    } catch { result = { kind: "unknown", message: "The save outcome is unknown. Reload the library to check before another save." }; }
+    } catch { result = { kind: "unknown", message: "Couldn't confirm the save. Reload your clips to check." }; }
     if (disposed) result = { kind: "cancelled" };
     else {
       settled.set(job.clip.id, result);
@@ -68,7 +68,7 @@ export function createPreparation(options: {
   }
 
   async function startAll(items: readonly ClipItem[]) {
-    if (items.length > 100) throw new Error("Prepare at most 100 clips per batch.");
+    if (items.length > 100) throw new Error("Save at most 100 clips at a time.");
     if (disposed || progress.kind === "working" || progress.kind === "stopping") return;
     cancelled = false;
     const unique = [...new Map(items.map(item => [item.id, item])).values()];
@@ -118,10 +118,10 @@ export async function discoverPreparation(options: {
     if (options.cancelled()) return { items: [], truncated: false, cancelled: true };
     const result = await options.request("stream_machine_clips_library", { first: 100, ...(cursor ? { cursor } : {}) });
     if (options.cancelled()) return { items: [], truncated: false, cancelled: true };
-    if (result.isError) throw new Error("The clip library could not be read. No clips were prepared.");
+    if (result.isError) throw new Error("Couldn't read your clips. Nothing was saved.");
     const page = parseLibrary(result.structuredContent);
-    if (page.account.id !== options.accountId) throw new Error("The Twitch account changed. Reload the gallery before preparing clips.");
-    if (page.storage !== "site") throw new Error("Site storage is unavailable.");
+    if (page.account.id !== options.accountId) throw new Error("The Twitch account changed. Reload your clips and try again.");
+    if (page.storage !== "site") throw new Error("Saving isn't available here.");
     for (const clip of page.items) {
       if (!clip.stored) items.set(clip.id, clip);
       if (items.size === 100) return { items: [...items.values()], truncated: Boolean(page.cursor) || page.items.at(-1)?.id !== clip.id, cancelled: false };
