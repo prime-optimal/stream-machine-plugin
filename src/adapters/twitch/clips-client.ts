@@ -5,7 +5,7 @@ const clipSchema = z.object({ id: clipIdSchema, broadcaster_id: z.string().min(1
 const downloadSchema = z.object({ clip_id: clipIdSchema, landscape_download_url: z.string().nullable(), portrait_download_url: z.string().nullable() });
 export class TwitchClipClient {
   constructor(private fetcher: typeof fetch = fetch) {}
-  private async request(access: TwitchAccess, path: string, params: Record<string, string>): Promise<unknown> {
+  async get(access: TwitchAccess, path: string, params: URLSearchParams | Record<string, string>): Promise<unknown> {
     let response: Response;
     try {
       response = await this.fetcher(`https://api.twitch.tv/helix/${path}?${new URLSearchParams(params)}`, {
@@ -17,7 +17,7 @@ export class TwitchClipClient {
     try { return await response.json(); } catch { throw new TwitchFault("TWITCH_INVALID_RESPONSE"); }
   }
   async read(access: TwitchAccess, clipId: string) {
-    const parsed = z.object({ data: z.array(clipSchema).max(1) }).safeParse(await this.request(access, "clips", { id: clipId }));
+    const parsed = z.object({ data: z.array(clipSchema).max(1) }).safeParse(await this.get(access, "clips", { id: clipId }));
     if (!parsed.success) throw new TwitchFault("TWITCH_INVALID_RESPONSE");
     const clip = parsed.data.data[0];
     if (!clip) throw new TwitchFault("CLIP_NOT_FOUND");
@@ -27,7 +27,7 @@ export class TwitchClipClient {
     return { id: clip.id, broadcasterId: clip.broadcaster_id, title: clip.title, sourceUrl: clip.url };
   }
   async download(access: TwitchAccess, clipId: string) {
-    const parsed = z.object({ data: z.array(downloadSchema).max(1) }).safeParse(await this.request(access, "clips/downloads", { broadcaster_id: access.account.id, editor_id: access.account.id, clip_id: clipId }));
+    const parsed = z.object({ data: z.array(downloadSchema).max(1) }).safeParse(await this.get(access, "clips/downloads", { broadcaster_id: access.account.id, editor_id: access.account.id, clip_id: clipId }));
     if (!parsed.success) throw new TwitchFault("TWITCH_INVALID_RESPONSE");
     const clip = parsed.data.data[0];
     if (!clip) throw new TwitchFault("CLIP_FORMAT_UNAVAILABLE");

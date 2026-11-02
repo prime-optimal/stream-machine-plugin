@@ -5,6 +5,7 @@ import { TwitchClient } from '../src/auth/upstream/client.ts';
 import { TwitchTitleService } from '../src/adapters/twitch/service.ts';
 import { TwitchChannelClient } from '../src/adapters/twitch/client.ts';
 import { TwitchClipClient } from '../src/adapters/twitch/clips-client.ts';
+import { fetchClipLibraryPage } from '../src/adapters/twitch/clip-library.ts';
 import { twitchFeatures, requiredTwitchScopes, implementedTwitchScopes, futureTwitchPermissions, twitchConsentDisclosure } from '../src/auth/permissions.ts';
 import { fixture } from './twitch-helpers.mjs';
 
@@ -33,10 +34,10 @@ test('default connection requests exactly product policy in the real Twitch URL'
 test('registry distinguishes implemented features from owner-requested future consent', () => {
  assert.deepEqual(requiredTwitchScopes,baseline);
  assert.deepEqual(implementedTwitchScopes,['channel:manage:broadcast','channel:manage:clips']);
- assert.deepEqual(Object.keys(twitchFeatures),['connection','profile','channel','title','clipMetadata','clipDownload','channelUpdate']);
+ assert.deepEqual(Object.keys(twitchFeatures),['connection','profile','channel','title','clipMetadata','clipLibrary','clipDownload','channelUpdate']);
  assert.deepEqual(Object.fromEntries(Object.entries(twitchFeatures).map(([name,f])=>[name,f.scopes])), {
   connection:[],profile:[],channel:[],title:['channel:manage:broadcast'],
-  clipMetadata:[],clipDownload:['channel:manage:clips'],channelUpdate:[],
+  clipMetadata:[],clipLibrary:[],clipDownload:['channel:manage:clips'],channelUpdate:[],
  });
  assert.equal(futureTwitchPermissions.length,10);
  assert.deepEqual(futureTwitchPermissions.map(p=>p.scope).sort(),baseline.filter(s=>!implementedTwitchScopes.includes(s)));
@@ -113,7 +114,8 @@ test('implemented clients issue only the registered endpoint inventory',async()=
   seen.add(method+' '+url.pathname);
   if(url.pathname==='/helix/users') return Response.json({data:[{id:'123',login:'test',display_name:'Test',description:'Test',profile_image_url:'',offline_image_url:''}]});
   if(url.pathname==='/helix/channels') return method==='PATCH'?new Response(null,{status:204}):Response.json({data:[{broadcaster_id:'123',broadcaster_login:'test',broadcaster_name:'Test',title:'Original',game_id:'1',game_name:'Test'}]});
-  if(url.pathname==='/helix/clips')return Response.json({data:[{id:'Clip',broadcaster_id:'123',title:'Clip',url:'https://clips.twitch.tv/Clip'}]});
+  if(url.pathname==='/helix/clips')return Response.json(url.searchParams.has('broadcaster_id')?{data:[{id:'Clip',url:'https://clips.twitch.tv/Clip',title:'Clip',created_at:'2026-10-01T00:00:00Z',duration:5,view_count:1,game_id:'1'}]}:{data:[{id:'Clip',broadcaster_id:'123',title:'Clip',url:'https://clips.twitch.tv/Clip'}]});
+  if(url.pathname==='/helix/games')return Response.json({data:[{id:'1',name:'Test'}]});
   if(url.pathname==='/helix/clips/downloads')return Response.json({data:[{clip_id:'Clip',landscape_download_url:'https://example.test/clip',portrait_download_url:null}]});
   throw new Error('Undeclared endpoint');
  };
@@ -121,6 +123,7 @@ test('implemented clients issue only the registered endpoint inventory',async()=
  const channel=new TwitchChannelClient(fake),clips=new TwitchClipClient(fake);
  await channel.read(access);await channel.readProfile(access);await channel.writeTitle(access,'New');
  await clips.read(access,'Clip');await clips.download(access,'Clip');
- const expected=Object.values(twitchFeatures).flatMap(f=>f.endpoints).filter(e=>!e.includes('eventsub'));
+ await fetchClipLibraryPage((path,params)=>clips.get(access,path,params),{id:'123',login:'test',displayName:'Test'},{},'local');
+ const expected=[...new Set(Object.values(twitchFeatures).flatMap(f=>f.endpoints).filter(e=>!e.includes('eventsub')))];
  assert.deepEqual([...seen].sort(),expected.sort());
 });

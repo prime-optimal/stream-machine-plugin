@@ -12,6 +12,14 @@ Use the existing Twitch connection to download a clip owned by the connected bro
 
 No title approval, title change, broadcast, or worker action is part of this procedure. Do not share signed URLs or credentials as evidence.
 
+## List the clip library
+
+Call `stream_machine_clips_library` with `{}` to list the connected broadcaster's clips. It needs no clip scope and makes no write. Input is strict: `cursor`, `first` (1 to 100, default 24), `startedAt`, and `endedAt` (RFC 3339). The result is `structuredContent.clips` with `account`, `items`, `cursor`, and `storage`. Pass `cursor` back to read the next page. It is `null` on the last page.
+
+Each item has the Twitch page `url`, `createdAt`, `durationSeconds`, `viewCount`, `creator`, `game`, `thumbnailUrl`, `videoId`, `vodOffsetSeconds`, and `stored`. Creator, game, thumbnail, and VOD fields are `null` when Twitch omits them or, for the game name, when `GET /helix/games` does not know the ID. A thumbnail is kept only when its HTTPS host is `static-cdn.jtvnw.net` or `clips-media-assets2.twitch.tv`.
+
+The local server returns `storage: "local"` and `stored: null` because it cannot read Site storage. The hosted server returns `storage: "site"` and fills `stored` for clips saved to the Site. The [clip library plan](../plans/2026-11-01-clip-library.md) defines the contract, including the hosted save-all and ZIP tools.
+
 ## Storage and errors
 
 Files remain under `~/.local/share/stream-machine/clips` until you remove them. A server-side `STREAM_MACHINE_CLIP_DIR` overrides the directory. Use an absolute path with no symlink components and a private directory owned by the current user. The tool does not accept paths.

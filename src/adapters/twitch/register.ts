@@ -3,6 +3,7 @@ import { createLocalTwitchRuntime, preflightTwitch, type LocalTwitchRuntime } fr
 import { TwitchFault, unavailableAccount, type TwitchAccountProvider } from "../../auth/twitch";
 import { TwitchTitleService } from "./service";
 import { TwitchClipService } from "./clips-service";
+import { registerTwitchClipLibraryTool } from "./clips-register";
 import { registerTwitchToolSet } from "./tool-register";
 import type { TwitchToolRuntime } from "./tool-runtime";
 
@@ -32,4 +33,5 @@ export function registerTwitchTools(server: McpServer, runtime?: LocalTwitchRunt
       downloadClip: clipId => clips.download(clipId),
   };
   registerTwitchToolSet(server, () => tools);
+  registerTwitchClipLibraryTool(server, () => clips);
 }
