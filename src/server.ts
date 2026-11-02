@@ -1,3 +1,4 @@
+import { registerUpdateTools } from "./update/register";
 import { version } from "./version";
 import { McpServer } from "@modelcontextprotocol/server";
 import { DemoWorkspace, schemas, toolResult, type ToolName } from "./domain";
@@ -39,6 +40,7 @@ export function createServer(html: string) {
       return { ...result, content: [{ type: "text" as const, text: "Stream Machine workspace opened. The sample data is mock-only. Use the Twitch, OBS, Stream Deck, creative, and worker tools for real status and explicit actions." }] };
     });
   }
+  registerUpdateTools(server);
   registerObsTools(server);
   const deck = registerStreamDeckTools(server);
   registerTwitchTools(server);
