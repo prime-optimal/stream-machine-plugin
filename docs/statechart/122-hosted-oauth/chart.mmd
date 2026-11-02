@@ -2,26 +2,30 @@
 title: "Standalone Sites and Twitch connection"
 ---
 stateDiagram-v2
-  s0: Deployed, browser signed out
+  s0: Browser signed out
   s1: Sites signed in
-  s2: Other owner sees disconnected
-  s3: Twitch authorization pending
-  s4: Callback consumed, exchanging code
-  s5: Callback rejected
-  s6: Connected to Twitch
+  s2: Connected to Twitch
+  s3: Other owner sees disconnected
+  s4: Twitch authorization pending
+  s5: Authorization failed, previous connection retained
+  s6: Callback consumed, exchanging code
   s7: Disconnected
   s8: Refresh in flight
+  s9: All requested grants validated
   [*] --> s0
   s0 --> s1: Sign in to Sites in this browser
-  s1 --> s3: Connect requests zero optional scopes
-  s1 --> s2: Read another owner's status
-  s3 --> s4: Cookie, owner and one-time state pass
-  s3 --> s5: State invalid, expired or denied
-  s4 --> s6: Provider validates#59; save owner-bound ciphertext
-  s4 --> s7: Disconnect invalidates writes
-  s6 --> s0: Open separate browser session
+  s1 --> s4: Request baseline 12 plus previous and additional grants
+  s1 --> s2: Read own saved connection
+  s1 --> s3: Read another owner's status
+  s2 --> s0: Open separate browser session
+  s2 --> s7: Disconnect invalidates writes
+  s2 --> s8: Access token needs refresh
+  s4 --> s5: Authorization fails, keep saved connection
+  s4 --> s6: Cookie, owner and one-time state pass
+  s6 --> s5: Requested scopes missing, keep saved connection or Authorization fails, keep saved connection
+  s6 --> s9: Every requested scope granted
   s6 --> s7: Disconnect invalidates writes
-  s6 --> s8: Access token needs refresh
-  s8 --> s6: Lease still owns connection
+  s8 --> s2: Lease still owns connection
   s8 --> s7: Disconnect invalidates writes
-  s1 --> s6: Read own saved connection
+  s9 --> s2: Save validated owner-bound ciphertext
+  s9 --> s7: Disconnect invalidates writes

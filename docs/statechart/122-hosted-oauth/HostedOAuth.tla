@@ -1,56 +1,58 @@
 -------------------------- MODULE HostedOAuth --------------------------
 EXTENDS TLC
-VARIABLES phase, owner, stateOwner, stateLive, stored, encrypted, provider
-vars == <<phase, owner, stateOwner, stateLive, stored, encrypted, provider>>
-Init == /\ phase = "Deployed, browser signed out" /\ owner = "none"
-        /\ stateOwner = "none" /\ stateLive = FALSE /\ stored = FALSE
-        /\ encrypted = FALSE /\ provider = FALSE
-SignIn == /\ phase = "Deployed, browser signed out"
-          /\ owner' \in {"A", "B"} /\ phase' = "Sites signed in"
-          /\ UNCHANGED <<stateOwner, stateLive, stored, encrypted, provider>>
-Begin == /\ phase = "Sites signed in" /\ owner = "A"
-         /\ phase' = "Twitch authorization pending" /\ stateOwner' = owner
-         /\ stateLive' = TRUE /\ UNCHANGED <<owner, stored, encrypted, provider>>
-ValidCallback == /\ phase = "Twitch authorization pending"
-                 /\ stateLive /\ stateOwner = owner /\ owner = "A"
-                 /\ phase' = "Callback consumed, exchanging code"
-                 /\ stateLive' = FALSE
-                 /\ UNCHANGED <<owner, stateOwner, stored, encrypted, provider>>
-InvalidCallback == /\ phase = "Twitch authorization pending"
-                   /\ phase' = "Callback rejected" /\ stateLive' = FALSE
-                   /\ UNCHANGED <<owner, stateOwner, stored, encrypted, provider>>
-Save == /\ phase = "Callback consumed, exchanging code"
-        /\ stateOwner = owner /\ owner = "A"
-        /\ phase' = "Connected to Twitch" /\ stored' = TRUE
-        /\ encrypted' = TRUE /\ provider' = TRUE
-        /\ UNCHANGED <<owner, stateOwner, stateLive>>
-Refresh == /\ phase = "Connected to Twitch"
-           /\ phase' = "Refresh in flight"
-           /\ UNCHANGED <<owner, stateOwner, stateLive, stored, encrypted, provider>>
-SaveRefresh == /\ phase = "Refresh in flight" /\ stored
-               /\ phase' = "Connected to Twitch"
-               /\ UNCHANGED <<owner, stateOwner, stateLive, stored, encrypted, provider>>
-Disconnect == /\ phase \in {"Connected to Twitch", "Refresh in flight", "Callback consumed, exchanging code"}
-              /\ phase' = "Disconnected" /\ stored' = FALSE /\ encrypted' = FALSE
-              /\ stateLive' = FALSE /\ stateOwner' = "none"
-              /\ UNCHANGED <<owner, provider>>
-FreshBrowser == /\ phase = "Connected to Twitch"
-                /\ phase' = "Deployed, browser signed out" /\ owner' = "none"
-                /\ UNCHANGED <<stateOwner, stateLive, stored, encrypted, provider>>
-OwnStatus == /\ phase = "Sites signed in" /\ owner = "A" /\ stored
-             /\ phase' = "Connected to Twitch"
-             /\ UNCHANGED <<owner, stateOwner, stateLive, stored, encrypted, provider>>
-ForeignStatus == /\ phase = "Sites signed in" /\ owner = "B"
-                 /\ phase' = "Other owner sees disconnected"
-                 /\ UNCHANGED <<owner, stateOwner, stateLive, stored, encrypted, provider>>
-Done == /\ phase \in {"Callback rejected", "Disconnected", "Other owner sees disconnected"}
-        /\ UNCHANGED vars
-Next == SignIn \/ Begin \/ ValidCallback \/ InvalidCallback \/ Save \/ Refresh
-        \/ SaveRefresh \/ Disconnect \/ FreshBrowser \/ OwnStatus \/ ForeignStatus \/ Done
-Spec == Init /\ [][Next]_vars
-EncryptedAtRest == stored => encrypted
-OwnerBoundView == (phase = "Connected to Twitch") => (owner = "A" /\ stored /\ provider)
-DeploymentIsNotProviderProof == (~provider) => ~stored
-FreshBrowserHasNoIdentity == (phase = "Deployed, browser signed out") => owner = "none"
-ConsumedStateCannotReplay == (phase = "Callback consumed, exchanging code") => ~stateLive
+Baseline == {"bits:read", "channel:bot", "channel:manage:broadcast",
+ "channel:manage:clips", "channel:manage:redemptions", "channel:read:redemptions",
+ "channel:read:subscriptions", "clips:edit", "moderator:read:followers",
+ "user:bot", "user:read:chat", "user:write:chat"}
+Additional == {"additional:example"}
+VARIABLE s
+Init == \E old \in BOOLEAN:
+ s = [phase |-> "Browser signed out", owner |-> "none", live |-> FALSE,
+ stored |-> old, encrypted |-> old, provider |-> old,
+ scopes |-> IF old THEN {"previous:example"} ELSE {},
+ priorStored |-> old, priorScopes |-> IF old THEN {"previous:example"} ELSE {},
+ requested |-> {}, granted |-> {}]
+SignIn == /\ s.phase = "Browser signed out"
+ /\ \E who \in {"A", "B"}: s' = [s EXCEPT !.phase = "Sites signed in", !.owner = who]
+Begin == /\ s.phase = "Sites signed in" /\ s.owner = "A"
+ /\ s' = [s EXCEPT !.phase = "Twitch authorization pending", !.live = TRUE,
+ !.requested = Baseline \cup s.scopes \cup Additional, !.granted = {},
+ !.priorStored = s.stored, !.priorScopes = s.scopes]
+ValidCallback == /\ s.phase = "Twitch authorization pending" /\ s.live /\ s.owner = "A"
+ /\ s' = [s EXCEPT !.phase = "Callback consumed, exchanging code", !.live = FALSE]
+Reject == /\ s.phase \in {"Twitch authorization pending", "Callback consumed, exchanging code"}
+ /\ s' = [s EXCEPT !.phase = "Authorization failed, previous connection retained", !.live = FALSE]
+CompleteGrants == /\ s.phase = "Callback consumed, exchanging code"
+ /\ s' = [s EXCEPT !.phase = "All requested grants validated", !.granted = s.requested]
+MissingGrants == /\ s.phase = "Callback consumed, exchanging code"
+ /\ s' = [s EXCEPT !.phase = "Authorization failed, previous connection retained", !.granted = {}]
+Save == /\ s.phase = "All requested grants validated" /\ s.requested \subseteq s.granted
+ /\ s' = [s EXCEPT !.phase = "Connected to Twitch", !.stored = TRUE,
+ !.encrypted = TRUE, !.provider = TRUE, !.scopes = s.granted]
+Refresh == /\ s.phase = "Connected to Twitch"
+ /\ s' = [s EXCEPT !.phase = "Refresh in flight"]
+SaveRefresh == /\ s.phase = "Refresh in flight" /\ s.stored
+ /\ s' = [s EXCEPT !.phase = "Connected to Twitch"]
+Disconnect == /\ s.phase \in {"Connected to Twitch", "Refresh in flight", "Callback consumed, exchanging code", "All requested grants validated"}
+ /\ s' = [s EXCEPT !.phase = "Disconnected", !.stored = FALSE,
+ !.encrypted = FALSE, !.live = FALSE, !.scopes = {}]
+FreshBrowser == /\ s.phase = "Connected to Twitch"
+ /\ s' = [s EXCEPT !.phase = "Browser signed out", !.owner = "none"]
+OwnStatus == /\ s.phase = "Sites signed in" /\ s.owner = "A" /\ s.stored
+ /\ s' = [s EXCEPT !.phase = "Connected to Twitch"]
+ForeignStatus == /\ s.phase = "Sites signed in" /\ s.owner = "B"
+ /\ s' = [s EXCEPT !.phase = "Other owner sees disconnected"]
+Done == /\ s.phase \in {"Authorization failed, previous connection retained", "Disconnected", "Other owner sees disconnected"}
+ /\ UNCHANGED s
+Next == SignIn \/ Begin \/ ValidCallback \/ Reject \/ CompleteGrants \/ MissingGrants
+ \/ Save \/ Refresh \/ SaveRefresh \/ Disconnect \/ FreshBrowser \/ OwnStatus \/ ForeignStatus \/ Done
+Spec == Init /\ [][Next]_s
+EncryptedAtRest == s.stored => s.encrypted
+OwnerBoundView == (s.phase = "Connected to Twitch") => (s.owner = "A" /\ s.stored /\ s.provider)
+DeploymentIsNotProviderProof == (~s.provider) => ~s.stored
+FreshBrowserHasNoIdentity == (s.phase = "Browser signed out") => s.owner = "none"
+ConsumedStateCannotReplay == (s.phase \in {"Callback consumed, exchanging code", "All requested grants validated"}) => ~s.live
+RequestPreservesScopes == (s.phase = "Twitch authorization pending") => s.requested = Baseline \cup s.priorScopes \cup Additional
+CompleteBeforeSave == (s.phase = "All requested grants validated") => s.requested \subseteq s.granted
+FailedAuthorizationPreservesConnection == (s.phase = "Authorization failed, previous connection retained") => (s.stored = s.priorStored /\ s.scopes = s.priorScopes)
 =============================================================================

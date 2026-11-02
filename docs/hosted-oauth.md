@@ -6,11 +6,34 @@ The test uses the existing Stream Machine Twitch app. The user confirmed registr
 
 `https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/twitch/callback`
 
-The page requests account identity with no optional Twitch scopes. After connection, reload the page and confirm the same account remains visible. Choose **Disconnect**, reload, and confirm the connection is gone. Reconnect if desired.
+The page requests the same baseline permissions as local Stream Machine OAuth. Review the disclosure before connecting. Existing profile-only connections need fresh Twitch consent to receive these permissions. After connection, reload the page and confirm the same account remains visible.
+
+## Requested permissions
+
+The request includes the baseline below, any scopes already granted to this connection, and any extra scopes passed by the service. The list is sorted and duplicates are removed. The service checks every requested scope against Twitch's validated grant before saving a replacement connection. Rejected or incomplete consent leaves the previous connection intact.
+
+```text
+bits:read
+channel:bot
+channel:manage:broadcast
+channel:manage:clips
+channel:manage:redemptions
+channel:read:redemptions
+channel:read:subscriptions
+clips:edit
+moderator:read:followers
+user:bot
+user:read:chat
+user:write:chat
+```
+
+Local Stream Machine uses `channel:manage:broadcast` for title changes and `channel:manage:clips` for own-channel clip downloads. The other ten permissions support planned features. This standalone Site performs no channel edits, chat actions, reward changes, clip actions, or bot operations.
+
+[Twitch scope policy](https://dev.twitch.tv/docs/authentication/scopes/) requires requesting only permissions used by an app. The broader baseline is the owner's requested local-parity policy. Consent does not prove future features work or authorize a separate bot account.
 
 Sites sign-in is separate from Twitch consent. Each browser needs its own Sites session. A successful desktop test does not prove a phone test.
 
-## Published source
+## Initial published source
 
 The private test Site is `appgprj_6ae8040442d481918f55ca79cca3b9b2`. Sites published source commit `87dfe2726b8338bf1ba2afe6e020dbaeb818ee2b` as version `appgprj_6ae8040442d481918f55ca79cca3b9b2~appgver_7d2f7b289d2c81918ed52b90915af19a`.
 
@@ -20,7 +43,7 @@ The test reuses TwitchCon's server-side OAuth service and encrypted D1 storage. 
 
 ## Verified and pending
 
-TypeScript, Sites build, and Site hook checks passed. Twenty-one OAuth tests passed against SQLite fixtures using the actual SQL. The [state model](statechart/122-hosted-oauth/report.md) passed five invariants and its deadlock check.
+TypeScript, Sites build, and Site hook checks passed. Twenty-eight OAuth tests passed against SQLite fixtures using the actual SQL. The updated [state model](statechart/122-hosted-oauth/report.md) passed eight invariants and its deadlock check.
 
 Live anonymous status, connect, and callback requests returned 401. A status request with forged Sites user headers also returned 401. This verifies the private access boundary for those requests.
 
@@ -35,3 +58,13 @@ The first live attempt reached the callback but did not save a connection. A reg
 Sites deployed fix commit `785c2f8075e45f9b64bd682706e2eb748e83599a` in deployment `appgdep_6ae80819c8e48191ad3290ef7426cb04`. Deployment succeeded with environment revision 2. The combined suite now passes 24 tests. A fresh authorization succeeded, and the saved account survived reload.
 
 ![KLabFM remains connected after reload](hosted-oauth-connected.jpg)
+
+## Scope upgrade deployment
+
+Sites deployed scope-parity source `5b183b7a023ef69bb2cb14066ebfd0c01547ccda` in deployment `appgdep_6ae8120b2f0c819189e10ef233193c73`. Deployment succeeded with environment revision 2. Twenty-eight Site tests, TypeScript, build, and staged secret checks passed. The updated model passed eight invariants.
+
+Refresh the Site, review the requested permissions, and choose **Connect again**. After Twitch consent, **Missing baseline scopes: None** confirms the validated token includes the baseline. The page also lists granted scopes. A connected account with missing scopes is a retained older connection, not a completed upgrade.
+
+The user completed the expanded consent and confirmed **Missing baseline scopes: None**. A read-only check of the live D1 connection record independently confirmed all twelve baseline scopes are saved. No token or encrypted-token value was included in this report. This verifies the hosted grant upgrade; it does not verify the planned streaming features.
+
+The [reviewable Site patch](reviews/122-hosted-oauth-scopes.patch) includes runtime, consent, tests, and generated-policy changes. The previous profile-only screenshot records the earlier test; it does not prove the expanded grant.
