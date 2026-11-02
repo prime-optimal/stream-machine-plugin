@@ -11,7 +11,7 @@ export function parseSection(value: unknown): Section {
   const parsed = sectionSchema.safeParse(value);
   return parsed.success ? parsed.data : "home";
 }
-export function createNavigation(nav: HTMLElement, panels: Record<Section, HTMLElement>) {
+export function createNavigation(nav: HTMLElement, panels: Record<Section, HTMLElement>, onChange: (section: Section) => void = () => {}) {
   let current: Section = "home";
   const buttons = sections.map(section => {
     const button = document.createElement("button");
@@ -22,6 +22,7 @@ export function createNavigation(nav: HTMLElement, panels: Record<Section, HTMLE
   });
   function select(value: unknown, focus = true) {
     current = parseSection(value);
+    onChange(current);
     for (const section of sections) panels[section].hidden = section !== current;
     for (const { section, button } of buttons) {
       if (section === current) button.setAttribute("aria-current", "page");

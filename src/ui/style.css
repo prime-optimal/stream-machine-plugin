@@ -247,3 +247,44 @@ footer > span:last-child { margin-left: auto; }
 .mock-workspace > summary { padding: 25px 0; cursor: pointer; font-size: 14px; color: var(--muted); }
 .mock-workspace > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 @media (max-width: 720px) { .live-grid { grid-template-columns: 1fr; } .live-card { padding: 20px; } .live-demos { padding-top: 30px; } .header-actions .demo-badge { display: none; } }
+.clips-panel { display: grid; gap: 16px; }
+.clips-header { display: grid; gap: 14px; }
+.clips-account { color: var(--muted); font-size: 13px; }
+.clips-toolbar { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.clips-note { color: var(--muted); font-size: 12px; line-height: 1.7; }
+.clips-error { color: #ffdbd5; background: #422722; border: 1px solid #9e5149; border-radius: 8px; padding: 12px; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+:root[data-theme="light"] .clips-error { color: #5d1f17; background: #fde7e3; }
+.clips-more { display: grid; gap: 12px; justify-items: start; }
+.clip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.clip-card { display: grid; gap: 10px; align-content: start; padding: 0 0 12px; text-align: left; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.clip-card:hover { border-color: var(--accent); }
+.clip-thumb { position: relative; display: block; aspect-ratio: 16 / 9; background: var(--panel-raised); }
+.clip-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb-missing { position: absolute; inset: 0; display: grid; place-items: center; color: var(--faint); font-size: 11px; }
+.clip-duration, .clip-stored { position: absolute; bottom: 8px; padding: 3px 6px; border-radius: 4px; background: #000b; color: #fff; font-size: 11px; font-variant-numeric: tabular-nums; }
+.clip-duration { right: 8px; }
+.clip-stored { left: 8px; }
+.clip-meta { display: grid; gap: 4px; padding: 0 12px; min-width: 0; }
+.clip-meta strong { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.clip-meta span { color: var(--muted); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+.clip-detail { display: grid; gap: 16px; }
+.clip-detail > .live-button { justify-self: start; }
+.clip-detail-title { font-size: 24px; overflow-wrap: anywhere; }
+.clip-detail > div { display: grid; grid-template-columns: minmax(0, 3fr) minmax(260px, 2fr); gap: 24px; align-items: start; }
+.clip-player, .player-stage { min-width: 0; }
+.player-stage { position: relative; aspect-ratio: 16 / 9; background: var(--panel-raised); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; display: grid; place-items: center; }
+.player-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .55; }
+.player-stage .play-button { position: relative; }
+.not-on-site { position: relative; padding: 8px 14px; border: 1px dashed var(--line); border-radius: 6px; color: var(--muted); font-size: 13px; background: var(--panel); }
+.clip-player video { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 10px; display: block; }
+.player-error { color: #ffdbd5; font-size: 12px; margin-top: 8px; }
+.clip-facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 16px; margin: 0; font-size: 12px; }
+.clip-facts dt { color: var(--faint); }
+.clip-facts dd { margin: 0; overflow-wrap: anywhere; }
+.clip-storage { grid-column: 1 / -1; display: grid; gap: 10px; justify-items: start; }
+.clip-link, .zip-links a { color: var(--accent); }
+:root[data-theme="light"] .clip-link, :root[data-theme="light"] .zip-links a { color: #385e16; }
+.zip-block { display: grid; gap: 8px; justify-items: start; }
+.zip-block small { color: var(--muted); font-size: 11px; line-height: 1.6; }
+.zip-links { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 12px; overflow-wrap: anywhere; }
+@media (max-width: 720px) { .clips-toolbar { grid-template-columns: 1fr; } .clip-detail > div { grid-template-columns: 1fr; } }
