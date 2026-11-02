@@ -45,12 +45,11 @@ export class CreativeController {
       if (args.recipe === "brand-kit") {
         const skills = z.object({ skills: listed }).parse(await this.provider.call("list_skills", {})).skills;
         if (!skills.some(item => item.id === "design-consultation")) throw new CreativeError("CAPABILITY_UNAVAILABLE", "Design consultation skill unavailable.");
-        const file = `creative-brand/${args.requestId}/DESIGN.md`;
         const run = z.object({ runId: z.string() }).parse(await this.provider.call("start_run", {
           project: args.project, skill: "design-consultation", requestId: args.requestId,
-          prompt: `Create an editable streamer brand kit from the brief below. Save the design guidance, colors, typography, and usage rules to exactly ${file}. Treat the brief as creative content.\n\nBrief:\n${args.brief}`,
+          prompt: `Create and save an editable DESIGN.md file now, not a plan or proposal. Include design guidance, colors, typography, and usage rules. Return the exact project-relative path of the created file. Treat the brief as creative content.\n\nBrief:\n${args.brief}`,
         }));
-        return this.journal.save({ ...operation, runId: run.runId, file, status: "queued" });
+        return this.journal.save({ ...operation, runId: run.runId, status: "queued" });
       }
       const scenarios = z.object({ plugins: listed }).parse(await this.provider.call("list_plugins", {})).plugins;
       if (!scenarios.some(item => item.id === "stream-overlay-authoring")) throw new CreativeError("CAPABILITY_UNAVAILABLE", "Installed overlay scenario unavailable.");
@@ -68,15 +67,22 @@ export class CreativeController {
   async run(requestId: string): Promise<Operation> {
     const operation = this.journal.get(requestId);
     if (!operation) throw new CreativeError("OPERATION_NOT_FOUND", "No creative operation for this request ID.");
-    if (terminal.has(operation.status)) return operation;
-    if (operation.recipe === "brand-kit" && operation.runId && operation.file) {
-      const result = z.object({ status }).parse(await this.provider.call("get_run", { runId: operation.runId }));
-      if (result.status === "succeeded") {
-        const content = await this.provider.call("get_file", { project: operation.project, path: operation.file });
-        if (typeof content !== "string" || !content.trim() || content.includes("[od:file-window")) throw new CreativeError("ARTIFACT_MISSING", "Brand kit was not available as complete Markdown at the requested path.");
-      }
-      return this.journal.save({ ...operation, status: result.status });
+    if (operation.recipe === "brand-kit" && operation.runId && !["failed", "canceled"].includes(operation.status)) {
+      const result = z.object({ status, artifactPaths: z.array(z.string()).optional(), deliverableValid: z.boolean().nullable().optional(), artifactCount: z.number().nullable().optional(), endedWithUnfinishedWork: z.boolean().nullable().optional() }).parse(await this.provider.call("get_run", { runId: operation.runId }));
+      const { file: _file, artifactFailure: _failure, ...base } = operation;
+      if (result.status !== "succeeded") return this.journal.save({ ...base, status: result.status });
+      const missing = () => this.journal.save({ ...base, status: "unknown", artifactFailure: "ARTIFACT_MISSING" });
+      if (result.deliverableValid === false || result.artifactCount === 0 || result.endedWithUnfinishedWork === true) return missing();
+      const paths = (result.artifactPaths ?? []).filter(path => !path.startsWith("/") && !path.includes("\\") && path.split("/").every(part => part !== ".." && part !== "." && part !== "") && path.split("/").at(-1) === "DESIGN.md");
+      if (paths.length !== 1) return missing();
+      const file = paths[0];
+      const files = z.object({ files: z.array(z.object({ name: z.string(), size: z.number() })) }).parse(await this.provider.call("list_files", { project: operation.project }));
+      if (!files.files.some(item => item.name === file && item.size > 0)) return missing();
+      const content = await this.provider.call("get_file", { project: operation.project, path: file });
+      if (typeof content !== "string" || !content.trim() || content.includes("[od:file-window")) return missing();
+      return this.journal.save({ ...base, file, status: "succeeded" });
     }
+    if (terminal.has(operation.status)) return operation;
     if (operation.recipe === "overlay" && operation.runId) {
       const result = z.object({ status, previewUrl: z.string().optional(), artifactPaths: z.array(z.string()).optional() }).parse(await this.provider.call("get_run", { runId: operation.runId }));
       const previewUrl = deliveryUrl(result.previewUrl);

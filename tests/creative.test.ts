@@ -78,17 +78,50 @@ describe("creative HTML reuse", () => {
   test("brand kit tracks one run and verifies the requested Markdown", async () => {
     const f = fixture();
     const input = { requestId: id, project: "test-project", recipe: "brand-kit", brief: "A warm creator brand" };
+    const original = f.provider.call;
+    let ready = false;
+    f.provider.call = async (name, args) => {
+      if (name === "get_run") return ready ? { status: "succeeded", artifactPaths: ["brand/DESIGN.md"] } : { status: "succeeded", deliverableValid: false, artifactCount: 0, endedWithUnfinishedWork: true, artifactPaths: [] };
+      if (name === "list_files") return { files: [{ name: "brand/DESIGN.md", size: 12 }] };
+      return original(name, args);
+    };
     try {
       const queued = await f.controller.start(input);
-      expect(queued).toMatchObject({ status: "queued", file: `creative-brand/${id}/DESIGN.md` });
+      expect(queued).toMatchObject({ status: "queued" });
       expect(f.calls.find(call => call.name === "start_run")?.args).toMatchObject({ skill: "design-consultation", requestId: id });
       expect(await f.controller.start(input)).toEqual(queued);
       expect(f.calls.filter(call => call.name === "start_run")).toHaveLength(1);
-      await expect(f.controller.run(id)).rejects.toThrow("Brand kit");
-      f.files.set(`creative-brand/${id}/DESIGN.md`, "# Brand kit\n");
-      expect((await f.controller.run(id)).status).toBe("succeeded");
+      expect(await f.controller.run(id)).toMatchObject({ status: "unknown", artifactFailure: "ARTIFACT_MISSING" });
+      expect(f.calls.filter(call => call.name === "get_file")).toHaveLength(0);
+      f.files.set("brand/DESIGN.md", "# Brand kit\n");
+      ready = true;
+      expect(await f.controller.run(id)).toMatchObject({ status: "succeeded", file: "brand/DESIGN.md" });
       await expect(f.controller.start({ ...input, brief: "Changed" })).rejects.toThrow("different inputs");
     } finally { f.journal.close(); }
+  });
+  test("brand kit rejects ambiguous, unsafe, missing, and truncated artifacts", async () => {
+    const cases = [
+      { paths: [], files: [], content: "" },
+      { paths: ["a/DESIGN.md", "b/DESIGN.md"], files: [], content: "" },
+      { paths: ["../DESIGN.md"], files: [], content: "" },
+      { paths: ["brand/DESIGN.md"], files: [], content: "" },
+      { paths: ["brand/DESIGN.md"], files: [{ name: "brand/DESIGN.md", size: 12 }], content: "[od:file-window truncated]" },
+    ];
+    for (const item of cases) {
+      const f = fixture();
+      const original = f.provider.call;
+      f.provider.call = async (name, args) => {
+        if (name === "get_run") return { status: "succeeded", artifactPaths: item.paths };
+        if (name === "list_files") return { files: item.files };
+        if (name === "get_file") return item.content;
+        return original(name, args);
+      };
+      try {
+        await f.controller.start({ requestId: id, project: "test-project", recipe: "brand-kit", brief: "Test" });
+        expect(await f.controller.run(id)).toMatchObject({ status: "unknown", artifactFailure: "ARTIFACT_MISSING" });
+        expect(f.calls.filter(call => call.name === "start_run")).toHaveLength(1);
+      } finally { f.journal.close(); }
+    }
   });
   test("HTML composition keeps title safe and uses TwitchCon live driver", () => {
     const result = composeHtml('<img src=x onerror="alert(1)">');

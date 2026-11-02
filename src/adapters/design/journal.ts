@@ -11,6 +11,7 @@ export const operationSchema = z.object({
   status: z.enum(["submitting", "queued", "running", "succeeded", "failed", "canceled", "unknown"]),
   runId: z.string().optional(), source: z.string().optional(),
   file: z.string().optional(), previewUrl: z.string().optional(),
+  artifactFailure: z.literal("ARTIFACT_MISSING").optional(),
   failureCode: z.literal("LEGACY_RECIPE_RETIRED").optional(),
   legacy: retiredSchema.optional(),
 });
