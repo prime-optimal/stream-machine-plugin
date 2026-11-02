@@ -1,3 +1,9 @@
+## 0.8.0 (2026-11-02)
+
+### Feat
+
+- **ui**: open a hosted Stream Machine menu after Twitch OAuth (#158)
+
 ## 0.7.0 (2026-11-02)
 
 ### Feat

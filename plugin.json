@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "stream-machine",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Use hosted Twitch tools through ChatGPT Sites, with a local fallback for desktop streaming tools.",
   "author": {
     "name": "prime-optimal"
