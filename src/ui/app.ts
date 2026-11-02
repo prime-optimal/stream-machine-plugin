@@ -168,13 +168,13 @@ function render(): void {
 
 function applyHost(): void {
   const context = app.getHostContext();
-  document.documentElement.dataset.theme = context?.theme ?? "dark";
+  document.documentElement.dataset.theme = context?.theme ?? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
   for (const [name, value] of Object.entries(context?.styles?.variables ?? {})) {
     if (name.startsWith("--") && typeof value === "string") document.documentElement.style.setProperty(name, value);
   }
   const insets = context?.safeAreaInsets;
   for (const edge of ["top", "right", "bottom", "left"] as const) {
-    if (typeof insets?.[edge] === "number") document.documentElement.style.setProperty(`--safe-${edge}`, `${insets[edge]}px`);
+    document.documentElement.style.setProperty(`--safe-${edge}`, `${Math.max(0, insets?.[edge] ?? 0)}px`);
   }
 }
 
@@ -185,7 +185,9 @@ app.ontoolresult = (result) => {
   try { rememberDraft(); accept(result); } catch (cause) { showError(cause instanceof Error ? cause.message : "Could not load the workspace."); }
 };
 app.addEventListener("hostcontextchanged", applyHost);
-app.onteardown = async () => { connections.dispose(); clips.dispose(); home.dispose(); return {}; };
+const systemTheme = matchMedia("(prefers-color-scheme: light)");
+systemTheme.addEventListener("change", applyHost);
+app.onteardown = async () => { systemTheme.removeEventListener("change", applyHost); connections.dispose(); clips.dispose(); home.dispose(); return {}; };
 const shell = document.createElement("div");
 shell.className = "shell";
 shell.innerHTML = '<header class="app-header"><span class="brand">Stream Machine</span><span class="badge" id="runtime-badge" hidden></span></header><nav class="workspace-nav" aria-label="Workspace sections"></nav><main id="workspace-main"></main><p id="host-error" role="alert" hidden></p>';
@@ -226,6 +228,7 @@ function renderCards() {
 renderCards();
 panels.home.append(desktopNote, cards);
 render();
+applyHost();
 if (standalone) {
   void call("stream_machine_open");
 } else {
