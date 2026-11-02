@@ -1,3 +1,10 @@
+## 0.8.0 (2026-11-02)
+
+### Feat
+
+- ship a desktop-only server with OBS and Stream Deck tools (#160)
+- **ui**: open a hosted Stream Machine menu after Twitch OAuth (#158)
+
 ## 0.7.0 (2026-11-02)
 
 ### Feat
