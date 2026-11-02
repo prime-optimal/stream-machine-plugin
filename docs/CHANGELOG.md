@@ -1,3 +1,9 @@
+## 0.8.2 (2026-11-02)
+
+### Fix
+
+- **package**: make defaultPrompt an array, add listing URLs, ship only setup docs (#177)
+
 ## 0.8.1 (2026-11-02)
 
 ### Fix
