@@ -3,10 +3,16 @@ import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/pr
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-import { validateArchiveEntries } from "../scripts/package-archive";
+import { includePackagePath, validateArchiveEntries } from "../scripts/package-archive";
 
 const source = resolve(import.meta.dir, "..");
 const folders: string[] = [];
+test("packaging excludes the independent Site checkout and its runtime state", () => {
+  for (const path of ["docs/hosted-oauth-site", "docs/hosted-oauth-site/.git/config", "docs/hosted-oauth-site/node_modules/a", "docs/hosted-oauth-site/.wrangler/state"]) {
+    expect(includePackagePath(source, join(source, path))).toBe(false);
+  }
+  expect(includePackagePath(source, join(source, "docs/hosted-mcp.md"))).toBe(true);
+});
 afterEach(async () => { for (const folder of folders.splice(0)) await rm(folder, { recursive: true, force: true }); });
 
 async function fixture() {
@@ -15,7 +21,7 @@ async function fixture() {
   for (const path of ["scripts", "docs/nested", "dist", "node_modules"]) {
     await mkdir(join(root, path), { recursive: true });
   }
-  for (const file of ["plugin.json", "mcp.json", "fnox.toml"]) await cp(join(source, file), join(root, file));
+  for (const file of ["plugin.json", "mcp.json", "mcp.local.json", "fnox.toml"]) await cp(join(source, file), join(root, file));
   for (const file of await readdir(join(source, "scripts"))) {
     if (file === "package.ts" || file === "package-archive.ts") await cp(join(source, "scripts", file), join(root, "scripts", file));
   }

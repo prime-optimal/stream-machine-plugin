@@ -1,46 +1,35 @@
 import type { McpServer } from "@modelcontextprotocol/server";
-import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { z } from "zod";
 import { createLocalTwitchRuntime, preflightTwitch, type LocalTwitchRuntime } from "../../auth/local-runtime";
-import { TwitchFault, unavailableAccount } from "../../auth/twitch";
+import { TwitchFault, unavailableAccount, type TwitchAccountProvider } from "../../auth/twitch";
 import { TwitchTitleService } from "./service";
-import { registerTwitchClipTools } from "./clips-register";
+import { TwitchClipService } from "./clips-service";
+import { registerTwitchToolSet } from "./tool-register";
+import type { TwitchToolRuntime } from "./tool-runtime";
+
 export function registerTwitchTools(server: McpServer, runtime?: LocalTwitchRuntime) {
   let resolved = runtime;
   const getRuntime = () => { resolved ??= createLocalTwitchRuntime(); return resolved; };
-  registerTwitchClipTools(server, getRuntime);
-  const service = () => getRuntime()?.titles ?? new TwitchTitleService(unavailableAccount);
-  const definitions = {
-    stream_machine_twitch_preflight: { schema: z.object({}).strict(), description: "Check local Twitch configuration and callback-port availability before onboarding. Does not open a browser, authorize Twitch, or retain a new listener." },
-    stream_machine_twitch_status: { schema: z.object({}).strict(), description: "Validate real local Twitch connection and show account and scopes. No mock fallback." },
-    stream_machine_twitch_connect: { schema: z.object({ manageBroadcast: z.boolean().default(false), manageClips: z.boolean().default(false), openBrowser: z.boolean().default(false), replacePluginListener: z.boolean().default(false) }).strict(), description: "Start reused TwitchCon OAuth in local browser. Request current title/clip permissions plus the owner's future-capability consent list; disclose Twitch excess-scope policy conflict, preserve existing grants, and report missing permissions. Set openBrowser only for an explicit user action to open the local authorization flow in the desktop browser. Set replacePluginListener only after the user approves stopping the other Stream Machine chat reported by TWITCH_LOCAL_PORT_PLUGIN; it stops only a verified Stream Machine plugin process and ends that chat's Stream Machine tools until the host restarts them. Legacy flags cannot reduce required permissions." },
-    stream_machine_twitch_channel: { schema: z.object({}).strict(), description: "Read connected broadcaster's real current title and category." },
-    stream_machine_twitch_profile: { schema: z.object({}).strict(), description: "Read connected account description, profile photo URL, and offline video-player image URL. Offline image is not a profile banner or header. No write." },
-    stream_machine_twitch_preview_title: { schema: z.object({ title: z.string().min(1).max(280) }).strict(), description: "Preview exact connected-account title change, no write. Open returned approval URL to approve in browser." },
-    stream_machine_twitch_apply_title: { schema: z.object({ previewId: z.string().uuid() }).strict(), description: "Apply browser-approved exact preview to connected broadcaster, recheck scope/current title and read back. Live mutation." },
+  const accounts: TwitchAccountProvider = {
+    withAccount(operation) { return (getRuntime()?.accounts ?? unavailableAccount).withAccount(operation); },
   };
-  for (const [name, definition] of Object.entries(definitions)) {
-    server.registerTool(name, { description: definition.description, inputSchema: definition.schema, annotations: { readOnlyHint: !["stream_machine_twitch_apply_title", "stream_machine_twitch_connect"].includes(name), destructiveHint: false, openWorldHint: true } }, async (input: unknown): Promise<CallToolResult> => {
-      try {
-        const args = definition.schema.parse(input);
-        let result: object;
-        if (name === "stream_machine_twitch_preflight") {
-          result = resolved ? await resolved.preflight() : await preflightTwitch();
-        } else if (name === "stream_machine_twitch_connect") {
-          const local = getRuntime(); if (!local) throw new TwitchFault("TWITCH_NOT_CONFIGURED");
-          result = await local.connect("manageBroadcast" in args && args.manageBroadcast, "manageClips" in args && args.manageClips, "openBrowser" in args && args.openBrowser, "replacePluginListener" in args && args.replacePluginListener);
-        } else if (name === "stream_machine_twitch_preview_title" && "title" in args) {
-          const preview = await service().preview(args.title);
-          result = { ...preview, approvalUrl: getRuntime()?.approvalUrl(preview.previewId) };
-        } else if (name === "stream_machine_twitch_apply_title" && "previewId" in args) result = await service().apply(args.previewId);
-        else if (name === "stream_machine_twitch_channel") result = await service().channel();
-        else if (name === "stream_machine_twitch_profile") result = await service().profile();
-        else result = await service().status();
-        return { content: [{ type: "text", text: JSON.stringify(result) }], structuredContent: { twitch: result } };
-      } catch (error) {
-        const code = error instanceof TwitchFault ? error.code : error instanceof z.ZodError ? "INVALID_INPUT" : "TWITCH_UNAVAILABLE";
-        return { isError: true, content: [{ type: "text", text: code }], structuredContent: { error: { code } } };
-      }
-    });
-  }
+  const unavailableTitles = new TwitchTitleService(unavailableAccount);
+  const clips = new TwitchClipService(accounts);
+  const tools: TwitchToolRuntime = {
+      accounts,
+      get titles() { return getRuntime()?.titles ?? unavailableTitles; },
+      preflight: () => resolved?.preflight() ?? preflightTwitch(),
+      async connect(manageBroadcast, manageClips, openBrowser, replacePluginListener) {
+        const local = getRuntime();
+        if (!local) throw new TwitchFault("TWITCH_NOT_CONFIGURED");
+        return local.connect(manageBroadcast, manageClips, openBrowser, replacePluginListener);
+      },
+      approvalUrl(previewId) {
+        const local = getRuntime();
+        if (!local) throw new TwitchFault("TWITCH_NOT_CONFIGURED");
+        return local.approvalUrl(previewId);
+      },
+      clip: clipId => clips.clip(clipId),
+      downloadClip: clipId => clips.download(clipId),
+  };
+  registerTwitchToolSet(server, () => tools);
 }

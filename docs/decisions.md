@@ -31,6 +31,16 @@ The following decisions define the initial demo.
 | Native Extensions are optional. | Platform support differs. | The app detects available capabilities and retains a chat fallback. |
 | The project does not copy upstream implementations. | The candidates have different APIs and licenses. | A dependency receives a specific version after targeted verification. |
 
+## Hosted Twitch tools
+
+Issue [#130](https://github.com/prime-optimal/stream-machine-plugin/issues/130) supersedes local stdio as the default Twitch transport. The existing OAuth Site hosts stateless `POST /mcp`; publishing its `mcp` capability provisions the canonical Sites plugin. The local stdio server remains an explicit desktop fallback, configured through `mcp.local.json`. OBS, USB Stream Deck, local audio, and the independent worker retain their desktop runtime.
+
+Sites authenticates MCP requests and forwards a Site-scoped `oai-authenticated-user-id`. Each request must have that identity before discovery or tool execution. The handler closes over that owner for encrypted D1 token access and title preview storage. Strict request and tool schemas reject caller-supplied owner selectors. A shared service credential does not identify a user. Email and MCP session IDs never select an owner.
+
+Public Site pages do not make user data public. Every MCP request, title approval, and private artifact request requires authenticated ownership. Title approval records survive separate requests, and atomic preview consumption prevents replay. A failed or ambiguous write is never retried through localhost. An authentication failure stays on the hosted sign-in path. The [hosted MCP guide](hosted-mcp.md) records configuration and verification boundaries.
+
+The platform contract is documented in the installed Sites skill's `references/site-mcp-server.md`. Hosted code uses Web APIs and the supported Workers runtime; desktop modules stay outside the synchronized dependency graph. See [Cloudflare's Node.js compatibility reference](https://developers.cloudflare.com/workers/runtime-apis/nodejs/) for runtime limits.
+
 ## Deferred, with triggers
 
 The initial architecture deferred these decisions until the stated need arose.

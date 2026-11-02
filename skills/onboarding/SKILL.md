@@ -1,11 +1,23 @@
 ---
 name: onboarding
-description: Set up Stream Machine, check existing streaming tools, and start one local live demo or the separate mock preview.
+description: Connect Twitch through the Stream Machine Site by default, or use the explicit local fallback for desktop streaming tools.
 ---
 
 # Start a Stream Machine demo
 
-Open `stream_machine_open`. Explain that real controls and the fictional demo are separate. Use the user's requested demo when clear. Otherwise, ask which demo they want.
+Use hosted Twitch tools by default. Call `stream_machine_twitch_preflight`, then `stream_machine_twitch_status`. If tools are missing, open the [Stream Machine Site](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site) and use its Sites-generated plugin connection. Do not substitute the local package automatically.
+
+Sites sign-in identifies the caller. Twitch consent connects that caller's channel. Read status after consent to verify the account and scopes. A browser login alone does not prove that the host's plugin is connected.
+
+Keep status, channel reads, previews, and apply calls on the same provider. Open the returned hosted connection or approval URL through the host's navigation. Hosted connect returns a link; it does not launch a browser on the server.
+
+## Choose the local fallback
+
+Offer the local package when the hosted service is unreachable, returns a server error, or is unconfigured, and a desktop runtime is available. Wait for the user's choice. A hosted 401 requires hosted sign-in. Denied consent, cancellation, invalid state, or revoked access never starts local OAuth. Never replay a failed mutation through localhost.
+
+Use `mcp.local.json` instead of the default remote configuration when the user selects the desktop fallback. Verify the local Twitch account before using it. If it differs from the hosted account, ask before proceeding. Hosted consent does not connect the local store.
+
+The local package also provides `stream_machine_open`, OBS, Stream Deck, creative, transcription, and worker tools. Open the workspace only when that local tool exists. Explain that the fictional demo is separate from real controls.
 
 ## Check the selected connection
 
@@ -19,7 +31,7 @@ Use the relevant read tool before an action:
 
 A missing connection does not block unrelated demos. Never substitute mock results for a failed real check. Never request tokens or passwords in chat. The private package uses fnox references to the owner's 1Password items.
 
-## Connect Twitch
+## Connect Twitch through the local fallback
 
 Run `stream_machine_twitch_preflight` before Twitch setup. It checks configuration and whether the registered callback port can be bound, then releases the probe. The Connect action checks again because another process can acquire the port after preflight. Never pick an unregistered callback port.
 
@@ -59,5 +71,5 @@ assistant: "I'll check OBS, then show the requested message in the Stream Machin
 
 <example>
 user: "Connect my Twitch account."
-assistant: "I'll open the existing local authorization flow, then verify which account connected."
+assistant: "I'll open the Stream Machine Site connection, then verify which account connected."
 </example>

@@ -11,7 +11,7 @@ const legacy = await Bun.file(`${root}/.codex-plugin/plugin.json`).json();
 assert.equal(manifest.version, legacy.version);
 assert.deepEqual(manifest.extensions["com.openai"].interface.defaultPrompt, legacy.interface.defaultPrompt);
 const launch = z.object({ command: z.string(), args: z.array(z.string()), cwd: z.string() });
-const config = z.object({ mcpServers: z.object({ "stream-machine": launch }) }).parse(await Bun.file(`${root}/mcp.json`).json());
+const config = z.object({ mcpServers: z.object({ "stream-machine": launch }) }).parse(await Bun.file(`${root}/mcp.local.json`).json());
 const selected = config.mcpServers["stream-machine"];
 const client = new Client({ name: "stream-machine-package-check", version });
 try {
@@ -21,7 +21,7 @@ try {
     cwd: selected.cwd.replaceAll("${PLUGIN_ROOT}", root), stderr: "pipe",
   }), { timeout: 60_000 });
   const { tools } = await client.listTools();
-  assert.equal(tools.length, 31);
+  assert.equal(tools.length, 34);
   assert.ok(tools.some(tool => tool.name === "stream_machine_transcribe_audio" && tool.annotations?.readOnlyHint === false));
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_profile" && tool.annotations?.readOnlyHint));
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_clip"));
