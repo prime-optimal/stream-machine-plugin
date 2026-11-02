@@ -1,0 +1,19 @@
+---
+title: "Private files on a public Site"
+---
+stateDiagram-v2
+  s0: Start
+  s1: Folder ready
+  s2: Local file
+  s3: Uploading
+  s4: Failed
+  s5: Uploaded privately
+  s6: Ready
+  [*] --> s0
+  s0 --> s1: first write allocates user folder
+  s0 --> s2: local runtime writes local file
+  s1 --> s3: clip download starts
+  s3 --> s4: transfer or metadata validation fails
+  s3 --> s5: private upload finishes
+  s5 --> s4: transfer or metadata validation fails
+  s5 --> s6: validated metadata is saved
