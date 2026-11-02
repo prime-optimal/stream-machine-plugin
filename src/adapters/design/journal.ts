@@ -7,7 +7,7 @@ import { CreativeError } from "./provider";
 
 const retiredSchema = z.object({ recipe: z.literal("video"), requestId: z.uuid(), project: z.string(), runId: z.string().optional(), taskId: z.string().optional(), source: z.string().optional(), file: z.string().optional() });
 export const operationSchema = z.object({
-  requestId: z.uuid(), project: z.string(), recipe: z.enum(["overlay", "hyperframes-html"]),
+  requestId: z.uuid(), project: z.string(), recipe: z.enum(["overlay", "hyperframes-html", "brand-kit"]),
   status: z.enum(["submitting", "queued", "running", "succeeded", "failed", "canceled", "unknown"]),
   runId: z.string().optional(), source: z.string().optional(),
   file: z.string().optional(), previewUrl: z.string().optional(),

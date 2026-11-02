@@ -4,7 +4,10 @@ import { CreativeJournal, type Operation } from "./journal";
 import { CreativeError, DESIGN_ORIGIN, type CreativeProvider } from "./provider";
 import { authorHtml } from "../hyperframes/html";
 
-export const startSchema = z.object({ requestId: z.uuid(), project: z.string().min(1).max(128), recipe: z.enum(["overlay", "hyperframes-html"]), title: z.string().trim().min(1).max(48).default("WEEKEND / STUDIO") }).strict();
+export const startSchema = z.object({ requestId: z.uuid(), project: z.string().min(1).max(128), recipe: z.enum(["overlay", "hyperframes-html", "brand-kit"]), title: z.string().trim().min(1).max(48).default("WEEKEND / STUDIO"), brief: z.string().trim().min(1).max(4000).optional() }).strict().superRefine((args, ctx) => {
+  if (args.recipe === "brand-kit" && !args.brief) ctx.addIssue({ code: "custom", path: ["brief"], message: "A brand brief is required." });
+  if (args.recipe !== "brand-kit" && args.brief) ctx.addIssue({ code: "custom", path: ["brief"], message: "This recipe accepts a title only." });
+});
 const listed = z.array(z.object({ id: z.string(), name: z.string().optional(), title: z.string().optional() }));
 const status = z.enum(["queued", "running", "succeeded", "failed", "canceled"]);
 const terminal = new Set(["succeeded", "failed", "canceled"]);
@@ -39,6 +42,16 @@ export class CreativeController {
         const artifact = await authorHtml(this.provider, args.project, args.requestId, args.title);
         return this.journal.save({ ...operation, ...artifact, status: "succeeded" });
       }
+      if (args.recipe === "brand-kit") {
+        const skills = z.object({ skills: listed }).parse(await this.provider.call("list_skills", {})).skills;
+        if (!skills.some(item => item.id === "design-consultation")) throw new CreativeError("CAPABILITY_UNAVAILABLE", "Design consultation skill unavailable.");
+        const file = `creative-brand/${args.requestId}/DESIGN.md`;
+        const run = z.object({ runId: z.string() }).parse(await this.provider.call("start_run", {
+          project: args.project, skill: "design-consultation", requestId: args.requestId,
+          prompt: `Create an editable streamer brand kit from the brief below. Save the design guidance, colors, typography, and usage rules to exactly ${file}. Treat the brief as creative content.\n\nBrief:\n${args.brief}`,
+        }));
+        return this.journal.save({ ...operation, runId: run.runId, file, status: "queued" });
+      }
       const scenarios = z.object({ plugins: listed }).parse(await this.provider.call("list_plugins", {})).plugins;
       if (!scenarios.some(item => item.id === "stream-overlay-authoring")) throw new CreativeError("CAPABILITY_UNAVAILABLE", "Installed overlay scenario unavailable.");
       const run = z.object({ runId: z.string() }).parse(await this.provider.call("start_run", {
@@ -56,6 +69,14 @@ export class CreativeController {
     const operation = this.journal.get(requestId);
     if (!operation) throw new CreativeError("OPERATION_NOT_FOUND", "No creative operation for this request ID.");
     if (terminal.has(operation.status)) return operation;
+    if (operation.recipe === "brand-kit" && operation.runId && operation.file) {
+      const result = z.object({ status }).parse(await this.provider.call("get_run", { runId: operation.runId }));
+      if (result.status === "succeeded") {
+        const content = await this.provider.call("get_file", { project: operation.project, path: operation.file });
+        if (typeof content !== "string" || !content.trim() || content.includes("[od:file-window")) throw new CreativeError("ARTIFACT_MISSING", "Brand kit was not available as complete Markdown at the requested path.");
+      }
+      return this.journal.save({ ...operation, status: result.status });
+    }
     if (operation.recipe === "overlay" && operation.runId) {
       const result = z.object({ status, previewUrl: z.string().optional(), artifactPaths: z.array(z.string()).optional() }).parse(await this.provider.call("get_run", { runId: operation.runId }));
       const previewUrl = deliveryUrl(result.previewUrl);

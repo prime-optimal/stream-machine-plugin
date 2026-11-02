@@ -18,7 +18,7 @@ function fixture() {
       calls.push({ name, args });
       if (name === "list_projects") return { projects: [{ id: "test-project", name: "Test" }] };
       if (name === "list_plugins") return { plugins: [{ id: "stream-overlay-authoring" }] };
-      if (name === "list_skills") return { skills: [{ id: "hyperframes" }, { id: "video-hyperframes" }, { id: "unrelated" }] };
+      if (name === "list_skills") return { skills: [{ id: "hyperframes" }, { id: "video-hyperframes" }, { id: "design-consultation" }, { id: "unrelated" }] };
       if (name === "start_run") return { runId: "real-run" };
       if (name === "get_run") return { status: "succeeded", artifactPaths: ["weekend-camera-v1/index.html"] };
       if (name === "list_files") return { files: [{ name: "creative-html/unrelated/index.html", size: 100 }, { name: "weekend-camera-v1/index.html", size: 100 }] };
@@ -72,6 +72,23 @@ describe("creative HTML reuse", () => {
     expect(startSchema.safeParse({ ...input, authorization: "secret" }).success).toBe(false);
     expect(startSchema.safeParse({ ...input, recipe: "video" }).success).toBe(false);
     expect(startSchema.safeParse({ ...input, title: "x".repeat(49) }).success).toBe(false);
+    expect(startSchema.safeParse({ ...input, recipe: "brand-kit" }).success).toBe(false);
+    expect(startSchema.safeParse({ ...input, brief: "ignored" }).success).toBe(false);
+  });
+  test("brand kit tracks one run and verifies the requested Markdown", async () => {
+    const f = fixture();
+    const input = { requestId: id, project: "test-project", recipe: "brand-kit", brief: "A warm creator brand" };
+    try {
+      const queued = await f.controller.start(input);
+      expect(queued).toMatchObject({ status: "queued", file: `creative-brand/${id}/DESIGN.md` });
+      expect(f.calls.find(call => call.name === "start_run")?.args).toMatchObject({ skill: "design-consultation", requestId: id });
+      expect(await f.controller.start(input)).toEqual(queued);
+      expect(f.calls.filter(call => call.name === "start_run")).toHaveLength(1);
+      await expect(f.controller.run(id)).rejects.toThrow("Brand kit");
+      f.files.set(`creative-brand/${id}/DESIGN.md`, "# Brand kit\n");
+      expect((await f.controller.run(id)).status).toBe("succeeded");
+      await expect(f.controller.start({ ...input, brief: "Changed" })).rejects.toThrow("different inputs");
+    } finally { f.journal.close(); }
   });
   test("HTML composition keeps title safe and uses TwitchCon live driver", () => {
     const result = composeHtml('<img src=x onerror="alert(1)">');
