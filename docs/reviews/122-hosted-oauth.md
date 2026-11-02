@@ -19,3 +19,11 @@ Live unauthenticated status, POST connect, and callback returned 401. Forged Sit
 The user confirmed the new callback is registered on the existing Stream Machine Twitch app. Real browser consent and reload persistence remain pending. The in-app browser reached an OpenAI security-verification page after Sites sign-in navigation; this does not establish login success.
 
 Primary checkout contained an unrelated untracked `src/ui/twitch_login.png`; it was preserved. Existing demo worker and host MCP processes were left running. The only task-owned preview is the standalone Site dev server on port 5173, to stop at handoff.
+
+## Approval failure investigation
+
+The user reported a failed connection after Twitch consent. Hosted request metadata confirmed that Twitch returned an authorization code to the callback, which redirected with a generic failure. The domain-age notice on Twitch was not evidence of rejection.
+
+A failing regression reproduced rejection of an otherwise valid user-token validation response with `scopes: null`. The validator now treats null as an empty list. It still rejects malformed scope values, a foreign client, a missing user, and expired tokens. This is a confirmed parser defect; its role in the live failure requires a fresh consent test.
+
+Callback errors now use an allowlist of safe reason codes in the redirect and server log. Unknown errors stay generic. Tests verify that raw messages and credential-like values are excluded. The combined Site suite passed 24 tests; TypeScript and Sites build exited 0. Source commit `785c2f8075e45f9b64bd682706e2eb748e83599a` contains the fix. The state model needs no change because the fix preserves its validation and failure transitions.
