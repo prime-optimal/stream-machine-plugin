@@ -20,7 +20,7 @@
       "interface": {
         "displayName": "Stream Machine",
         "shortDescription": "Spend more time streaming",
-        "longDescription": "Spend more time streaming and less time on manual setup. Sign in to the hosted Stream Machine server with Twitch, then open the Stream Machine menu to see a channel snapshot, work with your clips, and preview a stream title before you approve it. On the desktop app, the local stream-machine-desktop server adds 3 OBS tools and 4 USB Stream Deck tools. OBS and Stream Deck control need the ChatGPT desktop app. On ChatGPT web and mobile, only the hosted Twitch tools are available.",
+        "longDescription": "Spend more time streaming and less time on manual setup. Sign in to the hosted Stream Machine server with Twitch, then open the Stream Machine menu to see a channel snapshot, work with your clips, and preview a stream title before you approve it. On the ChatGPT desktop app, local Stream Machine servers add OBS tools for status, scenes, and alerts, and USB Stream Deck tools for inventory, key previews, and applying keys. On ChatGPT web and mobile, only the hosted Twitch tools are available.",
         "developerName": "prime-optimal",
         "capabilities": [
           "Interactive"
