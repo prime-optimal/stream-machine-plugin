@@ -7,6 +7,7 @@
     "name": "prime-optimal"
   },
   "repository": "https://github.com/prime-optimal/stream-machine-plugin",
+  "license": "MIT",
   "keywords": [
     "twitch",
     "streaming",

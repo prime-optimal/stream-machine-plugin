@@ -26,6 +26,7 @@ async function fixture() {
   await writeFile(join(root, "docs/setup.md"), "Fixture setup guide\n");
   await writeFile(join(root, "docs/nested/guide.md"), "Fixture guide\n");
   await writeFile(join(root, "dist/server.js"), "Fixture server\n");
+  await writeFile(join(root, "LICENSE"), "Fixture license\n");
   for (const file of ["logo.png", "composer-icon.png"]) await cp(join(source, "assets", file), join(root, "assets", file));
   return root;
 }
