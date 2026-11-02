@@ -30,7 +30,7 @@ test("Twitch assembly exposes strict clip tools without initializing OAuth", asy
 
 test("clip tool returns public metadata through real in-memory MCP", async () => {
   const server = new McpServer({ name: "clip-result", version: "1" });
-  const fake: typeof fetch = Object.assign(async () => Response.json({ data: [{ id: "Clip", broadcaster_id: "123", title: "Test", url: "https://clips.twitch.tv/Clip" }] }), { preconnect: fetch.preconnect });
+  const fake: typeof fetch = Object.assign(async () => Response.json({ data: [{ id: "Clip", broadcaster_id: "123", broadcaster_name: "Test", creator_id: "9", creator_name: "Maker", game_id: "1", title: "Test", url: "https://clips.twitch.tv/Clip", created_at: "2026-10-31T12:00:00Z", duration: 12, view_count: 0, thumbnail_url: "https://static-cdn.jtvnw.net/Clip.jpg" }] }), { preconnect: fetch.preconnect });
   const service = new TwitchClipService({ async withAccount(fn) { return fn({ account: { id: "123", login: "test", displayName: "Test", scopes: [] }, clientId: "client", accessToken: "SECRET_SENTINEL" }); } }, new TwitchClipClient(fake));
   registerTwitchClipTools(server, () => undefined, service);
   const client = new Client({ name: "result", version: "1" });

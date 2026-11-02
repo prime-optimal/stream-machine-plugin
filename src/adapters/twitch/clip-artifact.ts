@@ -6,10 +6,11 @@ import { TwitchFault } from "../../auth/twitch";
 
 type Limits = { maxBytes?: number; timeoutMs?: number };
 export type ClipArtifact = { id: string; path: string; bytes: number; sha256: string; completedAt: string };
+const clipDownloadHosts = ["production.assets.clips.twitchcdn.net", "d1ndex63qxojbr.cloudfront.net"];
 export function validateClipDownloadUrl(value: string) {
   let url: URL;
   try { url = new URL(value); } catch { throw new TwitchFault("CLIP_DOWNLOAD_URL_REJECTED"); }
-  if (url.protocol !== "https:" || url.hostname !== "production.assets.clips.twitchcdn.net" || url.username || url.password || url.port || url.hash) throw new TwitchFault("CLIP_DOWNLOAD_URL_REJECTED");
+  if (url.protocol !== "https:" || !clipDownloadHosts.includes(url.hostname) || url.username || url.password || url.port || url.hash) throw new TwitchFault("CLIP_DOWNLOAD_URL_REJECTED");
   return url;
 }
 async function privateDirectory(directory: string) {

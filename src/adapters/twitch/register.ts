@@ -34,4 +34,5 @@ export function registerTwitchTools(server: McpServer, runtime?: LocalTwitchRunt
   };
   registerTwitchToolSet(server, () => tools);
   registerTwitchClipLibraryTool(server, () => clips);
+  return clips;
 }

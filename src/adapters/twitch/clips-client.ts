@@ -1,8 +1,16 @@
 import { z } from "zod";
 import { TwitchFault, type TwitchAccess } from "../../auth/twitch";
 export const clipIdSchema = z.string().regex(/^[A-Za-z0-9_-]{1,256}$/);
-const clipSchema = z.object({ id: clipIdSchema, broadcaster_id: z.string().min(1), title: z.string(), url: z.url() });
+const clipSchema = z.object({
+  id: clipIdSchema, broadcaster_id: z.string().min(1), broadcaster_name: z.string(), creator_id: z.string(), creator_name: z.string(),
+  game_id: z.string(), title: z.string(), url: z.url(), created_at: z.iso.datetime(), duration: z.number().nonnegative(),
+  view_count: z.number().int().nonnegative(), thumbnail_url: z.string(),
+});
 const downloadSchema = z.object({ clip_id: clipIdSchema, landscape_download_url: z.string().nullable(), portrait_download_url: z.string().nullable() });
+export interface TwitchClipDetails {
+  id: string; broadcasterId: string; broadcasterName: string; creatorId: string; creatorName: string; gameId: string; title: string;
+  sourceUrl: string; createdAt: string; durationSeconds: number; viewCount: number; thumbnailUrl: string;
+}
 export class TwitchClipClient {
   constructor(private fetcher: typeof fetch = fetch) {}
   async get(access: TwitchAccess, path: string, params: URLSearchParams | Record<string, string>): Promise<unknown> {
@@ -16,7 +24,7 @@ export class TwitchClipClient {
     if (!response.ok) throw new TwitchFault(response.status === 401 ? "TWITCH_RECONNECT_REQUIRED" : response.status === 403 ? "TWITCH_SCOPE_REQUIRED" : response.status === 429 ? "TWITCH_RATE_LIMITED" : "TWITCH_UNAVAILABLE");
     try { return await response.json(); } catch { throw new TwitchFault("TWITCH_INVALID_RESPONSE"); }
   }
-  async read(access: TwitchAccess, clipId: string) {
+  async read(access: TwitchAccess, clipId: string): Promise<TwitchClipDetails> {
     const parsed = z.object({ data: z.array(clipSchema).max(1) }).safeParse(await this.get(access, "clips", { id: clipId }));
     if (!parsed.success) throw new TwitchFault("TWITCH_INVALID_RESPONSE");
     const clip = parsed.data.data[0];
@@ -24,7 +32,11 @@ export class TwitchClipClient {
     if (clip.id !== clipId) throw new TwitchFault("TWITCH_INVALID_RESPONSE");
     const source = new URL(clip.url);
     if (source.protocol !== "https:" || !["clips.twitch.tv", "www.twitch.tv"].includes(source.hostname) || source.username || source.password || source.port) throw new TwitchFault("TWITCH_INVALID_RESPONSE");
-    return { id: clip.id, broadcasterId: clip.broadcaster_id, title: clip.title, sourceUrl: clip.url };
+    return {
+      id: clip.id, broadcasterId: clip.broadcaster_id, broadcasterName: clip.broadcaster_name, creatorId: clip.creator_id, creatorName: clip.creator_name,
+      gameId: clip.game_id, title: clip.title, sourceUrl: clip.url, createdAt: clip.created_at, durationSeconds: clip.duration,
+      viewCount: clip.view_count, thumbnailUrl: clip.thumbnail_url,
+    };
   }
   async download(access: TwitchAccess, clipId: string) {
     const parsed = z.object({ data: z.array(downloadSchema).max(1) }).safeParse(await this.get(access, "clips/downloads", { broadcaster_id: access.account.id, editor_id: access.account.id, clip_id: clipId }));

@@ -10,7 +10,7 @@ The separate **Build plugin packages** workflow runs after each main push and on
 
 ## Server and tools
 
-The hosted endpoint exposes nine Twitch tools. Each request uses its authenticated Sites caller's account. The #147 Site source adds three clip library tools; they appear after that source is published. The `stream-machine-local` command resolves optional private credentials with fnox, then runs `bun ${PLUGIN_ROOT}/dist/server.js`. That local server exposes 37 tools, including its own Twitch tools for the explicit fallback. It retains these mock-sample tools:
+The hosted endpoint exposes nine Twitch tools. Each request uses its authenticated Sites caller's account. The #147 Site source adds three clip library tools; they appear after that source is published. The `stream-machine-local` command resolves optional private credentials with fnox, then runs `bun ${PLUGIN_ROOT}/dist/server.js`. That local server exposes 38 tools, including its own Twitch tools for the explicit fallback. It retains these mock-sample tools:
 
 | Tool | Behavior |
 | --- | --- |
@@ -21,9 +21,9 @@ The hosted endpoint exposes nine Twitch tools. Each request uses its authenticat
 | `stream_machine_preview` | Returns proposed channel updates without applying them. |
 | `stream_machine_reset` | Disconnects the fictional account. |
 
-The local server also registers three OBS tools, four USB Stream Deck tools, nine Twitch tools, five creative tools, four worker controls, one independent OpenAI transcription tool, two package-update tools, one IGDB game lookup tool, and one streaming-metric tool. `mise run smoke` verifies the current total of 36 and the mock boundary. The profile read returns the connected account description, photo, and offline image. See the [Twitch profile reference](twitch-profile.md). The local UI resource uses `text/html;profile=mcp-app`.
+The local server also registers three OBS tools, four USB Stream Deck tools, ten Twitch tools including the clip library, five creative tools, four worker controls, one independent OpenAI transcription tool, one clip media information tool, two package-update tools, one IGDB game lookup tool, and one streaming-metric tool. `mise run smoke` verifies the current total of 38 and the mock boundary. The profile read returns the connected account description, photo, and offline image. See the [Twitch profile reference](twitch-profile.md). The local UI resource uses `text/html;profile=mcp-app`.
 
-The transcription tool explicitly uploads one selected local audio file to OpenAI. It resolves `OPENAI_API_KEY` through fnox and stays independent of Twitch metadata and URL-based providers. See [Transcribe one local audio file](demos/transcription.md).
+The transcription tool explicitly uploads one selected local audio file to OpenAI. It resolves `OPENAI_API_KEY` through fnox and stays independent of Twitch metadata. See [Transcribe one local audio file](demos/transcription.md). The media information tool reads one authorized Twitch clip and can add a transcript through that tool. See [Show details or a transcript for one clip](demos/media-info.md).
 
 ## State and limits
 

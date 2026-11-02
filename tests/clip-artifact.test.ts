@@ -24,8 +24,12 @@ test("writes private file and hash without credentials", async () => {
 test("rejects unsafe URLs before fetch", async () => {
   let calls = 0;
   const writer = new ClipArtifactWriter(await directory(), fetcher(async () => { calls++; return new Response("video"); }));
-  for (const unsafe of ["http://production.assets.clips.twitchcdn.net/a", "https://other.test/a", "https://user@production.assets.clips.twitchcdn.net/a", "https://production.assets.clips.twitchcdn.net:444/a", `${url}#fragment`]) await expect(writer.write(unsafe)).rejects.toThrow("CLIP_DOWNLOAD_URL_REJECTED");
+  for (const unsafe of ["http://production.assets.clips.twitchcdn.net/a", "https://other.test/a", "https://user@production.assets.clips.twitchcdn.net/a", "https://production.assets.clips.twitchcdn.net:444/a", `${url}#fragment`, "https://other.cloudfront.net/a", "https://d1ndex63qxojbr.cloudfront.net.evil.test/a", "https://x.d1ndex63qxojbr.cloudfront.net/a"]) await expect(writer.write(unsafe)).rejects.toThrow("CLIP_DOWNLOAD_URL_REJECTED");
   expect(calls).toBe(0);
+});
+test("accepts Twitch's CloudFront clip host", async () => {
+  const writer = new ClipArtifactWriter(await directory(), fetcher(async () => new Response("video")));
+  expect((await writer.write("https://d1ndex63qxojbr.cloudfront.net/clip.mp4?signature=private")).bytes).toBe(5);
 });
 test("cleans streamed oversized partial file", async () => {
   const dir = await directory();
