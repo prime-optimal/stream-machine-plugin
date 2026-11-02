@@ -11,26 +11,32 @@
     "twitch",
     "streaming",
     "recipes",
-    "obs"
+    "obs",
+    "stream-deck"
   ],
   "extensions": {
     "com.openai": {
       "onboardingSkill": "./skills/onboarding/SKILL.md",
       "interface": {
-        "displayName": "Stream Machine Desktop",
-        "shortDescription": "OBS and Stream Deck controls",
-        "longDescription": "Stream Machine Desktop installs two MCP servers on a desktop host. The hosted stream-machine server provides Twitch, clips, and the Stream Machine menu through the Stream Machine Site. The local stream-machine-desktop server provides 3 OBS tools and 4 USB Stream Deck tools. On web and mobile, install the Stream Machine Site plugin for Twitch instead. The package's other tools are disabled in source and not exposed.",
+        "displayName": "Stream Machine",
+        "shortDescription": "Spend more time streaming",
+        "longDescription": "Spend more time streaming and less time on manual setup. Sign in to the hosted Stream Machine server with Twitch, then open the Stream Machine menu to see a channel snapshot, work with your clips, and preview a stream title before you approve it. On the desktop app, the local stream-machine-desktop server adds 3 OBS tools and 4 USB Stream Deck tools. OBS and Stream Deck control need the ChatGPT desktop app. On ChatGPT web and mobile, only the hosted Twitch tools are available.",
         "developerName": "prime-optimal",
         "capabilities": [
           "Interactive"
         ],
         "defaultPrompt": [
-          "Check OBS and my Stream Deck, then connect Twitch through the stream-machine server."
+          "Connect my Twitch account and open the Stream Machine menu.",
+          "Show my channel snapshot and recent clips.",
+          "Check OBS and my Stream Deck, then show an OBS alert."
         ],
         "websiteURL": "https://github.com/prime-optimal/stream-machine-plugin",
         "privacyPolicyURL": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/",
         "termsOfServiceURL": "https://github.com/prime-optimal",
-        "category": "Other"
+        "category": "Creativity",
+        "brandColor": "#9aff57",
+        "logo": "./assets/logo.png",
+        "composerIcon": "./assets/composer-icon.png"
       }
     }
   }
