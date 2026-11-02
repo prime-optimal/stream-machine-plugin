@@ -1,3 +1,9 @@
+## 0.9.1 (2026-11-02)
+
+### Fix
+
+- declare OAuth on the hosted stream-machine server (#184) (#185)
+
 ## 0.9.0 (2026-11-02)
 
 ### Feat
