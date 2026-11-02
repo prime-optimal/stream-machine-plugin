@@ -1,3 +1,9 @@
+## 0.9.0 (2026-11-02)
+
+### Feat
+
+- bundle the hosted MCP server in Stream Machine Desktop (#171) (#172)
+
 ## 0.8.2 (2026-11-02)
 
 ### Fix
