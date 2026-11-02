@@ -53,4 +53,4 @@ Native-host theme/display-mode verification is not claimed by these previews.
 - [Fixture script](../verification/233/preview.mjs), run with `mise exec -- bun docs/verification/233/preview.mjs` after building.
 
 The Site update uses resource `ui://stream-machine/workspace-v6.html`.
-Source and deployment results are recorded in the issue evidence comment after publication.
+Published Site version 22 from source `0a38c4d777c4c0a5406e75a2937c4bcee5a4b4b0`. Deployment `appgdep_6ae903c65b7481918eb84f4217e8ea7c` succeeded with the existing public audience unchanged. The production HTML matches plugin build SHA-256 `3fd9877b21d158b00161eff5bdc64f3261656facdea06ef3370ad0c97a12bf21`. The [resource patch](../verification/233/hosted-resource.patch) records the cache-version update. Existing open widgets need refreshed discovery and a new instance to load the new resource.

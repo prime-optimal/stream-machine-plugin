@@ -1,0 +1,34 @@
+diff --git a/lib/clips/tools.ts b/lib/clips/tools.ts
+index c8c328f..9fd31a1 100644
+--- a/lib/clips/tools.ts
++++ b/lib/clips/tools.ts
+@@ -7 +7 @@ import {archiveInputSchema} from './archive';
+-export const WORKSPACE_URI = 'ui://stream-machine/workspace-v5.html';
++export const WORKSPACE_URI = 'ui://stream-machine/workspace-v6.html';
+diff --git a/tests/twitch/mcp-handler.test.mjs b/tests/twitch/mcp-handler.test.mjs
+index 5f6c0c1..35b29bd 100644
+--- a/tests/twitch/mcp-handler.test.mjs
++++ b/tests/twitch/mcp-handler.test.mjs
+@@ -17 +17 @@ test('cacheable MCP results carry private immediately-stale cache hints', async
+-  const params = method === 'resources/read' ? { uri: 'ui://stream-machine/workspace-v5.html' } : {};
++  const params = method === 'resources/read' ? { uri: 'ui://stream-machine/workspace-v6.html' } : {};
+@@ -49 +49 @@ test('clip tools advertise the workspace UI only on the library tool', async ()
+- assert.equal(byName.stream_machine_clips_library._meta.ui.resourceUri, 'ui://stream-machine/workspace-v5.html');
++ assert.equal(byName.stream_machine_clips_library._meta.ui.resourceUri, 'ui://stream-machine/workspace-v6.html');
+@@ -61 +61 @@ test('stream_machine_open is a read-only global entry point that returns the hos
+- assert.equal(open._meta.ui.resourceUri, 'ui://stream-machine/workspace-v5.html');
++ assert.equal(open._meta.ui.resourceUri, 'ui://stream-machine/workspace-v6.html');
+@@ -85 +85 @@ test('resource diagnostics expose outcomes and schema paths without request data
+- await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v5.html' }), unused, options);
++ await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v6.html' }), unused, options);
+@@ -93,2 +93,2 @@ test('resources serve the workspace UI with CSP metadata and reject other URIs',
+- assert.deepEqual(list.result.resources.map(resource => [resource.uri, resource.mimeType]), [['ui://stream-machine/workspace-v5.html', 'text/html;profile=mcp-app']]);
+- const read = await (await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v5.html' }), unused, { uiHtml: html })).json();
++ assert.deepEqual(list.result.resources.map(resource => [resource.uri, resource.mimeType]), [['ui://stream-machine/workspace-v6.html', 'text/html;profile=mcp-app']]);
++ const read = await (await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v6.html' }), unused, { uiHtml: html })).json();
+@@ -102 +102 @@ test('resources serve the workspace UI with CSP metadata and reject other URIs',
+- const bundled = await (await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v5.html' }), unused)).json();
++ const bundled = await (await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v6.html' }), unused)).json();
+@@ -104 +104 @@ test('resources serve the workspace UI with CSP metadata and reject other URIs',
+- const withMeta = await (await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v5.html', _meta: { 'openai/userAgent': 'codex' } }), unused, { uiHtml: html })).json();
++ const withMeta = await (await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v6.html', _meta: { 'openai/userAgent': 'codex' } }), unused, { uiHtml: html })).json();
