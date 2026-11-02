@@ -19,7 +19,7 @@ export class CreativeController {
   async list() {
     const projects = z.object({ projects: listed }).parse(await this.provider.call("list_projects", {})).projects;
     const scenarios = z.object({ plugins: listed }).parse(await this.provider.call("list_plugins", {})).plugins.filter(item => ["stream-alert-authoring", "stream-overlay-authoring"].includes(item.id));
-    const skills = z.object({ skills: listed }).parse(await this.provider.call("list_skills", {})).skills.filter(item => item.id === "hyperframes");
+    const skills = z.object({ skills: listed }).parse(await this.provider.call("list_skills", {})).skills.filter(item => ["hyperframes", "video-hyperframes"].includes(item.id));
     return { mode: "live", provider: "opendesign", projects, scenarios, skills };
   }
   async project(name: string, id: string) {
