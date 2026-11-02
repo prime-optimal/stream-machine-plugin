@@ -1,3 +1,9 @@
+## 0.10.1 (2026-11-02)
+
+### Fix
+
+- prepare and play Site-hosted clips from the gallery (#218) (#222)
+
 ## 0.10.0 (2026-11-02)
 
 ### Feat
