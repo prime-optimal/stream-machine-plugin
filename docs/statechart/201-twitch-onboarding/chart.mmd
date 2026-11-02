@@ -1,0 +1,61 @@
+---
+title: "Proposed Twitch onboarding"
+---
+stateDiagram-v2
+  state "Legend" as legend {
+    lg0: connection
+    lg1: home
+    lg2: setup
+  }
+  class lg0 orange
+  class lg1 teal
+  class lg2 blue
+  s0: Connect Twitch
+  s1: Waiting for consent
+  s2: Connection required
+  s3: Account verified
+  s4: Collecting channel media
+  s5: Reconnect#59; old reply pending
+  s6: Partial home#59; brand draft unsaved
+  s7: Home with partial data
+  s8: Partial home with your edits
+  s9: Home#59; brand draft unsaved
+  s10: Personalized home
+  s11: Home with your edits
+  [*] --> s0
+  s0 --> s1: you connect Twitch
+  s1 --> s2: consent fails or is canceled
+  s1 --> s3: the server verifies the account
+  s3 --> s2: you disconnect, switch accounts, or consent expires
+  s3 --> s4: the server creates the first DESIGN draft
+  s4 --> s2: you disconnect, switch accounts, or consent expires
+  s4 --> s5: you disconnect, switch accounts, or consent expires
+  s4 --> s6: collection stops early or the five-request pass ends
+  s5 --> s2: the server discards the old reply
+  s4 --> s7: collection stops early or the five-request pass ends
+  s6 --> s2: you disconnect, switch accounts, or consent expires
+  s6 --> s7: the brand draft saves
+  s6 --> s8: you save a brand edit
+  s7 --> s8: you save a brand edit
+  s7 --> s2: you disconnect, switch accounts, or consent expires
+  s8 --> s2: you disconnect, switch accounts, or consent expires
+  s4 --> s9: the five-request pass ends
+  s4 --> s10: the five-request pass ends
+  s9 --> s2: you disconnect, switch accounts, or consent expires
+  s9 --> s10: the brand draft saves
+  s9 --> s11: you save a brand edit
+  s10 --> s11: you save a brand edit
+  s10 --> s2: you disconnect, switch accounts, or consent expires
+  s11 --> s2: you disconnect, switch accounts, or consent expires
+  class s0 blue
+  class s1 blue
+  class s2 orange
+  class s3 blue
+  class s4 blue
+  class s5 orange
+  class s6 teal
+  class s7 teal
+  class s8 teal
+  class s9 teal
+  class s10 teal
+  class s11 teal

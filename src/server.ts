@@ -2,7 +2,6 @@
 import { version } from "./version";
 import { McpServer } from "@modelcontextprotocol/server";
 // import { DemoWorkspace, schemas, toolResult, type ToolName } from "./domain";
-import { registerObsTools } from "./adapters/obs/register";
 import { registerStreamDeckTools } from "./adapters/streamdeck/register";
 // import { registerTwitchTools } from "./adapters/twitch/register";
 // import { registerCreativeTools } from "./adapters/design/register";
@@ -55,7 +54,6 @@ export function createServer(_html: string) {
   // }
   // Desktop exposes only OBS and Stream Deck (#159).
   // registerUpdateTools(server);
-  registerObsTools(server);
   const deck = registerStreamDeckTools(server);
   // Desktop exposes only OBS and Stream Deck (#159).
   // const clips = registerTwitchTools(server);

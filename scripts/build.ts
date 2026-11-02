@@ -4,6 +4,8 @@ import { resolve } from "node:path";
 const root = resolve(import.meta.dir, "..");
 process.chdir(root);
 await mkdir("dist", { recursive: true });
+const obs = await Bun.build({ entrypoints: ["src/obs-stdio.ts"], target: "bun", outdir: "dist", naming: "obs-server.js" });
+if (!obs.success) throw new AggregateError(obs.logs, "OBS server build failed");
 const inlinePng: Bun.BunPlugin = {
   name: "inline-png", setup(build) {
     build.onLoad({ filter: /\.png$/ }, async ({ path }) => ({ loader: "js", contents: `export default ${JSON.stringify(`data:image/png;base64,${Buffer.from(await Bun.file(path).arrayBuffer()).toString("base64")}`)};` }));

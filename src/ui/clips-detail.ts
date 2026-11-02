@@ -28,7 +28,6 @@ export function createDetail(options: { openLink: OpenLink; zip: HTMLElement; ba
   function show(clip: ClipItem, library: "site" | "local") {
     heading.textContent = clip.title || "Untitled clip";
     const poster = safeHttpsUrl(clip.thumbnailUrl, thumbnailHosts) || null;
-    player.idle(poster, clip.stored?.playbackUrl ?? null);
     rows.replaceChildren();
     fact("Clipper", clip.creator.name ?? "Unknown");
     fact("Category", clip.game.name ?? "Unknown category");
@@ -43,6 +42,7 @@ export function createDetail(options: { openLink: OpenLink; zip: HTMLElement; ba
     if (twitchUrl) fact("Twitch", externalLink("Open on Twitch", twitchUrl, options.openLink, "clip-link"));
 
     storage.replaceChildren();
+    let saveAction: HTMLElement | undefined;
     if (clip.stored) {
       const file = safeHttpsUrl(clip.stored.downloadUrl);
       storage.append(el("p", "Saved on the Site.", "clips-note"));
@@ -50,17 +50,19 @@ export function createDetail(options: { openLink: OpenLink; zip: HTMLElement; ba
     } else if (library === "site") {
       const message = el("p", "", "clips-error");
       message.hidden = true;
-      const save = button("Save to Site", () => void (async () => {
+      const save = button("Save to play", () => void (async () => {
         save.disabled = true; save.textContent = "Saving…"; message.hidden = true;
         const failure = await options.save(clip);
         if (failure === null) return;
-        save.disabled = false; save.textContent = "Save to Site";
+        save.disabled = false; save.textContent = "Save to play";
         message.textContent = failure; message.hidden = false;
-      })(), "primary");
-      storage.append(el("p", "Not on Site", "clips-note"), el("p", "Save a copy to the Site to play it here and include it in ZIP downloads."), save, message);
+      })(), "primary play-button");
+      saveAction = save;
+      storage.append(el("p", "Save a copy to the Site to play it here and include it in ZIP downloads."), message);
     } else {
       storage.append(el("p", "Not on Site", "clips-note"), el("p", "This is the local server. It cannot read or write Site storage, so saving and ZIP downloads are unavailable here."));
     }
+    player.idle(poster, clip.stored?.playbackUrl ?? null, saveAction);
     if (library === "site") storage.append(zipSlot);
     element.hidden = false;
     heading.focus();

@@ -17,6 +17,6 @@ test("real MCP registration advertises five HTML creative tools without connecti
     expect(result.tools.map(tool => tool.name).sort()).toEqual(["stream_machine_creative_artifact", "stream_machine_creative_list", "stream_machine_creative_project", "stream_machine_creative_run", "stream_machine_creative_start"]);
     const start = result.tools.find(tool => tool.name === "stream_machine_creative_start");
     const schema = z.object({ properties: z.object({ recipe: z.object({ enum: z.array(z.string()) }) }) }).parse(start?.inputSchema);
-    expect(schema.properties.recipe.enum).toEqual(["overlay", "hyperframes-html"]);
+    expect(schema.properties.recipe.enum).toEqual(["overlay", "hyperframes-html", "brand-kit"]);
   } finally { await client.close(); await server.close(); }
 });
