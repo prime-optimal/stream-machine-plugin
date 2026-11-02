@@ -15,7 +15,7 @@ export function createPlayer() {
     element.replaceChildren();
   }
 
-  function idle(poster: string | null, playbackUrl: string | null) {
+  function idle(poster: string | null, playbackUrl: string | null, saveAction?: HTMLElement) {
     stop();
     const stage = el("div", "", "player-stage");
     if (poster) {
@@ -27,6 +27,7 @@ export function createPlayer() {
     }
     const target = playbackUrl ? safeHttpsUrl(playbackUrl) : "";
     if (target) stage.append(button("Play clip", () => start(target, poster), "primary play-button"));
+    else if (saveAction) stage.append(saveAction);
     else stage.append(el("p", "Not on Site", "not-on-site"));
     element.append(stage);
   }
