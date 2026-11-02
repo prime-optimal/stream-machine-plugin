@@ -30,16 +30,32 @@ Default pinned Git source verified twice with `mise exec -- bun scripts/streamde
 
 ## API
 
-`registerStreamDeckTools(server)` exported from `src/adapters/streamdeck/register.ts`. Returns workspace with async `close()` for host shutdown. No new JavaScript dependencies.
+`registerStreamDeckTools(server)` is exported from `src/adapters/streamdeck/register.ts`. It returns a workspace with an async `close()` for host shutdown. The `stream-machine-streamdeck` server in `mcp.json` runs `bun ${PLUGIN_ROOT}/dist/server.js` and exposes these 6 tools. The server releases the deck when stdin closes or on SIGINT or SIGTERM.
 
 | Tool | Input | Effect |
 | --- | --- | --- |
-| `stream_machine_streamdeck_inventory` | `{}` | Enumerates USB metadata and saved USB pages. Does not connect or reset display. |
-| `stream_machine_streamdeck_preview` | `{serial, key?: 0..14, url}` | Checks Original geometry, validates HTTP URL, returns expiring preview ID and exact action. No writes. |
-| `stream_machine_streamdeck_apply` | `{previewId}` | Consumes preview once, claims USB, creates unique test page, writes one button, checks read-back. |
-| `stream_machine_streamdeck_release` | `{}` | Restores main page, deletes owned test page, disconnects provider. |
+| `stream_machine_streamdeck_inventory` | `{}` | Lists USB devices and saved USB pages. Does not claim the deck or reset the display. |
+| `stream_machine_streamdeck_layout_preview` | `{serial, channel?, scenes?}` | Builds a one-page streamer layout for the Original 3×5 deck. Reads OBS and writes nothing to the deck. The preview expires after 5 minutes. |
+| `stream_machine_streamdeck_layout_apply` | `{previewId}` | Consumes the preview once. Refuses while the Elgato Stream Deck app runs. Claims USB, creates or reuses the USB page `stream-machine`, clears it, writes the buttons, and reads back each button's label and command. |
+| `stream_machine_streamdeck_button_update` | `{key, label?, action}` | Sets one key (0 to 14) after a layout is applied in this server process. `action` is `{type:"scene",scene}`, `{type:"mic"}`, `{type:"desktop-audio"}`, `{type:"record"}`, `{type:"stream"}`, or `{type:"url",url}` (HTTP or HTTPS only). Verified by read-back. |
+| `stream_machine_streamdeck_button_clear` | `{key}` | Clears one key and verifies it is empty. |
+| `stream_machine_streamdeck_release` | `{deleteLayout?}` | Disconnects and resets the deck. With `deleteLayout: true`, also deletes the `stream-machine` page. |
 
-Preview lifetime: five minutes. Invalid positions, missing serial, non-Original geometry, non-HTTP URLs, reused previews, concurrent apply, and running Elgato app reject. Arbitrary commands unsupported. URL passed to fixed `/usr/bin/open` command.
+### Layout
+
+| Keys | Buttons |
+| --- | --- |
+| 0 to 4 | One button per OBS scene, up to 5. Each shows an OBS screenshot of its scene, saved under `~/.stream-machine/streamdeck/`. `scenes` picks scene names in order. The default is the first 5 scenes in OBS order. |
+| 5, 6 | MIC toggles mute on OBS input `mic1`. DESK AUDIO toggles mute on `desktop1`. |
+| 8, 9 | REC toggles recording. GO LIVE toggles streaming. |
+| 10 | STREAM MGR opens the Twitch stream manager. |
+| 11, 12, 14 | With `channel` (a Twitch login): CHAT popout, ACTIVITY feed popout, and MY CHANNEL. |
+
+GO LIVE starts or stops a real stream when pressed.
+
+### Press commands
+
+Button presses run fixed commands with no shell. OBS buttons run `bun dist/streamdeck-action.js <scene NAME|mic|desktop-audio|record|stream>`, which connects to OBS WebSocket at `ws://localhost:4455`. Authentication is not supported, so turn off the OBS WebSocket password. URL buttons run `/usr/bin/open URL`. The server process must keep running for presses to work. Arbitrary commands are unsupported.
 
 ## Run demo
 
@@ -49,21 +65,29 @@ Read inventory:
 mise exec -- bun scripts/streamdeck-demo.ts inventory
 ```
 
-Preview without writes:
+Preview without writes. The channel is a Twitch login or `-` to skip it. Scene names after it are optional:
 
 ```sh
-mise exec -- bun scripts/streamdeck-demo.ts preview AL29G1A04274 https://github.com/users/prime-optimal/projects/18/views/1
+mise exec -- bun scripts/streamdeck-demo.ts preview AL29G1A04274 - "Stream Machine Wicked - Starting"
 ```
 
-After setup authorization, apply and retain keeper:
+After setup authorization, apply and keep the process running:
 
 ```sh
-mise exec -- bun scripts/streamdeck-demo.ts apply AL29G1A04274 https://github.com/users/prime-optimal/projects/18/views/1
+mise exec -- bun scripts/streamdeck-demo.ts apply AL29G1A04274 - "Stream Machine Wicked - Starting"
 ```
 
 Local source override: `STREAM_MACHINE_STREAMDECK_SOURCE=/Users/prime/Documents/ChatGPT/streamdeck-mcp-demo-reference`.
 
-Press top-left **OPEN DEMO**. Expected result: GitHub Project 18 opens in default browser. Keep process running. Prefer integrated `stream_machine_streamdeck_release` for graceful cleanup. Process-group termination can kill child before cleanup and leave saved test page; provider restart does not resume it automatically.
+Press a scene key. Expected result: OBS switches its program scene. Keep the process running. Prefer `stream_machine_streamdeck_release` for graceful cleanup. Process-group termination can kill the child before cleanup and leave the saved page; provider restart does not resume it automatically.
+
+## Hardware verification
+
+2026-11-02. Deck `AL29G1A04274` (Stream Deck Original). OBS scenes: "Stream Machine Wicked - Starting", "Stream Machine Wicked - Live", and "Stream Machine Wicked - BRB".
+
+- Apply read-back passed for 8 buttons.
+- Running the stored key 0 and key 1 commands switched the OBS program scene.
+- Physical press: pending user confirmation.
 
 ## Checks and limits
 

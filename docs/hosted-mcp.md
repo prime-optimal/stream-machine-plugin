@@ -6,7 +6,7 @@ Open the [Stream Machine Site](https://stream-machine-oauth-test.tinycocoa22.cha
 
 On web and mobile, use the canonical plugin that Sites provisions when this Site is published with its `mcp` capability. Sites supplies its remote MCP URL and OAuth resource through `get_site(include_mcp_connection: true)`. On desktop, the Stream Machine Desktop package already registers the hosted endpoint, so you do not install the Site plugin as well.
 
-This repository's `mcp.json` registers two servers: the hosted `stream-machine` server and the local `stream-machine-desktop` server. Hosts authenticate to the hosted endpoint through the Sites connection. Do not paste a Twitch token, shared service token, or user ID into configuration. A service token does not identify a user. The first hosted tool call asks you to sign in through Sites and connect Twitch.
+This repository's `mcp.json` registers three servers: the hosted `stream-machine` server and the local `stream-machine-obs` and `stream-machine-streamdeck` servers. Hosts authenticate to the hosted endpoint through the Sites connection. Do not paste a Twitch token, shared service token, or user ID into configuration. A service token does not identify a user. The first hosted tool call asks you to sign in through Sites and connect Twitch.
 
 Call `stream_machine_twitch_preflight`, then `stream_machine_twitch_status`. Confirm the returned account before reading its channel or creating a title preview. The Site's **Read my channel** button uses an authenticated browser route that invokes the same MCP handler and channel tool without changing Twitch. The remote `/mcp` endpoint requires a bearer-authenticated host connection; browser cookies alone do not authorize it.
 
@@ -14,7 +14,7 @@ Call `stream_machine_twitch_preflight`, then `stream_machine_twitch_status`. Con
 
 After `stream_machine_twitch_status` verifies the account, call the hosted `stream_machine_open`. It returns `{ runtime: "hosted", siteOrigin }` and opens the Stream Machine menu on the hosted server. The menu shows Home, Clips, Connections, and Tools. Connections reads hosted Twitch status and opens the Site through the host. The menu has no OBS or Stream Deck controls.
 
-For those controls, call the OBS and Stream Deck tools from the `stream-machine-desktop` server on a desktop host. The desktop server registers no UI resource, so it has no workspace.
+For those controls, call the OBS tools from `stream-machine-obs` and the Stream Deck tools from `stream-machine-streamdeck` on a desktop host. The local servers register no UI resource, so they have no workspace.
 
 ## Read the home screen
 
@@ -35,7 +35,7 @@ Approval alone does not update Twitch. Previews expire after five minutes. Disco
 
 ## Desktop server
 
-On a desktop host, `stream-machine-desktop` runs beside the hosted server and provides 7 tools: three OBS tools and four USB Stream Deck tools. It has no Twitch tools. The Twitch, update, creative, worker, IGDB, analytics, transcription, and clip media registrations are commented out in `src/server.ts` (#159) and not exposed.
+On a desktop host, `stream-machine-obs` and `stream-machine-streamdeck` run beside the hosted server. `stream-machine-obs` provides 3 OBS tools. `stream-machine-streamdeck` provides 6 USB Stream Deck tools. Neither has Twitch tools. The Twitch, update, creative, worker, IGDB, analytics, transcription, and clip media registrations are commented out in `src/server.ts` (#159) and not exposed.
 
 If you also install the separate Site plugin on desktop, the Twitch tool names duplicate. Keep Twitch on the bundled `stream-machine` server. If the hosted service is unreachable or unconfigured, Twitch is unavailable until it recovers. A 401 requires hosted sign-in. Never replay a mutation through another provider.
 
