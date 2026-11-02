@@ -36,6 +36,12 @@ fnox.local.toml
 !.agents/skills/git-surgeon/
 !.agents/skills/statechart/
 !.agents/skills/mcp-app-ui/
+!.agents/skills/build-chatgpt-app/
+!.agents/skills/chatgpt-app-submission/
+!.agents/skills/evaluate-plugin/
+!.agents/skills/openai-docs/
+!.agents/skills/chatgpt-plugin-dev/
+!.agents/skills/chatgpt-plugin-ui/
 !.agents/skills/statechart/scripts/test/**/*.out
 .omp/
 .claude/

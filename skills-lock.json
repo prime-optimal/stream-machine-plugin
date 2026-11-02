@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "skills": {
+    "build-chatgpt-app": {
+      "source": "openai/plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/openai-developers/skills/build-chatgpt-app/SKILL.md",
+      "computedHash": "81aba003274c616e6f46ab77321ed05bcfc70a6c77eb9f0d5702d98913bd9396"
+    },
+    "chatgpt-app-submission": {
+      "source": "openai/plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/openai-developers/skills/chatgpt-app-submission/SKILL.md",
+      "computedHash": "a93a76b18c21202162ff1ae38bc5f354e90a66ca2eb05f4c29ae42e6d533a48a"
+    },
+    "evaluate-plugin": {
+      "source": "openai/plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/plugin-eval/skills/evaluate-plugin/SKILL.md",
+      "computedHash": "35d850b2ea1ebc61ccff075874979b1b7a1171f9687d0b160dd8deb279a3742c"
+    },
+    "openai-docs": {
+      "source": "openai/skills",
+      "sourceType": "github",
+      "skillPath": "skills/.system/openai-docs/SKILL.md",
+      "computedHash": "c454a9ae38f187932a6c10ec176f77dfbabe29ad95d4c1c82dadfaa27ded9918"
+    }
+  }
+}
