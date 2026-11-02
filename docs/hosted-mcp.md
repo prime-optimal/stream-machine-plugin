@@ -10,6 +10,12 @@ The portable configuration is `mcp.json`. It registers the hosted `stream-machin
 
 Call `stream_machine_twitch_preflight`, then `stream_machine_twitch_status`. Confirm the returned account before reading its channel or creating a title preview. The Site's **Read my channel** button uses an authenticated browser route that invokes the same MCP handler and channel tool without changing Twitch. The remote `/mcp` endpoint requires a bearer-authenticated host connection; browser cookies alone do not authorize it.
 
+## Open the menu
+
+After `stream_machine_twitch_status` verifies the account, call the hosted `stream_machine_open`. It returns `{ runtime: "hosted", siteOrigin }` and opens the Stream Machine menu on the hosted server. The menu shows Home, Clips, Connections, and Tools. Connections reads hosted Twitch status and opens the Site through the host. The menu has no OBS, Stream Deck, creative, or worker controls.
+
+For those controls, call the local `stream_machine_workspace` on a desktop host. An MCP app can call only the server that served it, so the hosted menu and the desktop workspace stay separate. Both servers serve the same `ui://stream-machine/workspace-v4.html` bundle, and the bundle shows sections for the `runtime` that `stream_machine_open` reports.
+
 ## Approve a title
 
 1. Call `stream_machine_twitch_preview_title` with the exact title.

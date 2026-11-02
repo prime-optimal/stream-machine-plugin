@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { connectionUrl, createConnectionState } from "../src/ui/connections";
+import { connectionUrl, createConnectionState, hostedConnectUrl, localConnectUrl } from "../src/ui/connections";
 import { requiredTwitchScopes, twitchConsentDisclosure, twitchPermissions } from "../src/auth/permissions";
 import type { ToolResult } from "../src/ui/tool-transport";
 
@@ -82,7 +82,30 @@ describe("Twitch Connections", () => {
     expect(model.state().connect.kind).toBe("failed");
     for (const url of ["javascript:alert(1)", "https://example.com/connect", "http://localhost:4017/approve",
       "http://owner:secret@localhost:4017/connect", "http://localhost:4017/connect?next=other", "http://localhost:4017/connect#token"])
-      expect(() => connectionUrl(url)).toThrow();
+      expect(() => connectionUrl(url, localConnectUrl)).toThrow();
+  });
+  test("connectionUrl accepts only the exact allowed origin and path", () => {
+    const site = "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site";
+    expect(connectionUrl(localConnectUrl, localConnectUrl)).toBe(localConnectUrl);
+    expect(connectionUrl(`${site}/`, hostedConnectUrl(site))).toBe(`${site}/`);
+    expect(() => connectionUrl(localConnectUrl, hostedConnectUrl(site))).toThrow();
+    expect(() => connectionUrl(`${site}/`, localConnectUrl)).toThrow();
+    for (const url of [`${site}/other`, `${site}/?next=x`, `${site}/#token`, "https://owner:secret@stream-machine-oauth-test.tinycocoa22.chatgpt.site/",
+      "https://evil.example/", `${site}.evil.example/`, "javascript:alert(1)"])
+      expect(() => connectionUrl(url, hostedConnectUrl(site))).toThrow();
+  });
+  test("hosted connect skips preflight and never asks for a browser", async () => {
+    const site = "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site";
+    const calls: { name: string; args?: Record<string, unknown> }[] = [];
+    const hostedLink = (url: string): ToolResult => ({ structuredContent: { twitch: { mode: "live", connectionUrl: url, authorizationUrl: url,
+      browserRequested: false, disclosure: "Synthetic consent response", ...twitchPermissions([]) } } });
+    const model = createConnectionState(async (name, args) => { calls.push({ name, args }); return hostedLink(`${site}/`); }, () => {}, () => {}, () => ({ runtime: "hosted", siteOrigin: site }));
+    await model.startConnect();
+    expect(calls).toEqual([{ name: "stream_machine_twitch_connect", args: undefined }]);
+    expect(model.state().connect).toMatchObject({ kind: "link", url: `${site}/`, browserRequested: false });
+    const hostile = createConnectionState(async () => hostedLink("https://evil.example/"), () => {}, () => {}, () => ({ runtime: "hosted", siteOrigin: site }));
+    await hostile.startConnect();
+    expect(hostile.state().connect.kind).toBe("failed");
   });
   test("busy port and browser failures stay actionable without automatic retries", async () => {
     for (const [code, message] of [["TWITCH_LOCAL_PORT_BUSY", "port 4017 is in use"], ["TWITCH_LOCAL_PORT_PLUGIN", "Another Stream Machine chat"], ["TWITCH_BROWSER_OPEN_FAILED", "browser could not be opened"]]) {

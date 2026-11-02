@@ -11,13 +11,15 @@ Sites sign-in identifies the caller. Twitch consent connects that caller's chann
 
 Keep status, channel reads, previews, and apply calls on the same provider. Open the returned hosted connection or approval URL through the host's navigation. Hosted connect returns a link; it does not launch a browser on the server.
 
+After hosted `stream_machine_twitch_status` verifies the account, call the hosted `stream_machine_open`. It opens the hosted Stream Machine menu with Twitch status, clips, and Twitch tools. Then offer the title preview. Device controls (OBS, Stream Deck, creative, and worker) are not in the hosted menu. Open them with the local `stream_machine_workspace` on a desktop host.
+
 ## Choose the local fallback
 
 Offer the local Twitch tools when the hosted service is unreachable, returns a server error, or is unconfigured, and a desktop runtime is available. Wait for the user's choice. A hosted 401 requires hosted sign-in. Denied consent, cancellation, invalid state, or revoked access never starts local OAuth. Never replay a failed mutation through localhost.
 
 On a desktop host, the `stream-machine-local` server also exposes Twitch tools with the same names. Use them only after the user selects the desktop fallback. Verify the local Twitch account before using it. If it differs from the hosted account, ask before proceeding. Hosted consent does not connect the local store.
 
-The `stream-machine-local` server also provides `stream_machine_open`, OBS, Stream Deck, creative, transcription, and worker tools. Use them directly; they do not require the fallback choice. Open the workspace only when that local tool exists. Explain that the fictional demo is separate from real controls.
+The `stream-machine-local` server also provides `stream_machine_workspace`, OBS, Stream Deck, creative, transcription, and worker tools. Use them directly; they do not require the fallback choice. Open the desktop device workspace with `stream_machine_workspace` only when that local tool exists. Explain that the fictional demo is separate from real controls.
 
 ## Check the selected connection
 
@@ -71,5 +73,5 @@ assistant: "I'll check OBS, then show the requested message in the Stream Machin
 
 <example>
 user: "Connect my Twitch account."
-assistant: "I'll open the Stream Machine Site connection, then verify which account connected."
+assistant: "I'll open the Stream Machine Site connection and verify which account connected. Then I'll open the hosted Stream Machine menu and offer a title preview."
 </example>

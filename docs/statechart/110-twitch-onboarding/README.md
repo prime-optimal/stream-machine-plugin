@@ -84,6 +84,12 @@ The model abstracts the 5-second retry as at most two failed retries followed by
 
 The chart hides these steps because they do not change what you see: another process claiming the port, the stopped process exiting, a failed retry, a holder change on the busy screen, waiting for the user, a recheck from the unchecked, port-available, and busy screens, and a chat link request from any screen but the first. Their effects stay visible in the bind, replace, and retry results. The generated chart has 22 states and 41 arrows. That is more than the 20 the skill recommends, and each remaining arrow ends in a different state or carries a different reason.
 
+## Hosted menu after consent
+
+Issue #157 adds a step that this model does not cover. After hosted `stream_machine_twitch_status` verifies the account, the onboarding skill calls the hosted `stream_machine_open`, which opens the hosted Stream Machine menu. That step uses no callback port, so none of the rules above apply to it.
+
+The port checks, the replace flow, and the idle release describe the desktop fallback only. In the desktop workspace, the UI now shows a link to the Site first and places the preflight, **Connect with Twitch**, and **Stop the other chat and connect** inside a **Use desktop fallback** disclosure. The hosted Connect action runs no preflight, requests no browser, and opens only the Site URL through the host. The `src/ui/connections.ts` line numbers in the correspondence list above predate this change and have drifted.
+
 ## Regenerate the checked artifacts
 
 Run from the repository root with a fresh output directory:

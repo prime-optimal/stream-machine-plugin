@@ -1,8 +1,9 @@
 import { version } from "../version";
 import { createClips } from "./clips";
 import { createLiveDemos } from "./live-demos";
-import { createNavigation, sectionLabels, sections, type Section } from "./navigation";
+import { createNavigation, openSchema, sectionLabels, visibleSections, type Runtime, type Section } from "./navigation";
 import { createConnections } from "./connections";
+import { siteOrigin as defaultSiteOrigin } from "../site";
 import { createToolRequest, type ToolResult } from "./tool-transport";
 import { App } from "@modelcontextprotocol/ext-apps";
 import { OpenAIExtensions } from "@openai/mcp-extensions/app";
@@ -24,13 +25,14 @@ const app = new App({ name: "Stream Machine", version });
 const extensions = new OpenAIExtensions(app);
 const requestTool = createToolRequest({ standalone, native: input => app.callServerTool(input) });
 const liveDemos = createLiveDemos(requestTool);
-const clips = createClips({
-  request: requestTool,
-  openLink: url => { if (standalone) window.open(url, "_blank", "noopener,noreferrer"); else void app.openLink({ url }).catch(() => {}); },
-});
+const openLink = (url: string) => { if (standalone) window.open(url, "_blank", "noopener,noreferrer"); else void app.openLink({ url }).catch(() => {}); };
+const clips = createClips({ request: requestTool, openLink });
 const mockPanel = document.createElement("section");
 mockPanel.dataset.view = "mock";
-const connections = createConnections({ request: requestTool, invalidateTitle: liveDemos.invalidateTitle,
+let runtime: Runtime = "local";
+let siteOrigin = defaultSiteOrigin;
+const connections = createConnections({ request: requestTool, invalidateTitle: liveDemos.invalidateTitle, openLink,
+  context: () => ({ runtime, siteOrigin }),
 });
 let snapshot: Snapshot | null = null;
 let selectedRecipe = "prepare-channel";
@@ -69,10 +71,27 @@ function showError(message: string): void {
   if (alert) { alert.textContent = message; alert.hidden = !message; }
 }
 
+function setRuntime(next: Runtime, nextOrigin: string): void {
+  if (next === runtime && nextOrigin === siteOrigin && !badge.hidden) return;
+  runtime = next; siteOrigin = nextOrigin;
+  liveDemos.setRuntime(runtime);
+  navigation.show(visibleSections(runtime));
+  badge.hidden = false;
+  badge.textContent = runtime === "hosted" ? "Hosted" : "Desktop workspace";
+  desktopNote.hidden = runtime !== "hosted";
+  renderCards();
+  connections.refresh();
+}
+
 function accept(result: ToolResult): void {
   const data = result.structuredContent as Snapshot | { error?: { message?: string } } | undefined;
   if (result.isError || (data && "error" in data)) {
     throw new Error(data && "error" in data ? data.error?.message || "That action could not be completed." : "That action could not be completed.");
+  }
+  const open = openSchema.safeParse(data);
+  if (open.success) {
+    setRuntime(open.data.runtime, open.data.siteOrigin);
+    if (open.data.runtime === "hosted") { error = ""; render(); return; }
   }
   if (!data || !("mode" in data) || data.mode !== "mock" || !Array.isArray(data.recipes)) {
     throw new Error("The demo returned an unexpected response. Try opening Stream Machine again.");
@@ -148,16 +167,18 @@ function applyHost(): void {
 
 app.ontoolresult = (result) => {
   const data = result.structuredContent;
-  if (!data || typeof data !== "object" || !("mode" in data) || data.mode !== "mock") return;
+  if (!data || typeof data !== "object" || !("mode" in data || "runtime" in data)) return;
+  if ("mode" in data && data.mode !== "mock") return;
   try { rememberDraft(); accept(result); } catch (cause) { showError(cause instanceof Error ? cause.message : "Could not load the workspace."); }
 };
 app.addEventListener("hostcontextchanged", applyHost);
 app.onteardown = async () => { connections.dispose(); clips.dispose(); return {}; };
 const shell = document.createElement("div");
 shell.className = "shell";
-shell.innerHTML = '<header class="app-header"><span class="brand">Stream Machine</span><span class="badge">Local workspace</span></header><nav class="workspace-nav" aria-label="Workspace sections"></nav><main id="workspace-main"></main><p id="host-error" role="alert" hidden></p>';
+shell.innerHTML = '<header class="app-header"><span class="brand">Stream Machine</span><span class="badge" id="runtime-badge" hidden></span></header><nav class="workspace-nav" aria-label="Workspace sections"></nav><main id="workspace-main"></main><p id="host-error" role="alert" hidden></p>';
 root.append(shell);
 const main = shell.querySelector("main")!;
+const badge = shell.querySelector<HTMLElement>("#runtime-badge")!;
 function panel(section: Exclude<Section, "mock">, description: string, content?: HTMLElement) {
   const node = document.createElement("section");
   node.dataset.view = section; node.className = "workspace-panel";
@@ -181,11 +202,16 @@ const navigation = createNavigation(shell.querySelector("nav")!, panels, section
   if (section === "clips") clips.enter(); else clips.leave();
 });
 const cards = document.createElement("div"); cards.className = "home-actions";
-for (const section of sections.filter(section => section !== "home")) {
-  const button = document.createElement("button"); button.type = "button"; button.className = "live-button";
-  button.textContent = sectionLabels[section]; button.addEventListener("click", () => navigation.select(section)); cards.append(button);
+const desktopNote = document.createElement("p"); desktopNote.className = "desktop-note"; desktopNote.hidden = true;
+desktopNote.textContent = "OBS, Stream Deck, creative, and worker controls run in the desktop workspace. Ask ChatGPT to open the Stream Machine workspace on your desktop.";
+function renderCards() {
+  cards.replaceChildren(...visibleSections(runtime).filter(section => section !== "home").map(section => {
+    const button = document.createElement("button"); button.type = "button"; button.className = "live-button";
+    button.textContent = sectionLabels[section]; button.addEventListener("click", () => navigation.select(section)); return button;
+  }));
 }
-panels.home.append(cards);
+renderCards();
+panels.home.append(desktopNote, cards);
 render();
 if (standalone) {
   void call("stream_machine_open");

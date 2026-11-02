@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { twitchConsentSummary, requiredTwitchScopes } from "../auth/permissions";
+import type { Runtime } from "./navigation";
 import type { ToolRequest, ToolResult } from "./tool-transport";
 
 const record = z.record(z.string(), z.unknown());
@@ -160,6 +161,8 @@ export function createLiveDemos(request: ToolRequest) {
   worker.action("Arm configured event → OBS action", () => void worker.invoke("worker_arm", {}, true));
   worker.action("Pause new actions", () => void worker.invoke("worker_pause", {}, true));
   worker.action("Stop worker", () => void worker.invoke("worker_stop", {}, true));
-  const tools = element("div"); tools.className = "live-grid"; tools.append(obs.node, twitch.node, worker.node);
-  return { assets: creative.node, streamdeck: deck.node, tools, invalidateTitle };
+  const tools = element("div"); tools.className = "live-grid";
+  function setRuntime(runtime: Runtime) { tools.replaceChildren(...(runtime === "hosted" ? [twitch.node] : [obs.node, twitch.node, worker.node])); }
+  setRuntime("local");
+  return { assets: creative.node, streamdeck: deck.node, tools, invalidateTitle, setRuntime };
 }
