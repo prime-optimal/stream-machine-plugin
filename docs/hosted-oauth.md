@@ -1,6 +1,6 @@
 # Test hosted Twitch OAuth
 
-Open the [hosted OAuth test](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site) in a browser or on a phone. Sign in with ChatGPT, then choose **Connect Twitch** and complete Twitch consent.
+Open the [hosted OAuth test](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site) in a browser or on a phone. Sign in with ChatGPT, then choose **Connect with Twitch** and complete Twitch consent.
 
 The test uses the existing Stream Machine Twitch app. The user confirmed registration of this callback:
 
