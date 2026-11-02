@@ -1,8 +1,9 @@
 import { z } from "zod";
+import type { ToolResult } from "./tool-transport";
 
 const nullableString = z.string().nullable();
 const storedSchema = z.object({
-  fileId: z.string(), playbackUrl: z.string(), downloadUrl: z.string(), bytes: z.number(), storedAt: z.string(),
+  fileId: z.string().min(1), playbackUrl: z.string(), downloadUrl: z.string(), bytes: z.number().finite().nonnegative(), storedAt: z.string(),
 });
 const clipSchema = z.object({
   id: z.string().min(1), title: z.string(), url: z.string(), createdAt: z.string(),
@@ -56,8 +57,8 @@ export function parseZipBatches(value: unknown): ZipBatch[] {
 }
 
 const archiveSchema = z.object({ archive: z.object({
-  saved: z.array(z.object({ clipId: z.string() })),
-  skipped: z.array(z.object({ clipId: z.string() })),
+  saved: z.array(z.object({ clipId: z.string(), stored: storedSchema.optional() })),
+  skipped: z.array(z.object({ clipId: z.string(), stored: storedSchema.optional() })),
   failed: z.array(z.object({ clipId: z.string(), code: z.string(), outcome: z.string() })),
 }) });
 
@@ -67,6 +68,41 @@ export function parseArchive(value: unknown) {
   const parsed = archiveSchema.safeParse(value);
   if (!parsed.success) throw new ClipLibraryError("INVALID_RESPONSE", "The save tool returned an unexpected response.");
   return parsed.data.archive;
+}
+
+export type StoredClip = z.infer<typeof storedSchema>;
+export type PreparationResult =
+  | { kind: "ready"; stored: StoredClip; alreadyStored: boolean }
+  | { kind: "failed" | "unknown" | "unconfirmed"; message: string }
+  | { kind: "cancelled" };
+
+export function siteMediaUrl(value: unknown, siteOrigin: string): string {
+  const safe = safeHttpsUrl(value);
+  if (!safe) return "";
+  const url = new URL(safe);
+  return url.origin === siteOrigin && url.pathname.startsWith("/api/user-data/files/") && !url.hash ? safe : "";
+}
+
+export function playableStored(stored: StoredClip, siteOrigin: string): boolean {
+  return Boolean(siteMediaUrl(stored.playbackUrl, siteOrigin) && siteMediaUrl(stored.downloadUrl, siteOrigin));
+}
+
+export function resolveArchive(result: ToolResult, clipId: string, siteOrigin: string): PreparationResult {
+  const unconfirmed: PreparationResult = { kind: "unconfirmed", message: "The save is not confirmed. Reload the library to check this clip before another save." };
+  if (result.isError) return { kind: "unknown", message: "The save outcome is unknown. Reload the library to check before another save." };
+  try {
+    const archive = parseArchive(result.structuredContent);
+    const successes = [...archive.saved, ...archive.skipped].filter(item => item.clipId === clipId);
+    const failures = archive.failed.filter(item => item.clipId === clipId);
+    if (successes.length + failures.length !== 1) return unconfirmed;
+    const failure = failures[0];
+    if (failure) return failure.outcome === "failed"
+      ? { kind: "failed", message: `The clip could not be saved (${failure.code}).` }
+      : { kind: "unknown", message: "The save outcome is unknown. Reload the library to check before another save." };
+    const stored = successes[0]?.stored;
+    if (!stored || !playableStored(stored, siteOrigin)) return unconfirmed;
+    return { kind: "ready", stored, alreadyStored: archive.skipped.some(item => item.clipId === clipId) };
+  } catch { return unconfirmed; }
 }
 
 export function faultMessage(code: string): string {

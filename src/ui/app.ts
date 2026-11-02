@@ -1,5 +1,6 @@
 import { version } from "../version";
 import { createClips } from "./clips";
+import { createClipAccountStatus } from "./clips-account";
 import { createLiveDemos } from "./live-demos";
 import { createNavigation, openSchema, sectionLabels, visibleSections, type Runtime, type Section } from "./navigation";
 import { createConnections } from "./connections";
@@ -21,17 +22,29 @@ type Snapshot = {
   preview: null | { id: string; mode: "mock"; recipeId: string; account: Account; before: Channel; after: Channel; effects: string[]; executable: false; createdAt: string };
 };
 const root = document.querySelector<HTMLDivElement>("#app")!;
-const standalone = new URLSearchParams(location.search).get("preview") === "1";
+const galleryPage = location.pathname === "/clips" || location.pathname === "/clips/";
+const standalone = galleryPage || new URLSearchParams(location.search).get("preview") === "1";
 const app = new App({ name: "Stream Machine", version });
 const extensions = new OpenAIExtensions(app);
-const requestTool = createToolRequest({ standalone, native: input => app.callServerTool(input) });
+let siteOrigin = defaultSiteOrigin;
+const rawRequest = createToolRequest({ standalone, native: input => app.callServerTool(input) });
+const clipAccountStatus = createClipAccountStatus(id => {
+  clips.setAccount(id);
+  if (id && navigation.current() === "clips") clips.enter();
+});
+const requestTool: typeof rawRequest = async (name, args) => {
+  if (name === "stream_machine_twitch_connect" || name === "stream_machine_twitch_disconnect") {
+    clipAccountStatus.invalidate(); clips.setAccount(null, true);
+  }
+  if (name === "stream_machine_twitch_status") return clipAccountStatus.read(() => rawRequest(name, args));
+  return rawRequest(name, args);
+};
 const liveDemos = createLiveDemos(requestTool);
 const openLink = (url: string) => { if (standalone) window.open(url, "_blank", "noopener,noreferrer"); else void app.openLink({ url }).catch(() => {}); };
-const clips = createClips({ request: requestTool, openLink });
+const clips = createClips({ request: requestTool, openLink, siteOrigin: () => siteOrigin });
 const mockPanel = document.createElement("section");
 mockPanel.dataset.view = "mock";
 let runtime: Runtime = "local";
-let siteOrigin = defaultSiteOrigin;
 const home = createHome({
   request: requestTool, openLink, icon, standalone,
   messageSupported: () => app.getHostCapabilities()?.message?.text !== undefined,
@@ -41,9 +54,10 @@ const home = createHome({
 const connections = createConnections({ request: requestTool, invalidateTitle: liveDemos.invalidateTitle, openLink,
   context: () => ({ runtime, siteOrigin }),
   onVerified: account => {
+    if (clipAccountStatus.accountId() !== account.id) return;
     if (runtime !== "hosted" || home.connectedAccountId() === account.id) return;
     void home.verified(account);
-    navigation.select("home", false);
+    navigation.select(galleryPage ? "clips" : "home", false);
   },
 });
 let snapshot: Snapshot | null = null;
@@ -85,7 +99,9 @@ function showError(message: string): void {
 
 function setRuntime(next: Runtime, nextOrigin: string): void {
   if (next === runtime && nextOrigin === siteOrigin && !badge.hidden) return;
+  const changed = next !== runtime || nextOrigin !== siteOrigin;
   runtime = next; siteOrigin = nextOrigin;
+  if (changed) { clipAccountStatus.invalidate(); clips.setAccount(null, true); }
   liveDemos.setRuntime(runtime);
   navigation.show(visibleSections(runtime));
   badge.hidden = false;
@@ -104,7 +120,7 @@ function accept(result: ToolResult): void {
   const open = openSchema.safeParse(data);
   if (open.success) {
     setRuntime(open.data.runtime, open.data.siteOrigin);
-    if (open.data.runtime === "hosted") { error = ""; render(); return; }
+    if (open.data.runtime === "hosted") { error = ""; render(); if (galleryPage) navigation.select("clips", false); return; }
   }
   if (!data || !("mode" in data) || data.mode !== "mock" || !Array.isArray(data.recipes)) {
     throw new Error("The demo returned an unexpected response. Try opening Stream Machine again.");
@@ -187,7 +203,7 @@ app.ontoolresult = (result) => {
 app.addEventListener("hostcontextchanged", applyHost);
 const systemTheme = matchMedia("(prefers-color-scheme: light)");
 systemTheme.addEventListener("change", applyHost);
-app.onteardown = async () => { systemTheme.removeEventListener("change", applyHost); connections.dispose(); clips.dispose(); home.dispose(); return {}; };
+app.onteardown = async () => { clipAccountStatus.invalidate(); systemTheme.removeEventListener("change", applyHost); connections.dispose(); clips.dispose(); home.dispose(); return {}; };
 const shell = document.createElement("div");
 shell.className = "shell";
 shell.innerHTML = '<header class="app-header"><span class="brand">Stream Machine</span><span class="badge" id="runtime-badge" hidden></span></header><nav class="workspace-nav" aria-label="Workspace sections"></nav><main id="workspace-main"></main><p id="host-error" role="alert" hidden></p>';

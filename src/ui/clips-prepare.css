@@ -1,0 +1,5 @@
+.clips-prepare { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px; border: 1px solid var(--line); background: var(--panel); border-radius: 4px; }
+.clips-prepare > p { flex-basis: 100%; margin: 0; }
+.clips-prepare button { min-height: 44px; }
+.clips-prepare-failures { flex-basis: 100%; overflow-wrap: anywhere; font-size: 14px; }
+.clip-player > .play-button { margin-top: 12px; min-height: 44px; }

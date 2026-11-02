@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   ClipLibraryError, allCategories, categoriesOf, formatBytes, formatDuration, formatOffset, mergePage, parseLibrary,
-  parseZipBatches, safeHttpsUrl, uncategorized, visibleClips, type ClipItem,
+  parseArchive, parseZipBatches, safeHttpsUrl, uncategorized, visibleClips, type ClipItem,
 } from "../src/ui/clips-state";
 
 function clip(id: string, over: Partial<ClipItem> = {}): ClipItem {
@@ -51,6 +51,10 @@ describe("clip gallery state", () => {
 });
 
 describe("clip tool results", () => {
+  test("preserves stored metadata needed to play an archived clip directly", () => {
+    const stored = { fileId: "id", playbackUrl: "https://site.example/api/user-data/files/id", downloadUrl: "https://site.example/api/user-data/files/id", bytes: 42, storedAt: "2026-11-02T00:00:00Z" };
+    expect(parseArchive({ archive: { saved: [{ clipId: "a", stored }], skipped: [], failed: [] } }).saved[0]).toEqual({ clipId: "a", stored });
+  });
   test("parses a library page and rejects malformed or faulted results", () => {
     const page = { clips: { account: { id: "1", login: "l", displayName: "L" }, items: [clip("a")], cursor: "next", storage: "site" } };
     expect(parseLibrary(page).cursor).toBe("next");

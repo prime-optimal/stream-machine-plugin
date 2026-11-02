@@ -1,11 +1,14 @@
 import { button, el, type OpenLink } from "./clips-dom";
 import { createDetail } from "./clips-detail";
 import {
-  allCategories, categoriesOf, formatDate, formatDuration, formatViews, mergePage, parseArchive, parseLibrary, safeHttpsUrl,
+  allCategories, categoriesOf, formatDate, formatDuration, formatViews, mergePage, parseLibrary, safeHttpsUrl,
   thumbnailHosts, visibleClips, ClipLibraryError, type ClipFilter, type ClipItem, type ClipPage, type ClipSort,
 } from "./clips-state";
 import { createZip } from "./clips-zip";
+import { createPreparation } from "./clips-prepare";
+import { createBulkPreparation } from "./clips-bulk";
 import type { ToolRequest } from "./tool-transport";
+import "./clips-prepare.css";
 
 type Load =
   | { kind: "idle" } | { kind: "loading" } | { kind: "ready" }
@@ -13,7 +16,7 @@ type Load =
 
 const pageSize = 24;
 
-export function createClips(options: { request: ToolRequest; openLink: OpenLink }) {
+export function createClips(options: { request: ToolRequest; openLink: OpenLink; siteOrigin: () => string }) {
   const element = el("div", "", "clips-panel");
   let account: ClipPage["account"] | null = null;
   let storage: "site" | "local" = "local";
@@ -24,9 +27,22 @@ export function createClips(options: { request: ToolRequest; openLink: OpenLink 
   let filter: ClipFilter = { search: "", category: allCategories };
   let sort: ClipSort = "newest";
   let scroll = 0;
+  let identity: string | null = null;
+  let disposed = false;
+  let preparation = makePreparation();
+
+  function makePreparation() {
+    return createPreparation({ request: options.request, siteOrigin: options.siteOrigin(), changed: () => bulk.refresh(), stored: fresh => {
+      items = items.map(item => item.id === fresh.id ? fresh : item);
+      paint();
+    } });
+  }
 
   const zip = createZip(options.request, options.openLink);
-  const detail = createDetail({ openLink: options.openLink, zip: zip.view(), back: closeDetail, save: saveClip });
+  const detail = createDetail({ openLink: options.openLink, zip: zip.view(), back: closeDetail, siteOrigin: options.siteOrigin,
+    prepare: (clip, retry) => preparation.prepare(clip, retry),
+  });
+  const bulk = createBulkPreparation({ request: options.request, accountId: () => account?.id ?? null, controller: () => preparation });
   const gallery = el("div", "", "clip-gallery");
   const header = el("div", "", "clips-header");
   const toolbar = el("div", "", "clips-toolbar");
@@ -84,7 +100,7 @@ export function createClips(options: { request: ToolRequest; openLink: OpenLink 
   function paintHeader() {
     header.replaceChildren();
     if (account) header.append(el("p", `${account.displayName} · @${account.login} · ${storage === "site" ? "Site library" : "Local server, no Site storage"}`, "clips-account"));
-    if (storage === "site") header.append(galleryZip);
+    if (storage === "site") header.append(bulk.element, galleryZip);
   }
 
   function paint() {
@@ -107,7 +123,7 @@ export function createClips(options: { request: ToolRequest; openLink: OpenLink 
   }
 
   async function fetchPage(next: boolean) {
-    if (load.kind === "loading") return;
+    if (disposed || load.kind === "loading") return;
     const mine = ++revision;
     load = { kind: "loading" };
     paint();
@@ -117,6 +133,12 @@ export function createClips(options: { request: ToolRequest; openLink: OpenLink 
       const result = await options.request("stream_machine_clips_library", args);
       if (mine !== revision) return;
       const page = parseLibrary(result.structuredContent ?? (result.isError ? { error: { code: "CLIP_UNAVAILABLE" } } : null));
+      if (identity && identity !== page.account.id) {
+        setAccount(null);
+        load = { kind: "failed", message: "The Twitch account changed. Reload the gallery before continuing." };
+        paint(); return;
+      }
+      identity = page.account.id;
       account = page.account; storage = page.storage; cursor = page.cursor;
       items = next ? mergePage(items, page.items) : page.items;
       load = { kind: "ready" };
@@ -127,37 +149,16 @@ export function createClips(options: { request: ToolRequest; openLink: OpenLink 
     paint();
   }
 
-  async function refreshClip(id: string): Promise<ClipItem | null> {
-    let next: string | null = null;
-    for (let attempt = 0; attempt < 10; attempt++) {
-      const args: Record<string, unknown> = { first: pageSize };
-      if (next) args.cursor = next;
-      const result = await options.request("stream_machine_clips_library", args);
-      const page = parseLibrary(result.structuredContent ?? (result.isError ? { error: { code: "CLIP_UNAVAILABLE" } } : null));
-      const found = page.items.find(item => item.id === id);
-      if (found) return found;
-      next = page.cursor;
-      if (!next) return null;
-    }
-    return null;
-  }
-
-  async function saveClip(clip: ClipItem): Promise<string | null> {
-    try {
-      const result = await options.request("stream_machine_clips_archive", { clipId: clip.id });
-      const outcome = parseArchive(result.structuredContent ?? (result.isError ? { error: { code: "CLIP_UNAVAILABLE" } } : null));
-      const failure = outcome.failed.find(item => item.clipId === clip.id);
-      if (failure) return failure.outcome === "unknown" ? "The save outcome is unknown. Reload clips and check this clip before trying again." : `The clip could not be saved (${failure.code}).`;
-      if (![...outcome.saved, ...outcome.skipped].some(item => item.clipId === clip.id)) return "The Site did not report this clip as saved.";
-      const fresh = await refreshClip(clip.id);
-      if (!fresh?.stored) return "The clip was saved, but the library does not list it yet. Reload clips to see it.";
-      items = items.map(item => item.id === fresh.id ? fresh : item);
-      paint();
-      if (!detail.element.hidden) detail.show(fresh, storage);
-      return null;
-    } catch (cause) {
-      return cause instanceof ClipLibraryError ? cause.message : "The save request failed. Reload clips to check before trying again.";
-    }
+  function setAccount(id: string | null, force = false) {
+    if ((!force && id === identity) || disposed) return;
+    revision++; identity = id;
+    preparation.dispose();
+    preparation = makePreparation();
+    bulk.reset(); zip.reset(); detail.hide(); gallery.hidden = false;
+    account = null; items = []; cursor = null; storage = "local";
+    filter = { search: "", category: allCategories }; search.value = "";
+    sort = "newest"; order.value = sort; load = { kind: "idle" };
+    paint();
   }
 
   function openDetail(clip: ClipItem) {
@@ -178,15 +179,17 @@ export function createClips(options: { request: ToolRequest; openLink: OpenLink 
   }
 
   function leave() {
+    bulk.cancel();
     if (!detail.element.hidden) closeDetail();
   }
 
   function dispose() {
-    revision++;
+    disposed = true; revision++;
+    preparation.dispose(); bulk.dispose();
     detail.hide();
     zip.dispose();
   }
 
   paint();
-  return { element, enter, leave, dispose };
+  return { element, enter, leave, dispose, setAccount };
 }
