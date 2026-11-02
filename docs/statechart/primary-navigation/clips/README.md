@@ -72,7 +72,7 @@ The diagram also omits eleven same-state steps: waits for the user and a failed 
 
 One account context and one selected clip keep the model small. Account invalidation resets the UI; it does not cancel a server download or delete a completed local file. Backend reconciliation, old callbacks, multiple accounts or app instances, OAuth redirects, scopes, ownership enforcement, and credential storage need separate models or runtime tests.
 
-The model excludes pagination, filters, transcripts, codec support, media transport, file retention, and cross-device storage. It checks safety, not eventual completion. The authenticated account and media/file verification results are abstract inputs, not proof that any real provider or host performed those checks.
+The model excludes pagination, filters, transcripts, codec support, media transport, file retention, and cross-device storage. It checks safety, not eventual completion. The authenticated account and media/file verification results are abstract inputs, not evidence that any real provider or host performed those checks.
 
 ## Reproduce the check
 

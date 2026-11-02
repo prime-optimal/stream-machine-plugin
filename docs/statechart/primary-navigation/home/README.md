@@ -27,7 +27,7 @@ stateDiagram-v2
   s4 --> s1: return Home with context saved
 ```
 
-The chart combines Assets, Clips, and Stream Deck destinations into Selected workspace. Task cards, recipes, and recent items keep their distinct context in the model. Connections is a navigation handoff, not proof that setup succeeded.
+The chart combines Assets, Clips, and Stream Deck destinations into Selected workspace. Task cards, recipes, and recent items keep their distinct context in the model. Connections is a navigation handoff, not evidence that setup succeeded.
 
 ## Checked rules
 

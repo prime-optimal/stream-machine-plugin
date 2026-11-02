@@ -7,6 +7,7 @@ import { registerStreamDeckTools } from "./adapters/streamdeck/register";
 import { registerTwitchTools } from "./adapters/twitch/register";
 import { registerCreativeTools } from "./adapters/design/register";
 import { registerWorkerTools } from "./worker/register";
+import { registerGameTools } from "./adapters/igdb/register";
 import { registerTranscriptionTool } from "./adapters/openai/transcription-register";
 
 export const UI_URI = "ui://stream-machine/workspace-v4.html";
@@ -46,6 +47,7 @@ export function createServer(html: string) {
   registerTwitchTools(server);
   registerCreativeTools(server);
   registerWorkerTools(server);
+  registerGameTools(server);
   const transcription = registerTranscriptionTool(server);
   server.server.onclose = () => { transcription.close(); void deck.close().catch(() => process.stderr.write("Stream Deck cleanup failed.\n")); };
   server.registerResource("stream-machine-workspace", UI_URI, {

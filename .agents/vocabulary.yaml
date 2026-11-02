@@ -159,3 +159,5 @@ rejected:
     reason: Ordinary verb; publish also means release publishing, so a mapping is unsafe.
   - term: native host
     reason: Native host contrasts with browser preview; desktop host means the computer running local processes.
+  - term: view
+    reason: View names UI views and saved board views; evidence means verification records.
