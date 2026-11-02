@@ -11,8 +11,8 @@ const legacy = await Bun.file(`${root}/.codex-plugin/plugin.json`).json();
 assert.equal(manifest.version, legacy.version);
 assert.deepEqual(manifest.extensions["com.openai"].interface.defaultPrompt, legacy.interface.defaultPrompt);
 const launch = z.object({ command: z.string(), args: z.array(z.string()), cwd: z.string() });
-const config = z.object({ mcpServers: z.object({ "stream-machine": launch }) }).parse(await Bun.file(`${root}/mcp.local.json`).json());
-const selected = config.mcpServers["stream-machine"];
+const config = z.object({ mcpServers: z.object({ "stream-machine-local": launch }) }).parse(await Bun.file(`${root}/mcp.json`).json());
+const selected = config.mcpServers["stream-machine-local"];
 const client = new Client({ name: "stream-machine-package-check", version });
 try {
   await client.connect(new StdioClientTransport({

@@ -19,7 +19,7 @@
       "interface": {
         "displayName": "Stream Machine",
         "shortDescription": "Run your streaming demos",
-        "longDescription": "Connect Twitch through the Stream Machine ChatGPT Site. Read your channel, preview a title, and approve the exact change in your browser. Local fallback supports OBS, USB Stream Deck, creative workflows, and a separately started event worker. Desktop features require local provider tools.",
+        "longDescription": "Connect Twitch through the Stream Machine ChatGPT Site. Read your channel, preview a title, and approve the exact change in your browser. On desktop, a local server adds OBS, USB Stream Deck, creative workflows, a separately started event worker, and a local Twitch fallback.",
         "developerName": "prime-optimal",
         "capabilities": [
           "Interactive"

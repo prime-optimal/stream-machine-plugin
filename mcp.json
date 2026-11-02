@@ -4,6 +4,12 @@
     "stream-machine": {
       "type": "streamable-http",
       "url": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/mcp"
+    },
+    "stream-machine-local": {
+      "type": "stdio",
+      "command": "fnox",
+      "args": ["--config", "${PLUGIN_ROOT}/fnox.toml", "--if-missing", "ignore", "--non-interactive", "exec", "--", "bun", "${PLUGIN_ROOT}/dist/server.js"],
+      "cwd": "${PLUGIN_ROOT}"
     }
   }
 }

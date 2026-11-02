@@ -33,7 +33,9 @@ The following decisions define the initial demo.
 
 ## Hosted Twitch tools
 
-Issue [#130](https://github.com/prime-optimal/stream-machine-plugin/issues/130) supersedes local stdio as the default Twitch transport. The existing OAuth Site hosts stateless `POST /mcp`; publishing its `mcp` capability provisions the canonical Sites plugin. The local stdio server remains an explicit desktop fallback, configured through `mcp.local.json`. OBS, USB Stream Deck, local audio, and the independent worker retain their desktop runtime.
+Issue [#130](https://github.com/prime-optimal/stream-machine-plugin/issues/130) supersedes local stdio as the default Twitch transport. The existing OAuth Site hosts stateless `POST /mcp`; publishing its `mcp` capability provisions the canonical Sites plugin. OBS, USB Stream Deck, local audio, and the independent worker retain their desktop runtime.
+
+`mcp.json` registers both servers under distinct names: `stream-machine` for the hosted endpoint and `stream-machine-local` for the local stdio server. A single hosted entry would have removed 25 desktop tools from desktop installs, and swapping configuration files by hand was error-prone. Both servers expose Twitch tools with the same names. The onboarding skill routes Twitch calls to the hosted server and uses the local Twitch tools only after the user chooses the fallback.
 
 Sites authenticates MCP requests and forwards a Site-scoped `oai-authenticated-user-id`. Each request must have that identity before discovery or tool execution. The handler closes over that owner for encrypted D1 token access and title preview storage. Strict request and tool schemas reject caller-supplied owner selectors. A shared service credential does not identify a user. Email and MCP session IDs never select an owner.
 

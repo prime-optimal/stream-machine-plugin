@@ -5,7 +5,7 @@ description: Check Stream Machine versions and release notes, prepare a verified
 
 # Update Stream Machine
 
-The Site-backed plugin is the default. Sites deploys its server and refreshes its canonical plugin. The tools below update the optional local package only; they do not update the Site. If they are unavailable on the hosted connection, do not start a local process to check the hosted version. Preserve `mcp.json` as the hosted configuration and `mcp.local.json` as the explicit desktop fallback.
+The Site-backed plugin is the default. Sites deploys its server and refreshes its canonical plugin. The tools below update the optional local package only; they do not update the Site. If they are unavailable on the hosted connection, do not start a local process to check the hosted version. Preserve both `mcp.json` entries: `stream-machine` for the hosted server and `stream-machine-local` for the desktop server.
 
 Run `stream_machine_update_check`. Show `runningVersion`, `availableVersion`, changelog, and package availability. Running version describes this MCP process; it does not prove which version the host installed. A missing compatible stable GitHub release is unavailable, not current. Private releases require authenticated `gh` on the MCP host. Actions artifacts are not stable releases.
 

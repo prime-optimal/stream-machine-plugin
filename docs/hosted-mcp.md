@@ -6,7 +6,7 @@ Open the [Stream Machine Site](https://stream-machine-oauth-test.tinycocoa22.cha
 
 Use the canonical plugin provisioned by Sites when this Site is published with its `mcp` capability. Sites supplies its remote MCP URL and OAuth resource through `get_site(include_mcp_connection: true)`. Installing the old local package does not establish a hosted connection.
 
-The default portable configuration is `mcp.json`. Hosts authenticate to the returned endpoint through the Sites connection. Do not paste a Twitch token, shared service token, or user ID into configuration. A service token does not identify a user.
+The portable configuration is `mcp.json`. It registers the hosted `stream-machine` server and the desktop `stream-machine-local` server. Hosts authenticate to the hosted endpoint through the Sites connection. Do not paste a Twitch token, shared service token, or user ID into configuration. A service token does not identify a user.
 
 Call `stream_machine_twitch_preflight`, then `stream_machine_twitch_status`. Confirm the returned account before reading its channel or creating a title preview. The Site's **Read my channel** button uses an authenticated browser route that invokes the same MCP handler and channel tool without changing Twitch. The remote `/mcp` endpoint requires a bearer-authenticated host connection; browser cookies alone do not authorize it.
 
@@ -21,7 +21,7 @@ Approval alone does not update Twitch. Previews expire after five minutes. Disco
 
 ## Use the desktop fallback
 
-Use the bundled `mcp.local.json` in place of `mcp.json` when you explicitly choose the local runtime. Portable clients read `mcp.json`; clients using the compatibility overlay read `.mcp.json`. Replace the selected client's configuration with the local file's `mcpServers` value through that client's supported configuration flow. Do not configure both transports under the same server name simultaneously.
+On a desktop host, `stream-machine-local` runs beside the hosted server and provides OBS, USB Stream Deck, creative, transcription, and worker tools. It also exposes Twitch tools with the same names as the hosted ones. Call those local Twitch tools only after the user explicitly chooses the fallback. No configuration change is needed to switch.
 
 The local path retains fnox, the registered `http://localhost:4017/api/twitch/callback`, and its own saved Twitch account. Verify that account before continuing. If it differs from the hosted account, approve the account switch before creating a new preview. Local OBS, USB Stream Deck, audio files, and the independent worker require this desktop runtime.
 

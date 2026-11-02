@@ -5,7 +5,7 @@ description: Connect Twitch through the Stream Machine Site by default, or use t
 
 # Start a Stream Machine demo
 
-Use hosted Twitch tools by default. Call `stream_machine_twitch_preflight`, then `stream_machine_twitch_status`. If tools are missing, open the [Stream Machine Site](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site) and use its Sites-generated plugin connection. Do not substitute the local package automatically.
+Use the hosted `stream-machine` server's Twitch tools by default. Call `stream_machine_twitch_preflight`, then `stream_machine_twitch_status`. If hosted tools are missing, open the [Stream Machine Site](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site) and use its Sites-generated plugin connection. Do not substitute the local Twitch tools automatically.
 
 Sites sign-in identifies the caller. Twitch consent connects that caller's channel. Read status after consent to verify the account and scopes. A browser login alone does not prove that the host's plugin is connected.
 
@@ -13,11 +13,11 @@ Keep status, channel reads, previews, and apply calls on the same provider. Open
 
 ## Choose the local fallback
 
-Offer the local package when the hosted service is unreachable, returns a server error, or is unconfigured, and a desktop runtime is available. Wait for the user's choice. A hosted 401 requires hosted sign-in. Denied consent, cancellation, invalid state, or revoked access never starts local OAuth. Never replay a failed mutation through localhost.
+Offer the local Twitch tools when the hosted service is unreachable, returns a server error, or is unconfigured, and a desktop runtime is available. Wait for the user's choice. A hosted 401 requires hosted sign-in. Denied consent, cancellation, invalid state, or revoked access never starts local OAuth. Never replay a failed mutation through localhost.
 
-Use `mcp.local.json` instead of the default remote configuration when the user selects the desktop fallback. Verify the local Twitch account before using it. If it differs from the hosted account, ask before proceeding. Hosted consent does not connect the local store.
+On a desktop host, the `stream-machine-local` server also exposes Twitch tools with the same names. Use them only after the user selects the desktop fallback. Verify the local Twitch account before using it. If it differs from the hosted account, ask before proceeding. Hosted consent does not connect the local store.
 
-The local package also provides `stream_machine_open`, OBS, Stream Deck, creative, transcription, and worker tools. Open the workspace only when that local tool exists. Explain that the fictional demo is separate from real controls.
+The `stream-machine-local` server also provides `stream_machine_open`, OBS, Stream Deck, creative, transcription, and worker tools. Use them directly; they do not require the fallback choice. Open the workspace only when that local tool exists. Explain that the fictional demo is separate from real controls.
 
 ## Check the selected connection
 

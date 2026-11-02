@@ -1,6 +1,6 @@
 # Plugin package reference
 
-The default `mcp.json` connects to the authenticated Site-hosted Twitch endpoint. The explicit `mcp.local.json` fallback runs on a desktop host that supports local stdio MCP, with Bun and fnox on `PATH`. See the [hosted guide](hosted-mcp.md) for connection and fallback setup, and the [demo guide](demos/integration.md) for desktop features.
+`mcp.json` registers two servers. `stream-machine` connects to the authenticated Site-hosted Twitch endpoint. `stream-machine-local` runs the local stdio server on a desktop host with Bun and fnox on `PATH`. Web and mobile hosts cannot launch the local server and use only the hosted one. See the [hosted guide](hosted-mcp.md) for connection and fallback rules, and the [demo guide](demos/integration.md) for desktop features.
 
 The package contains portable and compatibility manifests, `fnox.toml` secret references, skills, the bundled server and UI, worker bundles, documentation, and dependency notices. It does not need `node_modules` inside the archive. Secret values and runtime databases are excluded.
 
@@ -10,7 +10,7 @@ The separate **Build plugin packages** workflow runs after each main push and on
 
 ## Server and tools
 
-The hosted endpoint exposes nine Twitch tools. Each request uses its authenticated Sites caller's account. The command in `mcp.local.json` resolves optional private credentials with fnox, then runs `bun ${PLUGIN_ROOT}/dist/server.js`. That local server retains these mock-sample tools:
+The hosted endpoint exposes nine Twitch tools. Each request uses its authenticated Sites caller's account. The `stream-machine-local` command resolves optional private credentials with fnox, then runs `bun ${PLUGIN_ROOT}/dist/server.js`. That local server exposes 34 tools, including its own Twitch tools for the explicit fallback. It retains these mock-sample tools:
 
 | Tool | Behavior |
 | --- | --- |

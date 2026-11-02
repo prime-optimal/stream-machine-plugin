@@ -21,7 +21,7 @@ async function fixture() {
   for (const path of ["scripts", "docs/nested", "dist", "node_modules"]) {
     await mkdir(join(root, path), { recursive: true });
   }
-  for (const file of ["plugin.json", "mcp.json", "mcp.local.json", "fnox.toml"]) await cp(join(source, file), join(root, file));
+  for (const file of ["plugin.json", "mcp.json", "fnox.toml"]) await cp(join(source, file), join(root, file));
   for (const file of await readdir(join(source, "scripts"))) {
     if (file === "package.ts" || file === "package-archive.ts") await cp(join(source, "scripts", file), join(root, "scripts", file));
   }
