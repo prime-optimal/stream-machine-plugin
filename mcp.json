@@ -3,7 +3,8 @@
   "mcpServers": {
     "stream-machine": {
       "type": "streamable-http",
-      "url": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/mcp"
+      "url": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/mcp",
+      "extensions": { "com.openai": { "auth": { "type": "oauth" } } }
     },
     "stream-machine-desktop": {
       "type": "stdio",
