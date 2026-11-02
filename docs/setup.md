@@ -51,13 +51,21 @@ Ensure that `tar`, `zip`, and `unzip` are on `PATH`. Run the package task:
 mise run package
 ```
 
-The task builds and validates both `docs/packages/stream-machine-0.3.0.zip` and `docs/packages/stream-machine-0.3.0.tar.gz`. Names follow the committed version in `plugin.json`. Both archives contain the same `stream-machine/` root. Git ignores these generated files. No provider credentials are needed for this build.
+The task builds and validates both `docs/packages/stream-machine-<version>.zip` and `docs/packages/stream-machine-<version>.tar.gz`. `<version>` is the committed version in `plugin.json`. Both archives contain the same `stream-machine/` root. Git ignores these generated files. No provider credentials are needed for this build.
 
 To install the archive, use your host's supported plugin installation flow. For requirements and package contents, see the [package reference](package-reference.md).
 
 ## Download a released package
 
-Open [Releases](https://github.com/prime-optimal/stream-machine-plugin/releases) and select the version. Download `stream-machine-<version>.zip` from its assets. Repository access and GitHub sign-in are required. Release packages do not expire.
+Each merged release PR publishes a GitHub Release. `release.yml` runs `mise run package` and attaches both archives. To copy the latest release to this machine, run:
+
+```sh
+mise run package:release
+```
+
+Expected result: `docs/packages/stream-machine-<version>.zip` and `.tar.gz`, each printed with its size and SHA-256. The task needs `gh` signed in with access to this private repository. It rejects an asset whose size or SHA-256 differs from the GitHub digest, and it inspects the tar.gz paths and manifests. It writes nothing for a rejected asset. To fetch an older release, pass its tag: `mise run package:release v0.6.0`.
+
+The task only downloads. Install the zip with your host's plugin flow, such as Plugin Creator. In a browser, you can also open [Releases](https://github.com/prime-optimal/stream-machine-plugin/releases) and download `stream-machine-<version>.zip`. Release packages do not expire.
 
 ## Download a CI package
 
