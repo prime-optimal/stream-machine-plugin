@@ -18,9 +18,9 @@ for (const skill of ["onboarding", "preview-recipe", "self-update"]) {
 const staging = join(root, "artifacts/package/stream-machine");
 await rm(staging, { recursive: true, force: true });
 await mkdir(staging, { recursive: true });
-for (const path of ["plugin.json", "mcp.json", "skills", "dist", "docs"]) {
+for (const path of ["plugin.json", "mcp.json", "skills", "dist", "docs/setup.md"]) {
   await mkdir(dirname(join(staging, path)), { recursive: true });
-  await cp(join(root, path), join(staging, path), { recursive: true, filter: source => includePackagePath(root, source) });
+  await cp(join(root, path), join(staging, path), { recursive: true, filter: includePackagePath });
 }
 await mkdir(join(staging, ".codex-plugin"), { recursive: true });
 const openai = manifest.extensions["com.openai"];

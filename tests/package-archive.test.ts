@@ -3,16 +3,10 @@ import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/pr
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-import { includePackagePath, validateArchiveEntries } from "../scripts/package-archive";
+import { validateArchiveEntries } from "../scripts/package-archive";
 
 const source = resolve(import.meta.dir, "..");
 const folders: string[] = [];
-test("packaging excludes the independent Site checkout and its runtime state", () => {
-  for (const path of ["docs/hosted-oauth-site", "docs/hosted-oauth-site/.git/config", "docs/hosted-oauth-site/node_modules/a", "docs/hosted-oauth-site/.wrangler/state"]) {
-    expect(includePackagePath(source, join(source, path))).toBe(false);
-  }
-  expect(includePackagePath(source, join(source, "docs/hosted-mcp.md"))).toBe(true);
-});
 afterEach(async () => { for (const folder of folders.splice(0)) await rm(folder, { recursive: true, force: true }); });
 
 async function fixture() {
@@ -29,6 +23,7 @@ async function fixture() {
     await mkdir(join(root, "skills", skill), { recursive: true });
     await writeFile(join(root, "skills", skill, "SKILL.md"), `---\nname: ${skill}\ndescription: Fixture\n---\nFixture\n`);
   }
+  await writeFile(join(root, "docs/setup.md"), "Fixture setup guide\n");
   await writeFile(join(root, "docs/nested/guide.md"), "Fixture guide\n");
   await writeFile(join(root, "dist/server.js"), "Fixture server\n");
   return root;
@@ -36,7 +31,7 @@ async function fixture() {
 
 test("packaging ignores Finder metadata before staging without changing source files", async () => {
   const root = await fixture();
-  const metadata = ["docs/.DS_Store", "docs/nested/._guide.md", "skills/.DS_Store", "skills/onboarding/._SKILL.md", "dist/.DS_Store"];
+  const metadata = ["skills/.DS_Store", "skills/onboarding/._SKILL.md", "dist/.DS_Store", "dist/._server.js"];
   for (const path of metadata) await writeFile(join(root, path), "Finder metadata");
   const result = Bun.spawnSync([process.execPath, join(root, "scripts/package.ts")], { cwd: root });
   expect(result.stderr.toString()).not.toContain("Unexpected archive contents");
@@ -63,8 +58,6 @@ test("real ZIP and tar.gz preserve the same root, hidden manifests, and file byt
   const root = await fixture();
   await mkdir(join(root, "docs/packages"));
   await writeFile(join(root, "docs/packages/stale.zip"), "Excluded previous archive");
-  await mkdir(join(root, "docs/packages-guide"));
-  await writeFile(join(root, "docs/packages-guide/guide.md"), "Keep sibling directory");
   expect((await runPackage(root)).exitCode).toBe(0);
   const { version } = await Bun.file(join(root, "plugin.json")).json();
   const archive = join(root, `docs/packages/stream-machine-${version}`);
@@ -83,8 +76,7 @@ test("real ZIP and tar.gz preserve the same root, hidden manifests, and file byt
   expect(extracted[1]).toEqual(staged);
   expect(staged.some(([path]) => path === ".codex-plugin/plugin.json")).toBe(true);
   expect(staged.some(([path]) => path === ".mcp.json")).toBe(true);
-  expect(staged.some(([path]) => path === "docs/packages-guide/guide.md")).toBe(true);
-  expect(staged.some(([path]) => path.startsWith("docs/packages/"))).toBe(false);
+  expect(staged.filter(([path]) => path.startsWith("docs/")).map(([path]) => path)).toEqual(["docs/setup.md"]);
 }, 30_000);
 
 test("forbidden payload and missing archiver fail without leaving stale output pairs", async () => {
@@ -94,7 +86,7 @@ test("forbidden payload and missing archiver fail without leaving stale output p
     await mkdir(join(root, "docs/packages"));
     const archives = ["tar.gz", "zip"].map(extension => join(root, `docs/packages/stream-machine-${version}.${extension}`));
     for (const path of archives) await writeFile(path, "Stale archive");
-    if (scenario === "forbidden") await writeFile(join(root, "docs/.env"), "not a credential");
+    if (scenario === "forbidden") await writeFile(join(root, "dist/.env"), "not a credential");
     const result = await runPackage(root, scenario === "missing-tool" ? { PATH: "/nonexistent" } : {});
     expect(result.exitCode).not.toBe(0);
     for (const path of archives) expect(await Bun.file(path).exists()).toBe(false);

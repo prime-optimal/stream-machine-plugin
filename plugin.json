@@ -24,7 +24,12 @@
         "capabilities": [
           "Interactive"
         ],
-        "defaultPrompt": "Check OBS and my Stream Deck. Use the Stream Machine Site plugin for Twitch.",
+        "defaultPrompt": [
+          "Check OBS and my Stream Deck. Use the Stream Machine Site plugin for Twitch."
+        ],
+        "websiteURL": "https://github.com/prime-optimal/stream-machine-plugin",
+        "privacyPolicyURL": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/",
+        "termsOfServiceURL": "https://github.com/prime-optimal",
         "category": "Other"
       }
     }
