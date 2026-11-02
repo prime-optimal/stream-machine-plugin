@@ -27,7 +27,7 @@ run = "bun run check"
 
 [tasks.test]
 description = "Verify recipe and connection boundaries"
-run = "bun test"
+run = "bun test ./tests"
 
 [tasks.smoke]
 description = "Exercise bundled server over real stdio MCP"

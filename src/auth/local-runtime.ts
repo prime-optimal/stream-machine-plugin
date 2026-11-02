@@ -68,7 +68,7 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
       if (request.headers.get("host") !== `localhost:${port}`) return response("Invalid host", 403);
       try {
         if (url.pathname === "/connect" && request.method === "GET") {
-          titles.clear();
+          await titles.clear();
           const started = await oauth.begin(OWNER, false, url.searchParams.get("manage") === "1", url.searchParams.get("clips") === "1");
           return response("", 302, { Location: started.url, "Set-Cookie": `sm_twitch_state=${started.state}; HttpOnly; SameSite=Lax; Path=/api/twitch; Max-Age=600` });
         }
@@ -98,11 +98,11 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
               if (failures.length > 10) failures.shift();
               return response("Approval rejected", 403);
             }
-            titles.approve(id);
+            await titles.approve(id);
             return response("<h1>Title approved</h1><p>Return to Stream Machine to apply this exact preview.</p>");
           }
           if (request.method !== "GET") return response("Method rejected", 405);
-          const p = titles.approvalDetails(id);
+          const p = await titles.approvalDetails(id);
           return response(`<h1>Approve Twitch title</h1><p>Account: ${htmlEscape(p.account)}</p><p>Current: ${htmlEscape(p.before)}</p><p>Proposed: ${htmlEscape(p.after)}</p><form method="post"><button type="submit">Approve exact title change</button></form>`, 200, { "Referrer-Policy": "same-origin", "Set-Cookie": `sm_approval=${approvalSession}; HttpOnly; SameSite=Strict; Path=/approve; Max-Age=300` });
         }
         return response("Not found", 404);

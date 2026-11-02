@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "stream-machine",
   "version": "0.5.0",
-  "description": "Run local streaming demos with Twitch, OBS, Stream Deck, and existing OpenDesign HTML workflows.",
+  "description": "Use hosted Twitch tools through ChatGPT Sites, with a local fallback for desktop streaming tools.",
   "author": {
     "name": "prime-optimal"
   },
@@ -19,12 +19,12 @@
       "interface": {
         "displayName": "Stream Machine",
         "shortDescription": "Run your streaming demos",
-        "longDescription": "Desktop prototype with explicit Twitch title previews, local OBS alerts, a USB Stream Deck button, HTML creative workflows, and a separately started event worker. Requires local provider tools and private credential references.",
+        "longDescription": "Connect Twitch through the Stream Machine ChatGPT Site. Read your channel, preview a title, and approve the exact change in your browser. On desktop, a local server adds OBS, USB Stream Deck, creative workflows, a separately started event worker, and a local Twitch fallback.",
         "developerName": "prime-optimal",
         "capabilities": [
           "Interactive"
         ],
-        "defaultPrompt": "Set up Stream Machine and preview my first streaming recipe.",
+        "defaultPrompt": "Connect Twitch through the Stream Machine Site and preview my first title change. Use localhost only if I choose the desktop fallback.",
         "category": "Other"
       }
     }

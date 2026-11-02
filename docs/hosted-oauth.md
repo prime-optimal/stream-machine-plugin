@@ -68,3 +68,7 @@ Refresh the Site, review the requested permissions, and choose **Connect again**
 The user completed the expanded consent and confirmed **Missing baseline scopes: None**. A read-only check of the live D1 connection record independently confirmed all twelve baseline scopes are saved. No token or encrypted-token value was included in this report. This verifies the hosted grant upgrade; it does not verify the planned streaming features.
 
 The [reviewable Site patch](reviews/122-hosted-oauth-scopes.patch) includes runtime, consent, tests, and generated-policy changes. The previous profile-only screenshot records the earlier test; it does not prove the expanded grant.
+
+## Hosted MCP integration
+
+The Site now hosts authenticated Twitch MCP tools. Version 5 deployed source `45f286258326a5b9c27515c715b24d4df09357e5` and preserved the existing Twitch connection. Version 9, source `7a6d5d591b20192565c60aaca61ad2c5668fbabd`, is the current deployment. The earlier standalone-test descriptions above record historical scope. Use the [hosted MCP guide](hosted-mcp.md) for the current default, local fallback, and verification limits.

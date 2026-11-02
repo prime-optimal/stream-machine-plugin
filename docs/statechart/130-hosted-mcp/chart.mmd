@@ -1,0 +1,68 @@
+---
+title: "Hosted Twitch calls and explicit local fallback"
+---
+stateDiagram-v2
+  state "Connection route" as s0 {
+    s1: Hosted selected
+    s2: Hosted failure
+    s3: Hosted retry or stop
+    s4: Local fallback confirmed
+    s5: Local fallback selected
+  }
+  state "Reconnect during apply" as s6 {
+    s7: First title write pending
+    s8: Connection changed, first write pending
+    s9: New apply waits for first write
+    s10: First settled, new preview pending
+    s11: First write settled, lease released
+    s12: New title write pending
+    s13: Both writes settled
+  }
+  state "Title approval" as s14 {
+    s15: Preview ready
+    s16: Browser approved
+    s17: Foreign preview rejected
+    s18: Preview invalidated
+    s19: Preview consumed
+    s20: Title write attempted
+    s21: Title verified
+    s22: Write outcome unknown
+    s23: Replay rejected
+  }
+  state "Caller isolation" as s24 {
+    s25: Requests under validation
+    s26: Each request keeps its caller
+    s27: One caller sees own account
+    s28: Both requests finished
+  }
+  [*] --> s1
+  [*] --> s7
+  [*] --> s15
+  [*] --> s25
+  s1 --> s2: Classify hosted failure
+  s7 --> s8: Change or clear the connection
+  s15 --> s16: Approve exact title in the owner's browser
+  s15 --> s17: Another caller requests this preview
+  s15 --> s18: Disconnect before applying the preview
+  s25 --> s26: Bind this request to its Sites caller
+  s2 --> s3: Retry hosted or stop
+  s2 --> s4: Confirm local account [reachable desktop and eligible failure]
+  s8 --> s9: Approve a new preview after reconnect
+  s8 --> s10: Settle the first write and release its matching lease
+  s16 --> s17: Another caller requests this preview
+  s16 --> s19: Claim the approved preview once
+  s16 --> s18: Disconnect before applying the preview
+  s26 --> s27: Read this caller's Twitch connection
+  s25 --> s28: Reject missing identity or an owner selector
+  s4 --> s5: Select the confirmed local fallback
+  s9 --> s11: Settle the first write and release its matching lease
+  s10 --> s11: Approve a new preview after reconnect
+  s19 --> s20: Attempt one Twitch title change
+  s26 --> s28: Read this caller's Twitch connection
+  s27 --> s28: Reject missing identity or an owner selector or Read this caller's Twitch connection
+  s11 --> s12: Start the new apply [lease available]
+  s20 --> s21: Read back title or report unknown outcome
+  s20 --> s22: Read back title or report unknown outcome
+  s12 --> s13: Settle the new write and release its matching lease
+  s21 --> s23: Reject another apply of the consumed preview
+  s22 --> s23: Reject another apply of the consumed preview

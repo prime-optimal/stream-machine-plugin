@@ -1,6 +1,6 @@
-# Desktop package reference
+# Plugin package reference
 
-The prototype package runs on a desktop host that supports local stdio MCP. The host needs Bun and fnox on `PATH`. The live setup is documented in the [demo guide](demos/integration.md).
+`mcp.json` registers two servers. `stream-machine` connects to the authenticated Site-hosted Twitch endpoint. `stream-machine-local` runs the local stdio server on a desktop host with Bun and fnox on `PATH`. Web and mobile hosts cannot launch the local server and use only the hosted one. See the [hosted guide](hosted-mcp.md) for connection and fallback rules, and the [demo guide](demos/integration.md) for desktop features.
 
 The package contains portable and compatibility manifests, `fnox.toml` secret references, skills, the bundled server and UI, worker bundles, documentation, and dependency notices. It does not need `node_modules` inside the archive. Secret values and runtime databases are excluded.
 
@@ -10,7 +10,7 @@ The separate **Build plugin packages** workflow runs after each main push and on
 
 ## Server and tools
 
-The command in `mcp.json` resolves optional private credentials with fnox, then runs `bun ${PLUGIN_ROOT}/dist/server.js`. The server retains these mock-sample tools:
+The hosted endpoint exposes nine Twitch tools. Each request uses its authenticated Sites caller's account. The `stream-machine-local` command resolves optional private credentials with fnox, then runs `bun ${PLUGIN_ROOT}/dist/server.js`. That local server exposes 34 tools, including its own Twitch tools for the explicit fallback. It retains these mock-sample tools:
 
 | Tool | Behavior |
 | --- | --- |
@@ -21,7 +21,7 @@ The command in `mcp.json` resolves optional private credentials with fnox, then 
 | `stream_machine_preview` | Returns proposed channel updates without applying them. |
 | `stream_machine_reset` | Disconnects the fictional account. |
 
-The server also registers three OBS tools, four USB Stream Deck tools, eight Twitch tools, five creative tools, four worker controls, and one independent OpenAI transcription tool. `mise run smoke` verifies the current total of 31 and the mock boundary. The profile read returns the connected account description, photo, and offline image. See the [Twitch profile reference](twitch-profile.md). The UI resource uses `text/html;profile=mcp-app`.
+The local server also registers three OBS tools, four USB Stream Deck tools, nine Twitch tools, five creative tools, four worker controls, one independent OpenAI transcription tool, and two package-update tools. `mise run smoke` verifies the current total of 34 and the mock boundary. The profile read returns the connected account description, photo, and offline image. See the [Twitch profile reference](twitch-profile.md). The local UI resource uses `text/html;profile=mcp-app`.
 
 The transcription tool explicitly uploads one selected local audio file to OpenAI. It resolves `OPENAI_API_KEY` through fnox and stays independent of Twitch metadata and URL-based providers. See [Transcribe one local audio file](demos/transcription.md).
 
@@ -29,7 +29,7 @@ The transcription tool explicitly uploads one selected local audio file to OpenA
 
 The fictional demo remains mock-only. The provider tools perform real operations and report failures without substituting demo data. Title and button writes require the corresponding preview flow. The independent worker starts separately and remains paused until explicitly armed.
 
-The fictional demo's connection state lasts for the current MCP process. A restart disconnects that demo account. Real Twitch credentials use the encrypted local store. Creative requests and worker event IDs have separate local records. The prototype does not provide multi-user authentication.
+The fictional demo's connection state lasts for the current local MCP process. A restart disconnects that demo account. Hosted Twitch credentials use encrypted owner-bound D1 records; hosted title previews persist across requests. The explicit desktop fallback has its own encrypted local store. Creative requests and worker event IDs have separate local records.
 
 The local browser preview is a development page, not a hosted MCP endpoint. Packaging does not upload or install the plugin. A successful browser test does not verify native host rendering.
 

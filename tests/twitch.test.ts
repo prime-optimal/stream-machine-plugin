@@ -45,14 +45,14 @@ describe("Twitch live boundary with explicit fake provider", () => {
   test("exact browser approval then one write and real read-back", async () => {
     const f = fixture(), p = await f.service.preview("Proposed");
     await expect(f.service.apply(p.previewId)).rejects.toThrow("BROWSER_APPROVAL_REQUIRED");
-    f.service.approve(p.previewId);
+    await f.service.approve(p.previewId);
     expect(await f.service.apply(p.previewId)).toMatchObject({ status: "verified", channel: { title: "Proposed" } });
     await expect(f.service.apply(p.previewId)).rejects.toThrow("PREVIEW_CONSUMED");
     expect(f.stats()).toEqual({ reads: 3, writes: 1 });
   });
   test("missing scope, changed identity, stale title/category and expiry prevent writes", async () => {
     for (const change of ["scope", "identity", "title", "category", "expiry"]) {
-      const f = fixture(), p = await f.service.preview("Proposed"); f.service.approve(p.previewId);
+      const f = fixture(), p = await f.service.preview("Proposed"); await f.service.approve(p.previewId);
       if (change === "scope") f.access.account.scopes = [];
       if (change === "identity") f.access.account.id = "other";
       if (change === "title") f.title("External change");
@@ -65,16 +65,16 @@ describe("Twitch live boundary with explicit fake provider", () => {
     const f = fixture(); f.wrongTarget(); await expect(f.service.preview("Proposed")).rejects.toThrow("TWITCH_WRONG_ACCOUNT");
   });
   test("read-back mismatch reported honestly", async () => {
-    const f = fixture(), p = await f.service.preview("Proposed"); f.service.approve(p.previewId); f.mismatch();
+    const f = fixture(), p = await f.service.preview("Proposed"); await f.service.approve(p.previewId); f.mismatch();
     expect(await f.service.apply(p.previewId)).toMatchObject({ status: "applied_unverified" });
   });
   test("ambiguous mutation consumes preview and never retries", async () => {
-    const f = fixture(), p = await f.service.preview("Proposed"); f.service.approve(p.previewId); f.failWrite();
+    const f = fixture(), p = await f.service.preview("Proposed"); await f.service.approve(p.previewId); f.failWrite();
     await expect(f.service.apply(p.previewId)).rejects.toThrow("WRITE_OUTCOME_UNKNOWN");
     await expect(f.service.apply(p.previewId)).rejects.toThrow("PREVIEW_CONSUMED"); expect(f.stats().writes).toBe(1);
   });
   test("parallel execute cannot duplicate write", async () => {
-    const f = fixture(), p = await f.service.preview("Proposed"); f.service.approve(p.previewId);
+    const f = fixture(), p = await f.service.preview("Proposed"); await f.service.approve(p.previewId);
     const results = await Promise.allSettled([f.service.apply(p.previewId), f.service.apply(p.previewId)]);
     expect(results.filter(r => r.status === "fulfilled")).toHaveLength(1); expect(f.stats().writes).toBe(1);
   });

@@ -7,6 +7,8 @@ description: Preview a Stream Machine Twitch title or Stream Deck button, apply 
 
 Read the provider first. Use the account or device returned by that provider, not a guessed identifier.
 
+Use the Site-backed Twitch connection by default. Keep every step on that connection. Use localhost only after the user selects the desktop fallback; verify its account before a new preview. Never replay a hosted apply call through the local provider.
+
 ## Update a Twitch title
 
 1. Call `stream_machine_twitch_channel`.
