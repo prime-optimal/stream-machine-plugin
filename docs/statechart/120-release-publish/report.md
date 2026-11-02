@@ -77,7 +77,7 @@ The model ties each action to the source as follows.
 | `TagGuardPasses`, `RefuseTag` | `scripts/release-publish.ts:67` |
 | `CleanGuardPasses`, `RefuseDirty` | `scripts/release-publish.ts:69` |
 | `PackageGuardPasses`, `RefuseMissing` | `scripts/release-publish.ts:70-71` |
-| `CreateSucceeds`, `UploadFails` | `.github/workflows/release.yml:57-60` calls `scripts/release-publish.ts:76-80`. |
+| `CreateSucceeds`, `UploadFails` | `.github/workflows/release.yml:57-64` runs the pushed commit's copy of `scripts/release-publish.ts`, which creates the release at lines 76-80. |
 | `HumanDeletesDraft`, `HumanFixesTag` | Human actions outside the workflow. The error text at `scripts/release-publish.ts:66` asks for the deletion. |
 
 No rule broke, so there is no counterexample to replay. Source review and real workflow runs stay necessary.

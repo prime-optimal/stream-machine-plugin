@@ -151,7 +151,7 @@ The `Publish release` workflow (`.github/workflows/release.yml`) creates the Git
 
 1. The `plan` job runs `mise run release:publish --dry-run`. The script reads the version from `plugin.json` and finds the commit that introduced it. It then checks whether release `v<version>` exists.
 2. If that release is already published, the run stops. Ordinary merges therefore publish nothing until the next release PR changes the version.
-3. Otherwise, the `publish` job checks out the release commit, not the pushed commit. It runs check, test, smoke, and package, then `mise run release:publish`. That creates tag `v<version>` at the release commit and a release with the version's `docs/CHANGELOG.md` section as notes. The `stream-machine-<version>.zip` and `.tar.gz` packages are attached.
+3. Otherwise, the `publish` job checks out the release commit, not the pushed commit. It runs check, test, smoke, and package. It then runs `scripts/release-publish.ts` from the pushed commit against that checkout, because older release commits may not contain the script. That creates tag `v<version>` at the release commit and a release with the version's `docs/CHANGELOG.md` section as notes. The `stream-machine-<version>.zip` and `.tar.gz` packages are attached.
 
 Only the `publish` job has `contents: write`. Runs are serialized. The script refuses to publish when a draft release for the tag exists, when the tag points to another commit, when `HEAD` is not the release commit, when the worktree has changes, or when a package is missing. A failed upload can leave a draft release. Delete the draft, then rerun the workflow.
 
