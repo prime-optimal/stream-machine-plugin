@@ -1,4 +1,17 @@
-## Unreleased
+## 0.3.0 (2026-11-01)
+
+### Feat
+
+- **ui**: add local navigation and Twitch Connections (#88) (#103)
+- transcribe local audio with GPT-Transcribe (#85) (#98)
+- download authorized Twitch clips (#39) (#76)
+- read connected Twitch channel profile (#53) (#75)
+
+### Fix
+
+- request agreed Twitch permissions on connect (#83) (#84)
+
+## 0.2.0 (2026-11-01)
 
 ### Feat
 

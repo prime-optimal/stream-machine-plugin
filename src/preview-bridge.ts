@@ -1,3 +1,4 @@
+import { version } from "./version";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { getDefaultEnvironment, StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { resolve } from "node:path";
@@ -11,7 +12,7 @@ export async function createPreviewBridge(serverPath = resolve(import.meta.dir, 
     const value = process.env[name];
     if (value) environment[name] = value;
   }
-  const client = new Client({ name: "stream-machine-preview", version: "0.2.0" });
+  const client = new Client({ name: "stream-machine-preview", version });
   const transport = new StdioClientTransport({ command: process.execPath, args: [serverPath], env: environment, stderr: "pipe" });
   transport.stderr?.on("data", () => {});
   await client.connect(transport);

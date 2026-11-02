@@ -109,7 +109,7 @@ For each retained worktree, inspect its status and local-only commits. Check ign
 
 Name each remaining dirty worktree, local-only commit, or running process. Give the owner, the reason it stays, and the next step. Link any cleanup record under `docs/reviews/`.
 
-Complete [the issue evidence procedure](#finish-the-issue). Link the posted verification comment and confirm the issue and board status. Report any missing attachment or publication blocker.
+Complete [the issue evidence procedure](#finish-the-issue). Link the posted evidence comment and confirm the issue and board status. Report any missing attachment or publication blocker.
 
 If a completion check fails, report the path and blocker. Do not claim completion until completed task work is committed and pushed.
 
@@ -123,7 +123,21 @@ mise run changelog
 git diff -- docs/CHANGELOG.md
 ```
 
-Commitizen reads conventional commits and writes `docs/CHANGELOG.md`. These tasks do not bump versions, create tags, or publish a release. Before a release, review the entries and commit the changelog. The version in `.cz.toml` starts at the existing package version, `0.2.0`.
+These manual tasks write a full-history changelog without bumping versions. Do not use them to replace the versioned release history after release automation starts.
+
+### Prepare a release PR
+
+`mise run release:preview` reports the next version without writing files. `mise run release:prepare` updates versions, release notes, and `.release-state.json` without committing or tagging.
+
+The helper uses Commitizen 4.19.3 and commits after `releasedThrough`. The initial approved boundary is `1246d75`. Version sources are `.cz.toml`, `package.json`, `plugin.json`, and `src/version.ts`. Runtime metadata imports the shared version. Preparation records the source SHA, so repeated preparation and release-only merges do not bump again. Use conventional squash-merge titles.
+
+The `Prepare release PR` workflow runs after pushes to `main` or a manual run on `main`. It runs checks before updating the fixed `automation/release` branch and PR. It rejects stale source and foreign branch provenance. Reserve that branch for automation. Do not edit it manually. A failed PR API call can leave a bot branch; a retry accepts only the expected bot identity, source marker, parent, and release paths.
+
+The workflow uses `GITHUB_TOKEN` with job-scoped `contents: write` and `pull-requests: write`. Activation requires the repository's bundled **Allow GitHub Actions to create and approve pull requests** setting. Read-back during #105 returned `can_approve_pull_request_reviews: false`. This task does not change that setting. No code approves or automatically merges PRs.
+
+Token-created PR checks can require manual approval, and token pushes do not start ordinary push workflows. The preparation workflow runs TypeScript, tests, stdio smoke, package, and check-only hooks itself. See [GitHub token event behavior](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow). Human review and merge remain required. No tags, publishing, or GitHub Releases occur.
+
+See the [checked lifecycle and limits](statechart/105-release-automation/report.md).
 
 ## Remove merged work
 

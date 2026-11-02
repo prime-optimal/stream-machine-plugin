@@ -1,3 +1,4 @@
+import { version } from "./version";
 import { McpServer } from "@modelcontextprotocol/server";
 import { DemoWorkspace, schemas, toolResult, type ToolName } from "./domain";
 import { registerObsTools } from "./adapters/obs/register";
@@ -19,7 +20,7 @@ const descriptions: Record<ToolName, string> = {
 
 export function createServer(html: string) {
   const workspace = new DemoWorkspace();
-  const server = new McpServer({ name: "stream-machine", version: "0.2.0" });
+  const server = new McpServer({ name: "stream-machine", version });
   for (const name of Object.keys(schemas) as ToolName[]) {
     const entrypoints = name === "stream_machine_open" ? [{ type: "global" }] : name === "stream_machine_workspace" ? [{ type: "thread" }] : [];
     server.registerTool(name, {

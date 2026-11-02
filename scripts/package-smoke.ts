@@ -1,3 +1,4 @@
+import { version } from "../src/version";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { resolve } from "node:path";
@@ -12,7 +13,7 @@ assert.deepEqual(manifest.extensions["com.openai"].interface.defaultPrompt, lega
 const launch = z.object({ command: z.string(), args: z.array(z.string()), cwd: z.string() });
 const config = z.object({ mcpServers: z.object({ "stream-machine": launch }) }).parse(await Bun.file(`${root}/mcp.json`).json());
 const selected = config.mcpServers["stream-machine"];
-const client = new Client({ name: "stream-machine-package-check", version: "0.2.0" });
+const client = new Client({ name: "stream-machine-package-check", version });
 try {
   await client.connect(new StdioClientTransport({
     command: selected.command,
