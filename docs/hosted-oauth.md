@@ -24,7 +24,7 @@ TypeScript, Sites build, and Site hook checks passed. Twenty-one OAuth tests pas
 
 Live anonymous status, connect, and callback requests returned 401. A status request with forged Sites user headers also returned 401. This verifies the private access boundary for those requests.
 
-Real Twitch consent, persisted account status, disconnect, reconnect, and a phone test remain pending user verification. The in-app browser reached Sites sign-in, then OpenAI security verification.
+Real Twitch consent and saved account status are verified. After the fix, the user connected KLabFM (`@klabfm`). The in-app browser displayed that account after a full reload. Disconnect and a phone test remain unverified. The test connection was left active.
 
 No plugin code, plugin manifest, installed account, or existing Stream Makeover Site was changed. A future web or mobile plugin also needs a hosted MCP server and its own authorization contract. This test does not implement that integration.
 
@@ -32,4 +32,6 @@ No plugin code, plugin manifest, installed account, or existing Stream Makeover 
 
 The first live attempt reached the callback but did not save a connection. A regression test found that token validation rejected `scopes: null` for a token without optional permissions. The parser now normalizes null to an empty list while retaining identity and expiry checks.
 
-Sites deployed fix commit `785c2f8075e45f9b64bd682706e2eb748e83599a` in deployment `appgdep_6ae80819c8e48191ad3290ef7426cb04`. Deployment succeeded with environment revision 2. The combined suite now passes 24 tests. Refresh the page and start a new Twitch connection; an old authorization code cannot be reused. Live success remains pending this retry.
+Sites deployed fix commit `785c2f8075e45f9b64bd682706e2eb748e83599a` in deployment `appgdep_6ae80819c8e48191ad3290ef7426cb04`. Deployment succeeded with environment revision 2. The combined suite now passes 24 tests. A fresh authorization succeeded, and the saved account survived reload.
+
+![KLabFM remains connected after reload](hosted-oauth-connected.jpg)
