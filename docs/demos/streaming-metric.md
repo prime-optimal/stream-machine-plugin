@@ -30,4 +30,4 @@ Run `bun test tests/broadcast-duration.test.ts tests/analytics-registration.test
 
 ## Bundled integration verification
 
-Run `mise run smoke` to build the server and invoke the synthetic sample through a real stdio MCP client. This branch advertises 29 tools after incorporating the channel profile tool from main. Smoke validates 6,300 seconds, 1.75 hours, partial coverage, the exact 900-second gap, and unverified user-supplied provenance. `mise run package` creates and inspects the plugin archive. The separate mise-managed package smoke check verifies packaged launch. These checks do not contact analytics providers.
+Run `mise run smoke` to build the server and invoke the synthetic sample through a real stdio MCP client. The bundled server advertises 36 tools. Smoke validates 6,300 seconds, 1.75 hours, partial coverage, the exact 900-second gap, and unverified user-supplied provenance. `mise run package` creates and inspects the plugin archive. The separate mise-managed package smoke check verifies packaged launch. These checks do not contact analytics providers.
