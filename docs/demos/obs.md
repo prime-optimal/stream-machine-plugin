@@ -8,7 +8,7 @@ The OBS server provides `stream_machine_obs_create_scene`, `stream_machine_obs_r
 
 Removing a scene fails if it is the current program scene or the last scene. Removing a browser source fails when the source is shared, grouped, or cannot be identified as a single direct item in the named scene. Adding or removing a source in the program scene can change visible content. These tools do not select a program scene or change streaming or recording.
 
-Other clients can change OBS between the safety check and deletion. Avoid concurrent edits during removal. If a request times out, inspect OBS before retrying because the outcome is unknown. The new actions have fake-only test coverage; no live mutation is claimed.
+Other clients can change OBS between the safety check and deletion. Avoid concurrent edits during removal. If a request times out, inspect OBS before retrying because the outcome is unknown. On 2026-11-02 the four tools created and removed a disposable scene and a local HTML browser source against OBS 33.0.0 with WebSocket 5.7.5. The program scene, streaming, and recording did not change. See [the #220 evidence](https://github.com/prime-optimal/stream-machine-plugin/issues/220#issuecomment-6587223900).
 
 ## Run
 
@@ -37,7 +37,7 @@ Import `src/adapters/obs/register.ts`:
 - `obsShowAlert({ text })`
 - `obsShowAlert({ replay: true })`
 
-Tools: `stream_machine_obs_preflight`, `stream_machine_obs_list_scenes`, `stream_machine_obs_show_alert`. Parent owns server wiring.
+Tools: `stream_machine_obs_preflight`, `stream_machine_obs_list_scenes`, `stream_machine_obs_show_alert`, `stream_machine_obs_create_scene`, `stream_machine_obs_remove_scene`, `stream_machine_obs_create_browser_source`, and `stream_machine_obs_remove_browser_source`. Parent owns server wiring.
 
 Success reports real refresh acknowledgement with `visibility: "unverified"`; screenshots establish visible acceptance separately. Timeout/rejection does not claim successful display. No automatic refresh retry.
 

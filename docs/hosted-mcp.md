@@ -35,7 +35,7 @@ Approval alone does not update Twitch. Previews expire after five minutes. Disco
 
 ## Desktop server
 
-On a desktop host, `stream-machine-obs` and `stream-machine-streamdeck` run beside the hosted server. `stream-machine-obs` provides 3 OBS tools. `stream-machine-streamdeck` provides 6 USB Stream Deck tools. Neither has Twitch tools. The Twitch, update, creative, worker, IGDB, analytics, transcription, and clip media registrations are commented out in `src/server.ts` (#159) and not exposed.
+On a desktop host, `stream-machine-obs` and `stream-machine-streamdeck` run beside the hosted server. `stream-machine-obs` provides 7 OBS tools. `stream-machine-streamdeck` provides 6 USB Stream Deck tools. Neither has Twitch tools. The Twitch, update, creative, worker, IGDB, analytics, transcription, and clip media registrations are commented out in `src/server.ts` (#159) and not exposed.
 
 If you also install the separate Site plugin on desktop, the Twitch tool names duplicate. Keep Twitch on the bundled `stream-machine` server. If the hosted service is unreachable or unconfigured, Twitch is unavailable until it recovers. A 401 requires hosted sign-in. Never replay a mutation through another provider.
 
