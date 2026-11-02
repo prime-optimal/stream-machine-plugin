@@ -93,9 +93,8 @@ export function createLiveDemos(request: ToolRequest) {
   obs.action("Replay saved alert · switch program", () => void obs.invoke("obs_show_alert", { replay: true }, true));
   alert.addEventListener("input", obs.refresh);
 
-  const deck = card("02 / Stream Deck button", "Fresh blank Original 3×5 deck only. Apply claims USB and resets display. Quit Elgato first; keep this server running for presses.");
-  const serial = deck.field("Device serial"); const key = deck.field("Key index (0–14)", "0", "number"); key.min = "0"; key.max = "14"; key.step = "1";
-  const destination = deck.field("Button opens HTTP(S) URL", "http://127.0.0.1:4318/?preview=1", "url", 2048);
+  const deck = card("02 / Stream Deck layout", "Original 3×5 deck. One button per OBS scene, audio mutes, record, go live, Twitch links. Apply claims USB and replaces the display. Quit Elgato first; keep this server running for presses.");
+  const serial = deck.field("Device serial"); const channel = deck.field("Twitch login (optional)", "", "text", 25);
   let deckPreview = "";
   deck.action("Read USB inventory", () => void (async () => {
     const data = await deck.invoke("streamdeck_inventory");
@@ -103,14 +102,15 @@ export function createLiveDemos(request: ToolRequest) {
     if (devices.success && devices.data.length === 1) serial.value = devices.data[0]?.serial ?? "";
     deck.refresh();
   })());
-  deck.action("Preview button · no writes", () => void (async () => {
+  deck.action("Preview layout · no deck writes", () => void (async () => {
     deckPreview = "";
-    const data = await deck.invoke("streamdeck_preview", { serial: serial.value.trim(), key: Number(key.value), url: destination.value });
-    deckPreview = text(data?.id); deck.refresh();
-  })(), () => !!serial.value.trim() && Number.isInteger(Number(key.value)) && Number(key.value) >= 0 && Number(key.value) <= 14 && !!url(destination.value));
-  deck.action("Apply reviewed preview · claim USB", () => void (async () => { const id = deckPreview; deckPreview = ""; await deck.invoke("streamdeck_apply", { previewId: id }, true); deck.refresh(); })(), () => !!deckPreview);
-  deck.action("Release demo page + USB", () => void deck.invoke("streamdeck_release", {}, true));
-  for (const input of [serial, key, destination]) input.addEventListener("input", () => { deckPreview = ""; deck.refresh(); });
+    const data = await deck.invoke("streamdeck_layout_preview", { serial: serial.value.trim(), ...(channel.value.trim() ? { channel: channel.value.trim() } : {}) });
+    deckPreview = text(data?.previewId); deck.refresh();
+  })(), () => !!serial.value.trim());
+  deck.action("Apply reviewed layout · claim USB", () => void (async () => { const id = deckPreview; deckPreview = ""; await deck.invoke("streamdeck_layout_apply", { previewId: id }, true); deck.refresh(); })(), () => !!deckPreview);
+  deck.action("Release USB", () => void deck.invoke("streamdeck_release", {}, true));
+  deck.action("Delete layout + release USB", () => void deck.invoke("streamdeck_release", { deleteLayout: true }, true));
+  for (const input of [serial, channel]) input.addEventListener("input", () => { deckPreview = ""; deck.refresh(); });
 
   const twitch = card("03 / Twitch title", `${twitchConsentSummary} Existing grants are retained. Consent performs no channel action. Review the exact title and approve it separately before applying.`);
   const permissions = element("details");
