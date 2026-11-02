@@ -25,3 +25,7 @@ The fixture has synthetic save success for clip 2 and a synthetic failure for ot
 In Brave on macOS, the local fixture displayed **Save to play** for clip 3. The synthetic failure displayed `FIXTURE_FAILURE` and kept the save action available. Clip 2 returned synthetic success and the refreshed detail displayed **Play clip**.
 
 Selecting **Play clip** displayed native video controls, but Brave reported “Unable to play media” at 0:00. Playback did not succeed. A HEAD request to the public fixture URL returned HTTP 200, `video/mp4`, a 23,167,834-byte content length, and byte-range support. The codec, range GET, and browser failure cause remain unverified. This check does not establish behavior in the ChatGPT host. The fixture server was stopped after the check.
+
+## Real single-clip archive
+
+With user authorization, the hosted archive tool saved one KLabFM clip, **K-LAB FIRST LIVE STREAM**, to Site storage. The response reported one saved file of 21,208,110 bytes and no failures. A subsequent library read returned that clip with its Site playback and download URLs. No other clip was archived. This verifies the Twitch-to-Site-to-library path for one clip; it does not verify playback in the plugin host.
