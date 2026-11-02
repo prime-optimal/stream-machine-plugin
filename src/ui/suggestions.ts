@@ -1,6 +1,6 @@
 export type Suggestion = { id: string; icon: string; title: string; description: string; prompt: string; desktopOnly: boolean };
 
-export const suggestionsHeading = "💡 See what Stream Machine can do";
+export const suggestionsHeading = "All features";
 
 export const suggestions: readonly Suggestion[] = [
   { id: "channel", icon: "connect", title: "Check my channel", description: "Read my current Twitch title and category.", prompt: "Use Stream Machine to show my current Twitch stream title and category.", desktopOnly: false },
@@ -12,25 +12,20 @@ export const suggestions: readonly Suggestion[] = [
   { id: "deck", icon: "local", title: "Add a Stream Deck button", description: "Put a Stream Machine action on a Stream Deck key.", prompt: "Use Stream Machine to set up a Stream Deck button for my stream.", desktopOnly: true },
 ];
 
-export type CarouselMetrics = { scrollLeft: number; clientWidth: number; scrollWidth: number };
-export type CarouselState = { overflow: boolean; canPrev: boolean; canNext: boolean };
+export type PriorityFeature = Omit<Suggestion, "prompt"> & {
+  action: { kind: "message"; prompt: string } | { kind: "navigate"; section: "clips" };
+};
 
-const edgeTolerance = 2;
-
-export function carouselState(metrics: CarouselMetrics): CarouselState {
-  const max = Math.max(0, metrics.scrollWidth - metrics.clientWidth);
-  const overflow = max > edgeTolerance;
-  return {
-    overflow,
-    canPrev: overflow && metrics.scrollLeft > edgeTolerance,
-    canNext: overflow && metrics.scrollLeft < max - edgeTolerance,
-  };
-}
-
-export function scrollTarget(metrics: CarouselMetrics, cardWidth: number, direction: -1 | 1): number {
-  const max = Math.max(0, metrics.scrollWidth - metrics.clientWidth);
-  return Math.min(max, Math.max(0, metrics.scrollLeft + direction * cardWidth));
-}
+export const priorityFeatures: readonly PriorityFeature[] = [
+  { id: "brand-kit", icon: "layers", title: "Brand kit", description: "Draft a DESIGN.md with colors, fonts, and visual direction.", desktopOnly: false,
+    action: { kind: "message", prompt: "Help me draft DESIGN.md and a visual direction for my stream. Ask about my preferences and confirm the brief first. Check which OpenDesign tools are available before proposing generation. Do not assume a saved brand kit or persistent settings exist." } },
+  { id: "stream-assets", icon: "layers", title: "Stream assets", description: "Create overlays, alerts, and other stream graphics.", desktopOnly: false,
+    action: { kind: "message", prompt: "Help me create a stream overlay or alert. Confirm the brief and check which OpenDesign tools are available before generation. Keep this task focused on authoring the asset. Do not install it in OBS or apply it to my stream automatically." } },
+  { id: "clips", icon: "play", title: "Clips", description: "Browse, play, and download your channel's clips.", desktopOnly: false,
+    action: { kind: "navigate", section: "clips" } },
+  { id: "local-setup", icon: "local", title: "OBS & Stream Deck setup", description: "Set up OBS and Stream Deck on your desktop.", desktopOnly: true,
+    action: { kind: "message", prompt: "Help me set up OBS and Stream Deck with Stream Machine on my desktop. Check which local tools are available first, ask which setup I want, and preview any supported changes before applying them." } },
+];
 
 export function canTry(host: { standalone: boolean; messageSupported: boolean }): boolean {
   return !host.standalone && host.messageSupported;

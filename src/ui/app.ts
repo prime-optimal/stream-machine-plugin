@@ -47,6 +47,7 @@ mockPanel.dataset.view = "mock";
 let runtime: Runtime = "local";
 const home = createHome({
   request: requestTool, openLink, icon, standalone,
+  openClips: () => navigation.select("clips"),
   messageSupported: () => app.getHostCapabilities()?.message?.text !== undefined,
   sendMessage: params => app.sendMessage(params),
   storage: (() => { try { return localStorage; } catch { return null; } })(),
@@ -82,6 +83,7 @@ function icon(name: string): string {
     reset: '<path d="M4 10a8 8 0 1 1 1 7M4 4v6h6"/>',
     cloud: '<path d="M6 18a4 4 0 0 1-.5-8 6.5 6.5 0 0 1 12.6-1A4.5 4.5 0 0 1 18 18H6Z"/>',
     local: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/>',
+    lightbulb: '<path d="M9 18h6m-5 3h4M8 13a6 6 0 1 1 8 0c-1.3 1-1 2-1 3H9c0-1 .3-2-1-3Z"/>',
   };
   return `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${paths[name] ?? paths.layers}</svg>`;
 }
@@ -107,8 +109,6 @@ function setRuntime(next: Runtime, nextOrigin: string): void {
   badge.hidden = false;
   home.activate(runtime === "hosted");
   badge.textContent = runtime === "hosted" ? "Hosted" : "Desktop workspace";
-  desktopNote.hidden = runtime !== "hosted";
-  renderCards();
   connections.refresh();
 }
 
@@ -218,7 +218,7 @@ function panel(section: Exclude<Section, "mock">, description: string, content?:
   main.append(node); return node;
 }
 const panels = {
-  home: panel("home", "Choose a workspace. Opening Clips, Connections, or Tools does not run a provider action.", home.element),
+  home: panel("home", "Choose a task for your stream.", home.element),
   assets: panel("assets", "Existing static and HyperFrames HTML authoring. No asset library, images, or video editor.", liveDemos.assets),
   clips: panel("clips", "Every clip on your connected channel. Select a clip to see its details and play a saved copy.", clips.element),
   streamdeck: panel("streamdeck", "Original 3×5 USB demo controls only. Not an Elgato profile editor.", liveDemos.streamdeck),
@@ -230,17 +230,6 @@ main.append(mockPanel);
 const navigation = createNavigation(shell.querySelector("nav")!, panels, section => {
   if (section === "clips") clips.enter(); else clips.leave();
 });
-const cards = document.createElement("div"); cards.className = "home-actions";
-const desktopNote = document.createElement("p"); desktopNote.className = "desktop-note"; desktopNote.hidden = true;
-desktopNote.textContent = "OBS, Stream Deck, creative, and worker controls run in the desktop workspace. Ask ChatGPT to open the Stream Machine workspace on your desktop.";
-function renderCards() {
-  cards.replaceChildren(...visibleSections(runtime).filter(section => section !== "home").map(section => {
-    const button = document.createElement("button"); button.type = "button"; button.className = "live-button";
-    button.textContent = sectionLabels[section]; button.addEventListener("click", () => navigation.select(section)); return button;
-  }));
-}
-renderCards();
-panels.home.append(desktopNote, cards);
 render();
 applyHost();
 if (standalone) {
