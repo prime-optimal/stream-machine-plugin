@@ -1,0 +1,35 @@
+/* Stream Machine console treatment, scoped to the workspace shell. */
+:root {
+  --sm-bg: #080c0d;
+  --sm-panel: #11191b;
+  --sm-ink: #edf2f7;
+  --sm-border: #617477;
+  --sm-highlight: #9aff57;
+}
+:root[data-theme="light"] {
+  --sm-bg: var(--color-background-primary, #f7f8f4);
+  --sm-panel: var(--color-background-secondary, #fff);
+  --sm-ink: var(--color-text-primary, #20271d);
+  --sm-border: var(--color-border-secondary, #68766b);
+  --sm-highlight: var(--color-text-info, #385e16);
+}
+body {
+  background-color: var(--sm-bg);
+  background-image: linear-gradient(#65e3ef0e 1px, transparent 1px), linear-gradient(90deg, #65e3ef0e 1px, transparent 1px);
+  background-size: 48px 48px;
+  color: var(--sm-ink);
+}
+.shell { min-width: 0; }
+.app-header { border-bottom-color: var(--sm-border); border-top: 2px solid var(--sm-highlight); flex-wrap: wrap; }
+.brand { color: var(--sm-ink); font-family: Georgia, serif; font-weight: 400; }
+.workspace-nav { border-bottom-color: var(--sm-border); }
+.workspace-nav button, .home-actions button {
+  min-height: 44px;
+  border-radius: 4px;
+  white-space: normal;
+}
+.workspace-nav button { background: var(--sm-panel); border-color: var(--sm-border); color: var(--sm-ink); }
+.workspace-nav button[aria-current="page"] { background: var(--sm-highlight); color: #080c0d; }
+:root[data-theme="light"] .workspace-nav button[aria-current="page"] { color: #fff; }
+.workspace-panel > h1 { font-family: Georgia, serif; font-weight: 400; letter-spacing: -.02em; }
+.workspace-nav button:focus-visible, .home-actions button:focus-visible { outline: 2px solid var(--color-ring-primary, var(--sm-highlight)); outline-offset: 4px; }

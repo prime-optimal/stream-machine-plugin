@@ -12,7 +12,7 @@ const inlinePng: Bun.BunPlugin = {
 const ui = await Bun.build({ entrypoints: ["src/ui/app.ts"], target: "browser", minify: true, plugins: [inlinePng] });
 if (!ui.success) throw new AggregateError(ui.logs, "UI build failed");
 const js = await ui.outputs.find(output => output.path.endsWith(".js"))!.text();
-const css = await Bun.file("src/ui/style.css").text();
+const css = (await Bun.file("src/ui/style.css").text()) + "\n" + (await Bun.file("src/ui/widget-shell.css").text());
 const template = await Bun.file("src/ui/index.html").text();
 const html = template.replace("__APP_JS__", () => js.replace(/<\/script/gi, "<\\/script")).replace("__APP_CSS__", () => css);
 if (/__APP_(JS|CSS)__/.test(html)) throw new Error("Unresolved UI template marker");
