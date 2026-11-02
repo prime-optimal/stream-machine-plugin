@@ -25,7 +25,7 @@ The hosted `stream_machine_open` is read-only, has an empty strict input schema,
 
 | Section | Hosted | Local |
 | --- | --- | --- |
-| Home | Section cards plus a desktop note | Section cards |
+| Home | Connection confirmation, channel snapshot, suggestion carousel, section cards, and a desktop note (#164) | Section cards |
 | Connections | Hosted Twitch status. Connect opens the exact `${siteOrigin}/` through `app.openLink`; no preflight or `browserRequested` | A Site link first. Local preflight and OAuth only inside an explicit "Use desktop fallback" disclosure |
 | Clips | Hosted clip tools | Local clip tools |
 | Tools | Twitch cards only (channel, title preview with approval link, apply) | All cards |
@@ -41,7 +41,7 @@ The header badge reads `Hosted` or `Desktop workspace`. `connectionUrl` accepts 
 
 ### Skill
 
-After hosted `stream_machine_twitch_status` verifies the account, the skill calls hosted `stream_machine_open`. Then it offers the title preview. Device controls use the local `stream_machine_workspace`.
+After hosted `stream_machine_twitch_status` verifies the account, the skill calls hosted `stream_machine_open`, and the user lands on Home with the connection confirmation and channel snapshot. Then it offers the title preview. Device controls use the local `stream_machine_workspace`.
 
 ## Verification
 
