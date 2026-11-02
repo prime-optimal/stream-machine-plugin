@@ -114,7 +114,7 @@ test('implemented clients issue only the registered endpoint inventory',async()=
   seen.add(method+' '+url.pathname);
   if(url.pathname==='/helix/users') return Response.json({data:[{id:'123',login:'test',display_name:'Test',description:'Test',profile_image_url:'',offline_image_url:''}]});
   if(url.pathname==='/helix/channels') return method==='PATCH'?new Response(null,{status:204}):Response.json({data:[{broadcaster_id:'123',broadcaster_login:'test',broadcaster_name:'Test',title:'Original',game_id:'1',game_name:'Test'}]});
-  if(url.pathname==='/helix/clips')return Response.json(url.searchParams.has('broadcaster_id')?{data:[{id:'Clip',url:'https://clips.twitch.tv/Clip',title:'Clip',created_at:'2026-10-01T00:00:00Z',duration:5,view_count:1,game_id:'1'}]}:{data:[{id:'Clip',broadcaster_id:'123',title:'Clip',url:'https://clips.twitch.tv/Clip'}]});
+  if(url.pathname==='/helix/clips')return Response.json(url.searchParams.has('broadcaster_id')?{data:[{id:'Clip',url:'https://clips.twitch.tv/Clip',title:'Clip',created_at:'2026-10-01T00:00:00Z',duration:5,view_count:1,game_id:'1'}]}:{data:[{id:'Clip',broadcaster_id:'123',broadcaster_name:'Test',creator_id:'9',creator_name:'Maker',game_id:'1',title:'Clip',url:'https://clips.twitch.tv/Clip',created_at:'2026-10-31T12:00:00Z',duration:12,view_count:0,thumbnail_url:'https://static-cdn.jtvnw.net/Clip.jpg'}]});
   if(url.pathname==='/helix/games')return Response.json({data:[{id:'1',name:'Test'}]});
   if(url.pathname==='/helix/clips/downloads')return Response.json({data:[{clip_id:'Clip',landscape_download_url:'https://example.test/clip',portrait_download_url:null}]});
   throw new Error('Undeclared endpoint');

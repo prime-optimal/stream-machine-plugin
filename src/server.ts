@@ -10,6 +10,8 @@ import { registerWorkerTools } from "./worker/register";
 import { registerGameTools } from "./adapters/igdb/register";
 import { registerTranscriptionTool } from "./adapters/openai/transcription-register";
 import { registerAnalyticsTools } from "./analytics/register";
+import { registerMediaTools } from "./adapters/media/register";
+import { MediaInfoService } from "./adapters/media/service";
 
 export const UI_URI = "ui://stream-machine/workspace-v4.html";
 const descriptions: Record<ToolName, string> = {
@@ -45,12 +47,13 @@ export function createServer(html: string) {
   registerUpdateTools(server);
   registerObsTools(server);
   const deck = registerStreamDeckTools(server);
-  registerTwitchTools(server);
+  const clips = registerTwitchTools(server);
   registerCreativeTools(server);
   registerWorkerTools(server);
   registerGameTools(server);
   registerAnalyticsTools(server);
   const transcription = registerTranscriptionTool(server);
+  registerMediaTools(server, new MediaInfoService(clips, transcription));
   server.server.onclose = () => { transcription.close(); void deck.close().catch(() => process.stderr.write("Stream Deck cleanup failed.\n")); };
   server.registerResource("stream-machine-workspace", UI_URI, {
     mimeType: "text/html;profile=mcp-app",

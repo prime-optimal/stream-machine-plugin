@@ -2,7 +2,7 @@
 
 Use `stream_machine_transcribe_audio` when you have a completed local recording and want its spoken text. The tool uploads the selected file to OpenAI using `gpt-transcribe`. Only invoke it when the user has requested that upload. OpenAI usage may incur charges.
 
-This tool does not fetch URLs, download media, retrieve video metadata, or replace the private YouTube provider in PR #77. An existing downloaded clip can be input if it meets the limits below.
+This tool does not fetch URLs, download media, or retrieve video metadata. `stream_machine_media_info` applies it to an authorized Twitch clip. See [Show details or a transcript for one clip](media-info.md). A downloaded clip can also be input here if it meets the limits below.
 
 ## Prepare the server
 

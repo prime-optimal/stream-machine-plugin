@@ -3,7 +3,10 @@ import { TwitchClipClient } from "../src/adapters/twitch/clips-client";
 import { TwitchClipService } from "../src/adapters/twitch/clips-service";
 import type { TwitchAccess, TwitchAccountProvider } from "../src/auth/twitch";
 const access: TwitchAccess = { account: { id: "123", login: "owner", displayName: "Owner", scopes: ["channel:manage:clips"] }, clientId: "client", accessToken: "TOKEN_SENTINEL" };
-const clip = { id: "Clip-1", broadcaster_id: "123", title: "Clip", url: "https://clips.twitch.tv/Clip-1" };
+const clip = {
+  id: "Clip-1", broadcaster_id: "123", broadcaster_name: "Owner", creator_id: "456", creator_name: "Creator", game_id: "509658", title: "Clip",
+  url: "https://clips.twitch.tv/Clip-1", created_at: "2026-10-31T12:00:00Z", duration: 29.5, view_count: 7, thumbnail_url: "https://static-cdn.jtvnw.net/twitch-clips/Clip-1-preview.jpg",
+};
 function fixture(options: { status?: number; metadata?: unknown; download?: unknown; scopes?: string[] } = {}) {
   const calls: URL[] = [];
   let inAccount = false;
@@ -34,7 +37,7 @@ test("scope and ownership fail before download lookup", async () => {
   await expect(wrong.service.download("Clip-1")).rejects.toThrow("CLIP_WRONG_BROADCASTER"); expect(wrong.calls).toHaveLength(1);
 });
 test("metadata needs no download scope and validates input and returned ID", async () => {
-  expect(await fixture({ scopes: [] }).service.clip("Clip-1")).toMatchObject({ clip: { id: "Clip-1" } });
+  expect(await fixture({ scopes: [] }).service.clip("Clip-1")).toMatchObject({ clip: { id: "Clip-1", broadcasterName: "Owner", creatorName: "Creator", gameId: "509658", sourceUrl: "https://clips.twitch.tv/Clip-1", createdAt: "2026-10-31T12:00:00Z", durationSeconds: 29.5, viewCount: 7, thumbnailUrl: "https://static-cdn.jtvnw.net/twitch-clips/Clip-1-preview.jpg" } });
   for (const id of ["", "../bad", "a".repeat(257)]) await expect(fixture().service.clip(id)).rejects.toThrow("INVALID_CLIP_ID");
   await expect(fixture({ metadata: { data: [{ ...clip, id: "wrong" }] } }).service.clip("Clip-1")).rejects.toThrow("TWITCH_INVALID_RESPONSE");
 });
