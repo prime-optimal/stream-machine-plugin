@@ -1,0 +1,288 @@
+diff --git a/README.md b/README.md
+index 759d905..6baa151 100644
+--- a/README.md
++++ b/README.md
+@@ -4 +4 @@ This private Site tests Twitch sign-in and saved account status.
+-Tokens stay encrypted in D1. No optional Twitch scopes are requested.
++Tokens stay encrypted in D1. The request matches the local 12-scope baseline.
+@@ -49 +49 @@ bun /Users/prime/.codex/plugins/cache/openai-curated-remote/sites/1.1.2/scripts/
+-Expect 21 passing tests, no type errors, and a Vinext Worker build.
++Expect 28 passing tests, no type errors, and a Vinext Worker build.
+diff --git a/app/globals.css b/app/globals.css
+index 9fa9a0d..fe836fa 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -168,0 +169,6 @@ footer a { color: #c7fb74; }
++
++.consent { margin-top: 24px; padding: 16px; border: 1px solid #43513f; border-radius: 9px; }
++.consent summary { cursor: pointer; color: #d4f5a8; }
++.consent ul { list-style: disc; padding-left: 22px; }
++.consent li { margin: 8px 0; }
++.connection-controls p, .connection-controls code { overflow-wrap: anywhere; }
+diff --git a/app/page.tsx b/app/page.tsx
+index e5f7df5..565d59a 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -15 +15 @@ export default async function Home() {
+-    <aside className="trust-note"><span aria-hidden="true">↳</span> Account identity only. No channel edits, messages, or broadcast controls requested.</aside>
++    <aside className="trust-note"><span aria-hidden="true">↳</span> Requests the Stream Machine 12-scope baseline. Review current and future permissions before connecting.</aside>
+diff --git a/components/connection.tsx b/components/connection.tsx
+index e2cc111..596b0ac 100644
+--- a/components/connection.tsx
++++ b/components/connection.tsx
+@@ -3,0 +4 @@ import { z } from 'zod';
++import permissions from '@/lib/twitch/permissions.generated.json';
+@@ -5,2 +6,2 @@ import { z } from 'zod';
+-const statusSchema = z.object({ready:z.boolean(), connected:z.boolean(), reconnectRequired:z.boolean().optional(), profile:z.object({displayName:z.string(),login:z.string()}).optional()});
+-type State = {kind:'loading'} | {kind:'unavailable'} | {kind:'setup'} | {kind:'disconnected';reconnect:boolean} | {kind:'connected';displayName:string;login:string};
++const statusSchema = z.object({ready:z.boolean(), connected:z.boolean(),scopes:z.array(z.string()).optional(), reconnectRequired:z.boolean().optional(), profile:z.object({displayName:z.string(),login:z.string()}).optional()});
++type State = {kind:'loading'} | {kind:'unavailable'} | {kind:'setup'} | {kind:'disconnected';reconnect:boolean} | {kind:'connected';displayName:string;login:string;scopes:string[]};
+@@ -21 +22 @@ export function Connection() {
+-      else if(status.connected&&status.profile)setState({kind:'connected',...status.profile});
++      else if(status.connected&&status.profile)setState({kind:'connected',...status.profile,scopes:status.scopes??[]});
+@@ -35 +36 @@ export function Connection() {
+-    {state.kind==='connected'&&<p className="account">@{state.login}</p>}
++    {state.kind==='connected'&&<><p className="account">@{state.login}</p><p>Granted scopes: {state.scopes.length ? state.scopes.join(', ') : 'None'}</p><p>Missing baseline scopes: {permissions.requiredScopes.filter(scope=>!state.scopes.includes(scope)).join(', ')||'None'}</p>{permissions.requiredScopes.some(scope=>!state.scopes.includes(scope))&&<p className="notice">Connect again to grant the added permissions. Your existing connection is kept until a complete grant is saved.</p>}</>}
+@@ -37,0 +39 @@ export function Connection() {
++    <details className="consent"><summary>Review the 12 requested Twitch permissions</summary><p>Current local Stream Machine features use these two scopes. This Site saves consent; it does not run those tools.</p><ul><li>Title updates: <code>channel:manage:broadcast</code></li><li>Own-channel clip downloads: <code>channel:manage:clips</code></li></ul><p>Future permissions, not active features:</p><ul>{permissions.futurePermissions.map(item=><li key={item.scope}>{item.purpose}: <code>{item.scope}</code></li>)}</ul><p className="notice">{permissions.consentSummary}</p><p>The request also retains prior grants and any added scopes. Twitch shows the full consent request before you approve.</p></details>
+diff --git a/lib/twitch/permissions.generated.json b/lib/twitch/permissions.generated.json
+new file mode 100644
+index 0000000..ebdce97
+--- /dev/null
++++ b/lib/twitch/permissions.generated.json
+@@ -0,0 +1,65 @@
++{
++  "source": "stream-machine-plugin/src/auth/permissions.ts",
++  "sourceSha256": "b9b90a6bf90420a85c8ff270e8dc6c936022095f31e2017ed946743a6174fdd1",
++  "requiredScopes": [
++    "bits:read",
++    "channel:bot",
++    "channel:manage:broadcast",
++    "channel:manage:clips",
++    "channel:manage:redemptions",
++    "channel:read:redemptions",
++    "channel:read:subscriptions",
++    "clips:edit",
++    "moderator:read:followers",
++    "user:bot",
++    "user:read:chat",
++    "user:write:chat"
++  ],
++  "implementedScopes": [
++    "channel:manage:broadcast",
++    "channel:manage:clips"
++  ],
++  "futurePermissions": [
++    {
++      "scope": "user:read:chat",
++      "purpose": "Read chat"
++    },
++    {
++      "scope": "user:write:chat",
++      "purpose": "Send chat"
++    },
++    {
++      "scope": "moderator:read:followers",
++      "purpose": "Read followers"
++    },
++    {
++      "scope": "channel:read:subscriptions",
++      "purpose": "Read subscriptions"
++    },
++    {
++      "scope": "bits:read",
++      "purpose": "Read cheers"
++    },
++    {
++      "scope": "channel:read:redemptions",
++      "purpose": "Read rewards and redemptions"
++    },
++    {
++      "scope": "channel:manage:redemptions",
++      "purpose": "Manage rewards and redemptions"
++    },
++    {
++      "scope": "clips:edit",
++      "purpose": "Create clips"
++    },
++    {
++      "scope": "user:bot",
++      "purpose": "Authorize this user as a bot"
++    },
++    {
++      "scope": "channel:bot",
++      "purpose": "Authorize a bot in this channel"
++    }
++  ],
++  "consentSummary": "Current features use title updates and own-channel clip downloads, with broader broadcast and clip management access. Future permissions, not active features: read/send chat; read followers, subscriptions, and cheers; read/manage rewards; create clips; bot use. Requesting unused permissions conflicts with Twitch policy and risks API access suspension. Consent does not authorize a separate bot account."
++}
+diff --git a/lib/twitch/service.ts b/lib/twitch/service.ts
+index d09f5b8..82ba6c6 100644
+--- a/lib/twitch/service.ts
++++ b/lib/twitch/service.ts
+@@ -2,0 +3 @@ import {TwitchClient,TwitchError,type Tokens} from './client';
++import permissions from './permissions.generated.json';
+@@ -12,2 +13,3 @@ export class TwitchService {
+-  async begin(ownerId:string) {
+-    const state=randomState(),scopes:string[]=[];
++  async begin(ownerId:string,additional:string[]=[]) {
++    const previous=await this.store.get(ownerId);
++    const state=randomState(),scopes=[...new Set([...permissions.requiredScopes,...(previous?.scopes??[]),...additional])].sort();
+@@ -40 +42,6 @@ export class TwitchService {
+-      if(exchanged&&!saved)await this.client.revoke(exchanged.accessToken);
++      if(exchanged&&!saved){
++        const current=await this.store.get(ownerId);
++        let currentAccess:string|undefined;
++        if(current){try{currentAccess=(await this.tokens(current)).accessToken;}catch{}}
++        if(currentAccess!==exchanged.accessToken)await this.client.revoke(exchanged.accessToken);
++      }
+@@ -80 +87,2 @@ export class TwitchService {
+-      return {connected:true,profile:connection.profile,scopes:connection.scopes};
++      const scopes=connection.scopes;
++      return {connected:true,profile:connection.profile,scopes,reconnectRequired:permissions.requiredScopes.some(scope=>!scopes.includes(scope))};
+diff --git a/scripts/sync-twitch-permissions.ts b/scripts/sync-twitch-permissions.ts
+new file mode 100644
+index 0000000..88c0f59
+--- /dev/null
++++ b/scripts/sync-twitch-permissions.ts
+@@ -0,0 +1,21 @@
++import { readFile, writeFile } from 'node:fs/promises';
++import { resolve } from 'node:path';
++import { pathToFileURL } from 'node:url';
++import { createHash } from 'node:crypto';
++
++const source=resolve(process.argv.slice(2).find(argument=>argument!=='--check')??'../../src/auth/permissions.ts');
++const canonical=await import(pathToFileURL(source).href);
++const sourceBytes=await readFile(source);
++const snapshot={
++  source:'stream-machine-plugin/src/auth/permissions.ts',
++  sourceSha256:createHash('sha256').update(sourceBytes).digest('hex'),
++  requiredScopes:canonical.requiredTwitchScopes,
++  implementedScopes:canonical.implementedTwitchScopes,
++  futurePermissions:canonical.futureTwitchPermissions,
++  consentSummary:canonical.twitchConsentSummary,
++};
++const target=new URL('../lib/twitch/permissions.generated.json',import.meta.url);
++const text=JSON.stringify(snapshot,null,2)+'\n';
++if(process.argv.includes('--check')) {
++  if(await readFile(target,'utf8')!==text)throw new Error('Hosted Twitch scope snapshot differs from canonical source. Run sync-twitch-permissions.ts.');
++} else await writeFile(target,text);
+diff --git a/source-reuse.md b/source-reuse.md
+index c116cfc..97ef81d 100644
+--- a/source-reuse.md
++++ b/source-reuse.md
+@@ -17 +17 @@ Copied files provide these parts:
+-This copy removes the follower-scope option.
++The request now matches the local 12-scope baseline.
+@@ -28,0 +29,24 @@ A local build does not prove deployment or live Twitch sign-in.
++
++## Shared scope snapshot
++
++The canonical source is the plugin's `src/auth/permissions.ts`.
++`lib/twitch/permissions.generated.json` holds its scope and consent data.
++The file records the source path and SHA-256. It is a generated snapshot,
++not a second hand-maintained policy. Runtime and tests use this local file.
++They do not need the plugin checkout on the hosted server.
++
++Run the sync check from this Site while authoring in the parent checkout:
++
++```sh
++bun scripts/sync-twitch-permissions.ts ../../src/auth/permissions.ts --check
++```
++
++To refresh it, omit `--check`. A separate checkout can pass an absolute
++canonical source path. The script imports that source only at authoring time.
++No sync check is needed when building a standalone published Site checkout.
++
++The request is the sorted union of the baseline, prior grants, and extra
++scopes. Token validation must contain all requested scopes before save.
++Denied or incomplete reauthorization keeps the previous connection.
++A rejected new token is revoked unless it is the current saved token.
++Existing zero-scope grants stay connected but need fresh consent.
+diff --git a/tests/twitch/helpers.mjs b/tests/twitch/helpers.mjs
+index bf517f8..87bb360 100644
+--- a/tests/twitch/helpers.mjs
++++ b/tests/twitch/helpers.mjs
+@@ -3,0 +4 @@ import {D1ConnectionStore} from '../../lib/twitch/store.ts';
++import permissions from '../../lib/twitch/permissions.generated.json';
+@@ -18 +19 @@ export function fixture(){
+-  scopes:[],exchanges:0,refreshes:0,revocations:[],invalidAccess:false,invalidRefresh:false,unavailable:false,foreignIdentity:false,
++  scopes:[...permissions.requiredScopes],exchanges:0,refreshes:0,revocations:[],invalidAccess:false,invalidRefresh:false,unavailable:false,foreignIdentity:false,
+diff --git a/tests/twitch/scope-parity.test.mjs b/tests/twitch/scope-parity.test.mjs
+new file mode 100644
+index 0000000..eefeb2e
+--- /dev/null
++++ b/tests/twitch/scope-parity.test.mjs
+@@ -0,0 +1,50 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import {TwitchService} from '../../lib/twitch/service.ts';
++import {fixture} from './helpers.mjs';
++const baseline=['bits:read','channel:bot','channel:manage:broadcast','channel:manage:clips','channel:manage:redemptions','channel:read:redemptions','channel:read:subscriptions','clips:edit','moderator:read:followers','user:bot','user:read:chat','user:write:chat'];
++test('hosted authorization requests exact local baseline and sorted deduplicated union',async()=>{
++ const {store,client}=fixture(),service=new TwitchService(store,client);
++ const first=await service.begin('owner');
++ assert.deepEqual(new URL(first.url).searchParams.get('scope').split(' '),baseline);
++ client.scopes=[...baseline,'user:read:email'];
++ await service.complete('owner',first.state,first.state,'code',null);
++ const next=await service.begin('owner',['bits:read','channel:read:goals','channel:read:goals']);
++ assert.deepEqual(new URL(next.url).searchParams.get('scope').split(' '),[...baseline,'user:read:email','channel:read:goals'].sort());
++});
++test('incomplete and denied reauthorization preserve existing connection',async()=>{
++ const {store,client}=fixture(),service=new TwitchService(store,client);
++ client.scopes=[...baseline];
++ const first=await service.begin('owner');await service.complete('owner',first.state,first.state,'code',null);
++ const previous=await store.get('owner');
++ client.exchange=async()=>({accessToken:'rejected-access',refreshToken:'rejected-refresh',expiresIn:3600,scopes:[...baseline]});
++ const incomplete=await service.begin('owner',['user:read:email']);
++ await assert.rejects(service.complete('owner',incomplete.state,incomplete.state,'code',null),{code:'missing_permissions'});
++ assert.deepEqual(await store.get('owner'),previous);
++ assert.ok(client.revocations.includes('rejected-access'));
++ assert.ok(!client.revocations.includes('test-access'));
++ const denied=await service.begin('owner');
++ await assert.rejects(service.complete('owner',denied.state,denied.state,null,'access_denied'),{code:'denied'});
++ assert.deepEqual(await store.get('owner'),previous);
++});
++
++test('incomplete reauthorization never revokes an identical prior access token',async()=>{
++ const {store,client}=fixture(),service=new TwitchService(store,client);
++ client.scopes=[...baseline];const first=await service.begin('owner');
++ await service.complete('owner',first.state,first.state,'code',null);
++ const previous=await store.get('owner');
++ const second=await service.begin('owner',['user:read:email']);
++ await assert.rejects(service.complete('owner',second.state,second.state,'code',null),{code:'missing_permissions'});
++ assert.deepEqual(await store.get('owner'),previous);
++ assert.ok(!client.revocations.includes('test-access'));
++});
++
++test('existing zero-scope connection stays connected and requests new consent',async()=>{
++ const {store,client}=fixture(),service=new TwitchService(store,client);
++ client.scopes=[...baseline];const first=await service.begin('owner');
++ await service.complete('owner',first.state,first.state,'code',null);
++ client.scopes=[];
++ const status=await service.status('owner');
++ assert.equal(status.connected,true);assert.equal(status.reconnectRequired,true);
++ assert.deepEqual(status.scopes,[]);assert.ok(await store.get('owner'));
++});
+diff --git a/tests/twitch/service.test.mjs b/tests/twitch/service.test.mjs
+index 786f3bc..c69f9c7 100644
+--- a/tests/twitch/service.test.mjs
++++ b/tests/twitch/service.test.mjs
+@@ -5,0 +6 @@ import {TwitchError} from '../../lib/twitch/client.ts';
++import permissions from '../../lib/twitch/permissions.generated.json';
+@@ -19 +20 @@ test('seals tokens to both the key and owner',async()=>{
+-test('basic connection requests no optional scopes and stores no raw state or token',async()=>{
++test('connection requests baseline scopes and stores no raw state or token',async()=>{
+@@ -22 +23 @@ test('basic connection requests no optional scopes and stores no raw state or to
+- assert.equal(new URL(start.url).searchParams.get('scope'),'');
++ assert.equal(new URL(start.url).searchParams.get('scope'),permissions.requiredScopes.join(' '));
+diff --git a/validation.md b/validation.md
+index d5fac11..8c3d76c 100644
+--- a/validation.md
++++ b/validation.md
+@@ -5 +5 @@ Checked on macOS arm64 with Bun 1.4.4:
+-- `bun test tests/twitch`: exit 0; 21 passed, zero failed.
++- `bun test tests/twitch`: exit 0; 28 passed, zero failed.
+@@ -13 +13 @@ Tests check these rules:
+-- The callback matches, and no optional scope is requested.
++- The callback matches, and the request uses the 12-scope baseline.
