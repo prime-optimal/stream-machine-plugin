@@ -1,0 +1,42 @@
+---
+title: "Release publishing stops at every failed gate"
+---
+stateDiagram-v2
+  s0: Waiting, nothing published
+  s1: Waiting, tag at another commit
+  s2: Plan found an unpublished version
+  s3: Release commit checked out
+  s4: Guard refused, nothing written
+  s5: A check failed, nothing written
+  s6: Guards running
+  s7: All guards passed
+  s8: Release published with assets
+  s9: Upload failed, draft left
+  s10: Waiting, draft left behind
+  s11: Waiting, release published
+  s12: Already published, nothing written
+  [*] --> s0
+  [*] --> s1
+  s0 --> s2: push or manual run finds no published release
+  s1 --> s0: a human removes the stray tag
+  s1 --> s2: push or manual run finds no published release
+  s2 --> s3: checkout matches the release commit
+  s2 --> s4: checkout is not the release commit
+  s3 --> s5: a check, test, smoke, or package step fails
+  s3 --> s6: install, check, test, smoke, and package pass
+  s4 --> s0: run ends
+  s4 --> s1: run ends
+  s5 --> s0: run ends
+  s5 --> s1: run ends
+  s6 --> s4: tag points to another commit or worktree has changes or a package is missing or a draft release exists
+  s6 --> s7: both packages exist
+  s7 --> s8: gh release create publishes
+  s7 --> s9: an asset upload fails
+  s8 --> s11: run ends
+  s9 --> s10: run ends
+  s10 --> s0: a human deletes the draft
+  s10 --> s2: push or manual run finds no published release
+  s11 --> s12: push or manual run finds the version published
+  s12 --> s11: run ends
+  s4 --> s10: run ends
+  s5 --> s10: run ends
