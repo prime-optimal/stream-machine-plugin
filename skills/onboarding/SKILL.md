@@ -11,7 +11,7 @@ Sites sign-in identifies the caller. Twitch consent connects that caller's chann
 
 Keep status, channel reads, previews, and apply calls on the same provider. Open the returned hosted connection or approval URL through the host's navigation. Hosted connect returns a link; it does not launch a browser on the server.
 
-After hosted `stream_machine_twitch_status` verifies the account, call the hosted `stream_machine_open`. It opens the hosted Stream Machine menu with Twitch status, clips, and Twitch tools. Then offer the title preview. Device controls (OBS, Stream Deck, creative, and worker) are not in the hosted menu. Open them with the local `stream_machine_workspace` on a desktop host.
+After hosted `stream_machine_twitch_status` verifies the account, call the hosted `stream_machine_open`. The user lands on Home. Home confirms "Connected to Twitch as <name>", shows a channel snapshot from `stream_machine_twitch_snapshot`, and lists suggestion cards. Then offer the title preview. Device controls (OBS, Stream Deck, creative, and worker) are not in the hosted menu. Open them with the local `stream_machine_workspace` on a desktop host.
 
 ## Choose the local fallback
 

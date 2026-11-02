@@ -16,6 +16,14 @@ After `stream_machine_twitch_status` verifies the account, call the hosted `stre
 
 For those controls, call the local `stream_machine_workspace` on a desktop host. An MCP app can call only the server that served it, so the hosted menu and the desktop workspace stay separate. Both servers serve the same `ui://stream-machine/workspace-v4.html` bundle, and the bundle shows sections for the `runtime` that `stream_machine_open` reports.
 
+## Read the home screen
+
+Hosted Home reads Twitch on its own once connected. It calls `stream_machine_twitch_status`. When that reports an account, Home shows "Connected to Twitch as <name>" and calls `stream_machine_twitch_snapshot`. The snapshot is a read-only tool that makes at most five Helix requests: the account, channel, clips, last archive, and follower total. Home shows the profile image, offline image, title and category, follower total, last stream, clip count (`20+` when more exist), and up to six recent clip thumbnails. A section Twitch could not return appears as a quiet note. A failed snapshot keeps the confirmation and shows a **Retry** button.
+
+Home caches the last snapshot in `localStorage` under `stream-machine:home:v1`. It paints the cache first, then replaces it with the fresh result. It drops the cache when status reports a different account or no connection. The cache holds only the public snapshot fields, never a token. A status request that fails for a transient reason keeps the cache.
+
+Under the snapshot, **See what Stream Machine can do** lists suggestion cards. **Try** sends the card's prompt into the chat with `ui/message`. It is enabled only when the host advertises message support and is disabled in the standalone preview. OBS and Stream Deck cards are labeled **Desktop only**.
+
 ## Approve a title
 
 1. Call `stream_machine_twitch_preview_title` with the exact title.

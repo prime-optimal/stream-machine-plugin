@@ -5,6 +5,7 @@ import { createNavigation, openSchema, sectionLabels, visibleSections, type Runt
 import { createConnections } from "./connections";
 import { siteOrigin as defaultSiteOrigin } from "../site";
 import { createToolRequest, type ToolResult } from "./tool-transport";
+import { createHome } from "./home-menu";
 import { App } from "@modelcontextprotocol/ext-apps";
 import { OpenAIExtensions } from "@openai/mcp-extensions/app";
 
@@ -31,8 +32,19 @@ const mockPanel = document.createElement("section");
 mockPanel.dataset.view = "mock";
 let runtime: Runtime = "local";
 let siteOrigin = defaultSiteOrigin;
+const home = createHome({
+  request: requestTool, openLink, icon, standalone,
+  messageSupported: () => app.getHostCapabilities()?.message?.text !== undefined,
+  sendMessage: params => app.sendMessage(params),
+  storage: (() => { try { return localStorage; } catch { return null; } })(),
+});
 const connections = createConnections({ request: requestTool, invalidateTitle: liveDemos.invalidateTitle, openLink,
   context: () => ({ runtime, siteOrigin }),
+  onVerified: account => {
+    if (runtime !== "hosted" || home.connectedAccountId() === account.id) return;
+    void home.verified(account);
+    navigation.select("home", false);
+  },
 });
 let snapshot: Snapshot | null = null;
 let selectedRecipe = "prepare-channel";
@@ -77,6 +89,7 @@ function setRuntime(next: Runtime, nextOrigin: string): void {
   liveDemos.setRuntime(runtime);
   navigation.show(visibleSections(runtime));
   badge.hidden = false;
+  home.activate(runtime === "hosted");
   badge.textContent = runtime === "hosted" ? "Hosted" : "Desktop workspace";
   desktopNote.hidden = runtime !== "hosted";
   renderCards();
@@ -172,7 +185,7 @@ app.ontoolresult = (result) => {
   try { rememberDraft(); accept(result); } catch (cause) { showError(cause instanceof Error ? cause.message : "Could not load the workspace."); }
 };
 app.addEventListener("hostcontextchanged", applyHost);
-app.onteardown = async () => { connections.dispose(); clips.dispose(); return {}; };
+app.onteardown = async () => { connections.dispose(); clips.dispose(); home.dispose(); return {}; };
 const shell = document.createElement("div");
 shell.className = "shell";
 shell.innerHTML = '<header class="app-header"><span class="brand">Stream Machine</span><span class="badge" id="runtime-badge" hidden></span></header><nav class="workspace-nav" aria-label="Workspace sections"></nav><main id="workspace-main"></main><p id="host-error" role="alert" hidden></p>';
@@ -189,7 +202,7 @@ function panel(section: Exclude<Section, "mock">, description: string, content?:
   main.append(node); return node;
 }
 const panels = {
-  home: panel("home", "Choose a workspace. Opening a section does not run a provider action."),
+  home: panel("home", "Choose a workspace. Opening Clips, Connections, or Tools does not run a provider action.", home.element),
   assets: panel("assets", "Existing static and HyperFrames HTML authoring. No asset library, images, or video editor.", liveDemos.assets),
   clips: panel("clips", "Every clip on your connected channel. Select a clip to see its details and play a saved copy.", clips.element),
   streamdeck: panel("streamdeck", "Original 3×5 USB demo controls only. Not an Elgato profile editor.", liveDemos.streamdeck),

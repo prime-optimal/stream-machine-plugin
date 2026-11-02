@@ -131,9 +131,18 @@ export function createConnectionState(request: ToolRequest, changed: () => void,
 }
 export function createConnections(options: {
   request: ToolRequest; invalidateTitle: () => void; openLink: (url: string) => void; context: () => ConnectionContext;
+  onVerified?: (account: { id: string; displayName: string }) => void;
 }) {
   const element = document.createElement("div"); element.className = "connections-panel";
-  const model = createConnectionState(options.request, render, options.invalidateTitle, options.context);
+  let announced = "";
+  function changed() {
+    render();
+    const { check } = model.state();
+    if (check.kind !== "verified" || check.value.checkedAt === announced) return;
+    announced = check.value.checkedAt;
+    options.onVerified?.(check.value.account);
+  }
+  const model = createConnectionState(options.request, changed, options.invalidateTitle, options.context);
   let fallbackOpen = false;
   let returnFocus: string | null = null;
   function node<K extends keyof HTMLElementTagNameMap>(tag: K, text: string) {
