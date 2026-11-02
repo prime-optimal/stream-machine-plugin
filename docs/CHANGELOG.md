@@ -1,3 +1,13 @@
+## 0.5.0 (2026-11-01)
+
+### Feat
+
+- **release**: publish GitHub Releases with plugin packages (#120) (#121)
+
+### Fix
+
+- **release**: run publish script from workflow commit (#120) (#124)
+
 ## 0.4.1 (2026-11-01)
 
 ### Fix
