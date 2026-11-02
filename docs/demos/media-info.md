@@ -65,3 +65,11 @@ The tool returns an error instead of a partial result when the clip ID is invali
 - Twitch clips only. The tool accepts no other URL and no local path.
 - No automatic retries and no stored transcripts. Each call with `transcript: true` downloads and uploads again.
 - Only one clip download runs at a time.
+- The tool uploads the whole MP4, not extracted audio. A 30-second 720p KLabFM clip was 23,172,694 bytes, close to the 25,000,000-byte limit. Longer or higher-bitrate clips can fail with `AUDIO_TOO_LARGE`.
+
+## Verification
+
+On 2026-11-02, the local server ran through `fnox exec` with the KLabFM connection (account `1494553296`, with `channel:manage:clips`). It was called for clip `ClumsyZealousBibimbapAMPEnergyCherry-SefTK-jl03LGBlm7`, titled "CAR CAR".
+
+- Details only: returned `mode: "live"` with the title, source URL, broadcaster, and 30-second duration.
+- With `transcript: true`: returned `state: "available"`, `model: "gpt-transcribe"`, `audioBytes: 23172694`, and Spanish lyric text in about 6 seconds. The call left no file in `~/.local/share/stream-machine/clips`.
