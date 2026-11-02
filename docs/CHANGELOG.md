@@ -1,3 +1,13 @@
+## 0.7.0 (2026-11-02)
+
+### Feat
+
+- **ui**: use Connect with Twitch image button for OAuth (#153)
+- show Twitch clip details and transcript (#40) (#77)
+- add clip library gallery, player, save-all, and ZIP (#147) (#149)
+- calculate sourced broadcast duration (#42) (#78)
+- find Twitch games through IGDB (#41) (#79)
+
 ## 0.6.0 (2026-11-01)
 
 ### Feat
