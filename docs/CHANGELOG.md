@@ -1,3 +1,10 @@
+## 0.6.0 (2026-11-01)
+
+### Feat
+
+- default Twitch tools to authenticated Sites MCP (#130) (#142)
+- add private hosted clip storage source and checks (#136) (#141)
+
 ## 0.5.0 (2026-11-01)
 
 ### Feat
