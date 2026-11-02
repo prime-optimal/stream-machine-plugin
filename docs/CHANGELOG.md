@@ -1,3 +1,9 @@
+## 0.8.1 (2026-11-02)
+
+### Fix
+
+- launch stream-machine-desktop without fnox (#174)
+
 ## 0.8.0 (2026-11-02)
 
 ### Feat

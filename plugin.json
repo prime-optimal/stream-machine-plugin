@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "stream-machine",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "OBS and Stream Deck controls for your desktop. Hosted Twitch tools come from the Stream Machine Site plugin.",
   "author": {
     "name": "prime-optimal"
