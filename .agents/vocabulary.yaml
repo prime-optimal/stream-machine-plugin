@@ -90,6 +90,10 @@ nouns:
       deprecated: [verification comment]
     - canonical: evidence comments
       deprecated: [verification comments]
+    - canonical: event SHA
+      deprecated: [event commit SHA]
+    - canonical: exact event SHA
+      deprecated: [exact event commit]
 rejected:
   - term: mock
     reason: Names the mock data layer and status value (status "mock" in catalog.ts); demo names the user-facing account.
@@ -153,3 +157,5 @@ rejected:
     reason: Dispatch is the send moment; upload is the multipart action; dispatch also used elsewhere.
   - term: post
     reason: Ordinary verb; publish also means release publishing, so a mapping is unsafe.
+  - term: native host
+    reason: Native host contrasts with browser preview; desktop host means the computer running local processes.

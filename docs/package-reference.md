@@ -6,7 +6,7 @@ The package contains portable and compatibility manifests, `fnox.toml` secret re
 
 The `mise run package` task rebuilds and validates `docs/packages/stream-machine-0.3.0.zip` and `docs/packages/stream-machine-0.3.0.tar.gz`. Names follow `plugin.json`. Both use the same staged payload and `stream-machine/` root, including hidden compatibility manifests. The copier excludes Finder metadata before staging. Archive validation still rejects metadata, dependency directories, environment files, Git metadata, and unexpected paths. Git ignores both archives.
 
-The separate **Build plugin packages** workflow runs after each main push and on manual dispatch. It packages the exact event commit with read-only repository permissions and no provider credentials. Its private Actions artifact name includes the version and full commit SHA. It does not bump versions or publish a release. See [Download a CI package](setup.md#download-a-ci-package) for the wrapper ZIP, retention, and rebuild procedure.
+The separate **Build plugin packages** workflow runs after each main push and on manual dispatch. It packages the exact event SHA with read-only repository permissions and no provider credentials. Its private Actions artifact name includes the version and full commit SHA. It does not bump versions or publish a release. See [Download a CI package](setup.md#download-a-ci-package) for the wrapper ZIP, retention, and rebuild procedure.
 
 ## Server and tools
 
