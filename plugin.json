@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "stream-machine",
   "version": "0.8.2",
-  "description": "OBS and Stream Deck controls for your desktop. Hosted Twitch tools come from the Stream Machine Site plugin.",
+  "description": "Hosted Twitch tools plus OBS and Stream Deck controls for your desktop.",
   "author": {
     "name": "prime-optimal"
   },
@@ -19,13 +19,13 @@
       "interface": {
         "displayName": "Stream Machine Desktop",
         "shortDescription": "OBS and Stream Deck controls",
-        "longDescription": "Stream Machine Desktop is a desktop-only add-on that gives ChatGPT OBS and USB Stream Deck controls for your desktop. It needs the Stream Machine Site plugin for Twitch, clips, and the Stream Machine menu. The package's other tools are disabled in source and not exposed.",
+        "longDescription": "Stream Machine Desktop installs two MCP servers on a desktop host. The hosted stream-machine server provides Twitch, clips, and the Stream Machine menu through the Stream Machine Site. The local stream-machine-desktop server provides 3 OBS tools and 4 USB Stream Deck tools. On web and mobile, install the Stream Machine Site plugin for Twitch instead. The package's other tools are disabled in source and not exposed.",
         "developerName": "prime-optimal",
         "capabilities": [
           "Interactive"
         ],
         "defaultPrompt": [
-          "Check OBS and my Stream Deck. Use the Stream Machine Site plugin for Twitch."
+          "Check OBS and my Stream Deck, then connect Twitch through the stream-machine server."
         ],
         "websiteURL": "https://github.com/prime-optimal/stream-machine-plugin",
         "privacyPolicyURL": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/",
