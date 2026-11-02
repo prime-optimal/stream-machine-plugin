@@ -18,7 +18,7 @@ for (const skill of ["onboarding", "preview-recipe", "self-update"]) {
 const staging = join(root, "artifacts/package/stream-machine");
 await rm(staging, { recursive: true, force: true });
 await mkdir(staging, { recursive: true });
-for (const path of ["plugin.json", "mcp.json", "skills", "dist", "docs/setup.md"]) {
+for (const path of ["plugin.json", "mcp.json", "skills", "dist", "docs/setup.md", "assets", "LICENSE"]) {
   await mkdir(dirname(join(staging, path)), { recursive: true });
   await cp(join(root, path), join(staging, path), { recursive: true, filter: includePackagePath });
 }

@@ -12,7 +12,7 @@ afterEach(async () => { for (const folder of folders.splice(0)) await rm(folder,
 async function fixture() {
   const root = await mkdtemp(join(tmpdir(), "stream-machine-package-"));
   folders.push(root);
-  for (const path of ["scripts", "docs/nested", "dist", "node_modules"]) {
+  for (const path of ["scripts", "docs/nested", "dist", "assets", "node_modules"]) {
     await mkdir(join(root, path), { recursive: true });
   }
   for (const file of ["plugin.json", "mcp.json"]) await cp(join(source, file), join(root, file));
@@ -26,6 +26,8 @@ async function fixture() {
   await writeFile(join(root, "docs/setup.md"), "Fixture setup guide\n");
   await writeFile(join(root, "docs/nested/guide.md"), "Fixture guide\n");
   await writeFile(join(root, "dist/server.js"), "Fixture server\n");
+  await writeFile(join(root, "LICENSE"), "Fixture license\n");
+  for (const file of ["logo.png", "composer-icon.png"]) await cp(join(source, "assets", file), join(root, "assets", file));
   return root;
 }
 
