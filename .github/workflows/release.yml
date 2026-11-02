@@ -17,12 +17,12 @@ jobs:
       published: ${{ steps.plan.outputs.published }}
       tag: ${{ steps.plan.outputs.tag }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac
+      - uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195 # v5.2.5
       - name: Find release commit
         id: plan
         env:
@@ -39,7 +39,7 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.plan.outputs.commit }}
           fetch-depth: 0
@@ -48,7 +48,7 @@ jobs:
         env:
           COMMIT: ${{ needs.plan.outputs.commit }}
         run: test "$(git rev-parse HEAD)" = "$COMMIT"
-      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac
+      - uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195 # v5.2.5
       - run: mise run install
       - run: mise run check
       - run: mise run test
