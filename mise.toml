@@ -34,6 +34,11 @@ description = "Exercise bundled server over real stdio MCP"
 depends = ["build"]
 run = "bun run smoke"
 
+[tasks."ui:audit"]
+description = "Report OpenAI MCP extension UI feature usage over real stdio MCP"
+depends = ["build"]
+run = "bun run ui:audit"
+
 [tasks.preview]
 description = "Open loopback demo UI against the real MCP server"
 depends = ["build"]
