@@ -3,8 +3,8 @@
   "mcpServers": {
     "stream-machine-desktop": {
       "type": "stdio",
-      "command": "fnox",
-      "args": ["--config", "${PLUGIN_ROOT}/fnox.toml", "--if-missing", "ignore", "--non-interactive", "exec", "--", "bun", "${PLUGIN_ROOT}/dist/server.js"],
+      "command": "bun",
+      "args": ["${PLUGIN_ROOT}/dist/server.js"],
       "cwd": "${PLUGIN_ROOT}"
     }
   }

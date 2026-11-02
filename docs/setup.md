@@ -1,6 +1,6 @@
 # Build and install the package
 
-Use this guide to build, check, and install the package. For the live OBS and Stream Deck demos, use the [live demo guide](demos/integration.md). You need mise, Bun 1.4.4, and fnox on `PATH`. The private credential references resolve through 1Password.
+Use this guide to build, check, and install the package. For the live OBS and Stream Deck demos, use the [live demo guide](demos/integration.md). You need mise and Bun 1.4.4 on `PATH`. Development tasks that call providers also need fnox; see [secret setup](secrets.md).
 
 ## Prepare the checkout
 
@@ -41,7 +41,7 @@ Stream Machine Desktop is a desktop-only add-on. Install it through a local plug
 
 Hosted Twitch tools come from the Stream Machine Site plugin, which you install separately and which works on desktop, web, and mobile.
 
-1. Put Bun and fnox on `PATH`.
+1. Put Bun on `PATH`.
 2. Create the marketplace folder and unpack the package into it:
 
    ```sh
