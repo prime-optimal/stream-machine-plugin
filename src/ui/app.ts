@@ -26,7 +26,6 @@ const liveDemos = createLiveDemos(requestTool);
 const mockPanel = document.createElement("section");
 mockPanel.dataset.view = "mock";
 const connections = createConnections({ request: requestTool, invalidateTitle: liveDemos.invalidateTitle,
-  ...(!standalone ? { open: (url: string) => app.openLink({ url }) } : {}),
 });
 let snapshot: Snapshot | null = null;
 let selectedRecipe = "prepare-channel";

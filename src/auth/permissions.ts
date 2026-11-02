@@ -5,7 +5,7 @@ type Feature = {
   token: "user"; identity: string; scopes: string[];
 };
 export const twitchFeatures = {
-  connection: { tools: ["stream_machine_twitch_connect", "stream_machine_twitch_status"], endpoints: [], events: [], token: "user", identity: "Connected user", scopes: [] },
+  connection: { tools: ["stream_machine_twitch_connect", "stream_machine_twitch_status", "stream_machine_twitch_preflight"], endpoints: [], events: [], token: "user", identity: "Connected user", scopes: [] },
   profile: { tools: ["stream_machine_twitch_profile"], endpoints: ["GET /helix/users"], events: [], token: "user", identity: "Connected user", scopes: [] },
   channel: { tools: ["stream_machine_twitch_channel"], endpoints: ["GET /helix/channels"], events: [], token: "user", identity: "Connected broadcaster", scopes: [] },
   title: {
