@@ -7,11 +7,13 @@ Issues #25, #26, #27. Local runtime reuses Stream Makeover OAuth instead of trus
 Copied from `prime-optimal/stream-makeover`, commit `4e2bff85969550e3b2e94aed2fab7a6b8f2f62db`, `studio/lib/twitch/`:
 
 - `src/auth/upstream/client.ts` and `crypto.ts` unchanged.
-- `service.ts` preserves state validation, owner binding, encrypted storage, validation, refresh lease, cancellation and revocation. Changes: extensionless imports, explicit broadcast-scope option, internal validated-token callback.
+- `service.ts` preserves state validation, owner binding, encrypted storage, validation, refresh lease, cancellation and revocation. Changes include extensionless imports, the current scope policy, and an internal validated-token callback.
 - `store.ts` retains only `Connection` and `ConnectionStore` contracts. `src/auth/local-store.ts` implements them with Bun SQLite. Tokens remain encrypted using existing AES-GCM code and fnox key.
 - `tests/twitch-upstream.test.mjs` retains upstream service tests. Helper binds local store and adjusts two persistence assertions to local table names.
 
 Single local desktop owner maps to OAuth account authorized in local browser. Existing Sites owner and connection stay separate. Reconnecting local runtime clears pending previews. No owner, broadcaster, credential, or endpoint selector enters tool inputs.
+
+See [local Twitch OAuth scopes](../twitch-oauth-scopes.md) for the exact 12-scope baseline, current and future permissions, reconnect behavior, and the hosted OAuth comparison.
 
 ## Run
 
