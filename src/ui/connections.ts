@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { requiredTwitchScopes, twitchConsentSummary, twitchPermissions } from "../auth/permissions";
 import type { ToolRequest, ToolResult } from "./tool-transport";
+import twitchConnectImage from "./twitch_login.png";
 
 const accountSchema = z.object({
   id: z.string().min(1), login: z.string().min(1), displayName: z.string().min(1), scopes: z.array(z.string()),
@@ -102,13 +103,18 @@ export function createConnections(options: {
   }
   function action(label: string, run: () => void, disabled = false) {
     const button = node("button", label); button.type = "button"; button.className = "live-button";
-    button.disabled = disabled; button.addEventListener("click", run); return button;
+    button.dataset.action = label; button.disabled = disabled; button.addEventListener("click", run); return button;
+  }
+  function twitchConnect(run: () => void, disabled: boolean) {
+    const button = action("", run, disabled); button.className = "twitch-connect-button"; button.dataset.action = "twitch-connect";
+    const image = node("img", ""); image.src = twitchConnectImage; image.alt = "Connect with Twitch"; image.width = 170; image.height = 32;
+    button.append(image); return button;
   }
   function render() {
     const { check, connect } = model.state();
     const ownedFocus = element.contains(document.activeElement);
     if (!ownedFocus) returnFocus = null;
-    else if (document.activeElement instanceof HTMLButtonElement) returnFocus = document.activeElement.textContent;
+    else if (document.activeElement instanceof HTMLButtonElement) returnFocus = document.activeElement.dataset.action ?? null;
     element.replaceChildren();
     element.append(node("h2", "Twitch"), node("p", "Connect your Twitch account, approve the requested permissions in your browser, then check the connection."));
     const status = node("div", ""); status.tabIndex = -1;
@@ -127,7 +133,7 @@ export function createConnections(options: {
     }
     element.append(status,
       action("Recheck Twitch access", () => void model.recheck(), check.kind === "checking" || connect.kind === "creating"),
-      action("Connect or reconnect Twitch · 12 permissions", () => void model.startConnect(true), connect.kind === "creating"));
+      twitchConnect(() => void model.startConnect(true), connect.kind === "creating"));
     const disclosure = node("details", "");
     disclosure.append(node("summary", "Consent and exact required permissions"), node("p", twitchConsentSummary),
       node("p", "Existing grants are retained. Consent makes no channel change."), node("pre", requiredTwitchScopes.join("\n")));
@@ -144,14 +150,13 @@ export function createConnections(options: {
     }
     if (connect.kind === "link") {
       element.append(node("p", connect.browserRequested ? "Browser requested. Approve permissions in your browser, then return and recheck Twitch access." :
-        "Connection ready. Open Twitch authorization, then return and recheck Twitch access."));
+        "Connection ready. Select Connect with Twitch to open authorization, then return and recheck Twitch access."));
       disclosure.append(node("p", connect.disclosure), node("p", `Requested: ${connect.requested.join(", ")}`),
         node("p", `Retained extra grants: ${connect.retained.join(", ") || "None"}`));
-      element.append(action("Open Twitch authorization", () => void model.startConnect(true)));
     }
     element.append(node("p", "Other connections are not available here yet."));
     if (ownedFocus) {
-      const target = Array.from(element.querySelectorAll("button")).find(button => button.textContent === returnFocus);
+      const target = Array.from(element.querySelectorAll("button")).find(button => button.dataset.action === returnFocus);
       if (target && !target.disabled) target.focus();
       else status.focus();
     }

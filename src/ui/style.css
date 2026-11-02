@@ -237,6 +237,9 @@ footer > span:last-child { margin-left: auto; }
 .live-button { border: 1px solid var(--line); border-radius: 7px; padding: 11px 12px; background: var(--panel-raised); color: var(--text); font-size: 11px; text-align: left; line-height: 1.4; }
 .live-button:hover:not(:disabled) { border-color: var(--accent); }
 .live-button:disabled { opacity: .4; }
+.twitch-connect-button { justify-self: start; padding: 0; border: 0; border-radius: 4px; background: none; line-height: 0; cursor: pointer; }
+.twitch-connect-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.twitch-connect-button:disabled { opacity: .4; cursor: default; }
 .live-result { padding: 15px; margin-top: 20px; background: var(--page); border: 1px solid var(--line); border-radius: 8px; font-size: 11px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 350px; overflow: auto; }
 .live-failure { border-color: #9e5149; }
 .live-links { display: grid; gap: 10px; margin-top: 14px; overflow-wrap: anywhere; }

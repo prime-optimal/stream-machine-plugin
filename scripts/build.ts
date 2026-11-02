@@ -4,7 +4,12 @@ import { resolve } from "node:path";
 const root = resolve(import.meta.dir, "..");
 process.chdir(root);
 await mkdir("dist", { recursive: true });
-const ui = await Bun.build({ entrypoints: ["src/ui/app.ts"], target: "browser", minify: true });
+const inlinePng: Bun.BunPlugin = {
+  name: "inline-png", setup(build) {
+    build.onLoad({ filter: /\.png$/ }, async ({ path }) => ({ loader: "js", contents: `export default ${JSON.stringify(`data:image/png;base64,${Buffer.from(await Bun.file(path).arrayBuffer()).toString("base64")}`)};` }));
+  }
+};
+const ui = await Bun.build({ entrypoints: ["src/ui/app.ts"], target: "browser", minify: true, plugins: [inlinePng] });
 if (!ui.success) throw new AggregateError(ui.logs, "UI build failed");
 const js = await ui.outputs.find(output => output.path.endsWith(".js"))!.text();
 const css = await Bun.file("src/ui/style.css").text();

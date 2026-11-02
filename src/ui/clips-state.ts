@@ -70,7 +70,7 @@ export function parseArchive(value: unknown) {
 }
 
 export function faultMessage(code: string): string {
-  if (/NOT_CONNECTED|NOT_CONFIGURED|UNAUTHORI[SZ]ED|NO_TOKEN|RECONNECT|ACCOUNT/.test(code)) return `Twitch is not connected (${code}). Connect Twitch in Connections, then reload.`;
+  if (/NOT_CONNECTED|NOT_CONFIGURED|UNAUTHORI[SZ]ED|NO_TOKEN|RECONNECT|ACCOUNT/.test(code)) return `Twitch is not connected (${code}). Select Connect with Twitch in Connections, then reload.`;
   if (/SCOPE|PERMISSION/.test(code)) return `Twitch permissions are missing (${code}). Review permissions in Connections.`;
   return `Clips could not be loaded (${code}).`;
 }

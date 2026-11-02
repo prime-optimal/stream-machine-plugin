@@ -11,7 +11,7 @@ mise run build
 mise exec -- bun docs/verification/110-twitch-onboarding/serve.ts
 ```
 
-Open `http://127.0.0.1:4390/?preview=1` in a browser. Choose Connections, then Connect or reconnect Twitch. Expect the browser-requested message and an unverified account.
+Open `http://127.0.0.1:4390/?preview=1` in a browser. Choose Connections, then **Connect with Twitch**. Expect the browser-requested message and an unverified account.
 
 The fixture forwards calls through real `registerTwitchTools` and in-memory MCP. Its runtime uses an isolated callback port, synthetic credentials, and an in-memory store. It replaces only the advertised callback and connection addresses with the production contract before registration wraps the result. The browser launcher is a stub. Provider requests throw. No real authorization URL is visited.
 
