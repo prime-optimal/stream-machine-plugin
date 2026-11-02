@@ -1,6 +1,6 @@
 # Hosted user storage for clip downloads
 
-Issue [#136](https://github.com/prime-optimal/stream-machine-plugin/issues/136) adds private user files to the existing [OAuth Site](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site). This record describes the tested source patch. It does not claim production deployment.
+Issue [#136](https://github.com/prime-optimal/stream-machine-plugin/issues/136) adds private user files to the existing [OAuth Site](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site). This record describes the tested source patch and the version 4 publication.
 
 ## Ownership and results
 
@@ -39,6 +39,14 @@ Issue [#130](https://github.com/prime-optimal/stream-machine-plugin/issues/130) 
 7. Verify anonymous and forged-identity requests on the public deployment. Record a signed-in tool download and owner-only browser access separately.
 
 The integration owner must not deploy an older source archive over another chat's changes. No Site source push or deployment was performed by this issue's storage author.
+
+## Published version 4
+
+Sites confirmed version 4 on the same public Site. The deployment owner reported source `ebb1cc83cb046bfa297c1dc1f04e4daba3af1636`, deployment `appgdep_6ae81c8f033c81918a607961657af9b9`, and runtime environment revision 2. This is a historical publication record; #130 may publish a later browser-verification update.
+
+Independent live requests to `/api/user-data/files/00000000-0000-4000-8000-000000000000` returned 401 both anonymously and with a forged `oai-authenticated-user-id` header. Sites returned the hosted MCP endpoint `https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/mcp`. The deployment owner also verified MCP anonymous and forged-header rejection and the retained Twitch connection.
+
+A real production clip acquisition, same-owner file read, and second live user's denial remain unverified. The local Worker tests establish those storage outcomes with synthetic data. Required repository merges remain outstanding.
 
 ## Verification
 
