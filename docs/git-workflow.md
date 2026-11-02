@@ -125,6 +125,12 @@ git diff -- docs/CHANGELOG.md
 
 These manual tasks write a full-history changelog without bumping versions. Do not use them to replace the versioned release history after release automation starts.
 
+### Build downloadable packages
+
+The separate `package.yml` workflow builds ZIP and tar.gz packages for each main push, including release-PR merges, and for manual dispatch. It uses the exact event SHA, not the latest main at checkout time. Manual runs use the selected ref's event SHA. Builds retain the committed version, so different commits can share a version but have distinct artifact names.
+
+This workflow has only `contents: read`. It does not prepare a release, write branches, tag, publish, or install the plugin. It does not depend on release-PR creation permissions. Download instructions are in [the setup guide](setup.md#download-a-ci-package).
+
 ### Prepare a release PR
 
 `mise run release:preview` reports the next version without writing files. `mise run release:prepare` updates versions, release notes, and `.release-state.json` without committing or tagging.
