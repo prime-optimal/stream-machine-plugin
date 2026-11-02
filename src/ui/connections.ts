@@ -9,14 +9,18 @@ const accountSchema = z.object({
   id: z.string().min(1), login: z.string().min(1), displayName: z.string().min(1), scopes: z.array(z.string()),
 });
 const statusSchema = z.object({ twitch: z.object({ mode: z.literal("live"), account: accountSchema }) });
-const connectSchema = z.object({ twitch: z.object({
-  mode: z.literal("live"), connectUrl: z.string(), requestedScopes: z.array(z.string()),
-  retainedScopes: z.array(z.string()), disclosure: z.string().min(1), browserRequested: z.boolean().default(false),
-}) });
-const hostedConnectSchema = z.object({ twitch: z.object({
-  mode: z.literal("live"), connectionUrl: z.string(), authorizationUrl: z.string(), browserRequested: z.boolean().default(false),
-  disclosure: z.string().min(1), requiredScopes: z.array(z.string()), grantedScopes: z.array(z.string()),
-}) });
+const connectSchema = z.object({
+  twitch: z.object({
+    mode: z.literal("live"), connectUrl: z.string(), requestedScopes: z.array(z.string()),
+    retainedScopes: z.array(z.string()), disclosure: z.string().min(1), browserRequested: z.boolean().default(false),
+  })
+});
+const hostedConnectSchema = z.object({
+  twitch: z.object({
+    mode: z.literal("live"), connectionUrl: z.string(), authorizationUrl: z.string(), browserRequested: z.boolean().default(false),
+    disclosure: z.string().min(1), requiredScopes: z.array(z.string()), grantedScopes: z.array(z.string()),
+  })
+});
 const preflightSchema = z.object({ twitch: z.object({ mode: z.literal("live"), status: z.literal("ready") }) });
 const faultSchema = z.object({ error: z.object({ code: z.string() }) });
 type Verified = { account: z.infer<typeof accountSchema>; checkedAt: string };
@@ -29,13 +33,14 @@ export type ConnectState =
   | { kind: "failed"; message: string; replaceable: boolean };
 export const localConnectUrl = "http://localhost:4017/connect";
 export function hostedConnectUrl(siteOrigin: string): string {
-  return `${siteOrigin}/`;
+  return `${siteOrigin}/connect`;
 }
-export function connectionUrl(value: string, allowed: string): string {
+export function connectionUrl(value: string, allowed: string, ownerParam = false): string {
   const url = new URL(value);
   const target = new URL(allowed);
+  const owner = ownerParam && [...url.searchParams.keys()].join() === "owner" && url.searchParams.get("owner");
   if (url.origin !== target.origin || url.pathname !== target.pathname ||
-      url.username || url.password || url.search || url.hash) throw new Error("Unsafe connection URL rejected.");
+    url.username || url.password || (url.search && !owner) || url.hash) throw new Error("Unsafe connection URL rejected.");
   return url.href;
 }
 function fault(result: ToolResult) {
@@ -86,9 +91,11 @@ export function createConnectionState(request: ToolRequest, changed: () => void,
           const { twitch } = hostedConnectSchema.parse(hostedResult.structuredContent);
           if (!requiredTwitchScopes.every(scope => twitch.requiredScopes.includes(scope))) throw new Error("Incomplete consent response.");
           const allowed = hostedConnectUrl(where.siteOrigin);
-          connectionUrl(twitch.authorizationUrl, allowed);
-          connect = { kind: "link", browserRequested: false, url: connectionUrl(twitch.connectionUrl, allowed), requested: twitch.requiredScopes,
-            retained: twitch.grantedScopes.filter(scope => !requiredTwitchScopes.includes(scope)), disclosure: twitch.disclosure };
+          connectionUrl(twitch.authorizationUrl, allowed, true);
+          connect = {
+            kind: "link", browserRequested: false, url: connectionUrl(twitch.connectionUrl, allowed, true), requested: twitch.requiredScopes,
+            retained: twitch.grantedScopes.filter(scope => !requiredTwitchScopes.includes(scope)), disclosure: twitch.disclosure
+          };
           notify();
           return;
         }
@@ -103,8 +110,10 @@ export function createConnectionState(request: ToolRequest, changed: () => void,
         const { twitch } = connectSchema.parse(result.structuredContent);
         if (!requiredTwitchScopes.every(scope => twitch.requestedScopes.includes(scope))) throw new Error("Incomplete consent response.");
         if (openBrowser && !twitch.browserRequested) throw new Error("TWITCH_BROWSER_OPEN_FAILED");
-        connect = { kind: "link", browserRequested: twitch.browserRequested, url: connectionUrl(twitch.connectUrl, localConnectUrl), requested: twitch.requestedScopes,
-          retained: twitch.retainedScopes, disclosure: twitch.disclosure };
+        connect = {
+          kind: "link", browserRequested: twitch.browserRequested, url: connectionUrl(twitch.connectUrl, localConnectUrl), requested: twitch.requestedScopes,
+          retained: twitch.retainedScopes, disclosure: twitch.disclosure
+        };
       } catch (error) {
         if (disposed || revision !== attempt) return;
         const code = error instanceof Error ? error.message : "";
@@ -112,7 +121,7 @@ export function createConnectionState(request: ToolRequest, changed: () => void,
           code === "TWITCH_LOCAL_PORT_BUSY" ? "Twitch authorization port 4017 is in use by another app. Close that app, then try again." :
             code === "TWITCH_BROWSER_OPEN_FAILED" ? "The authorization browser could not be opened. Check your default browser, then try again. No automatic retry." :
               context().runtime === "hosted" ? "The Site connection is unavailable. Try again, or reopen Stream Machine." :
-              "Connection URL unavailable. Check local Twitch setup before trying again.";
+                "Connection URL unavailable. Check local Twitch setup before trying again.";
         connect = { kind: "failed", message, replaceable: code === "TWITCH_LOCAL_PORT_PLUGIN" };
       }
       notify();
@@ -151,19 +160,17 @@ export function createConnections(options: {
   }
   function render() {
     const { check, connect } = model.state();
-    const { runtime, siteOrigin } = options.context();
+    const { runtime } = options.context();
     const hosted = runtime === "hosted";
-    const site = hostedConnectUrl(siteOrigin);
     const ownedFocus = element.contains(document.activeElement);
     if (!ownedFocus) returnFocus = null;
     else if (document.activeElement instanceof HTMLButtonElement) returnFocus = document.activeElement.dataset.action ?? null;
     element.replaceChildren();
     element.append(node("h2", "Twitch"));
     const body = hosted ? element : node("div", "");
-    if (hosted) body.append(node("p", "Twitch runs on the hosted Stream Machine connection. Connect opens the Stream Machine Site, where you approve the permissions. Then return here and check access."));
+    if (hosted) body.append(node("p", "Twitch runs on the hosted Stream Machine connection. Connect opens the Stream Machine Site, which sends you to Twitch only when permission is needed. Then return here and check access."));
     else {
-      element.append(node("p", "Connect Twitch on the Stream Machine Site. The Site connection is hosted, so its status appears in the hosted Stream Machine menu, not in this desktop workspace."),
-        siteLink("Open the Stream Machine Site", site));
+      element.append(node("p", "Connect Twitch from the hosted Stream Machine menu in ChatGPT. Its status appears there, not in this desktop workspace."));
       const fallback = node("details", ""); fallback.className = "fallback"; fallback.open = fallbackOpen;
       fallback.addEventListener("toggle", () => { fallbackOpen = fallback.open; });
       fallback.append(node("summary", "Use desktop fallback"),
