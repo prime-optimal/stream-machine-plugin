@@ -1,5 +1,7 @@
 # Twitch profile and channel tools
 
+The desktop server does not expose these tools after #159. Their registrations are commented out in `src/server.ts`.
+
 This reference records issue [#53](https://github.com/prime-optimal/stream-machine-plugin/issues/53). It describes the source checkout, not an installed plugin update.
 
 ## Stream Machine tools

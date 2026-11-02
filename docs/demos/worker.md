@@ -1,5 +1,7 @@
 # Run background alert worker
 
+The desktop server does not expose these tools after #159. Their registrations are commented out in `src/server.ts`.
+
 Issue #36 prototype runs as independent Bun process. Terminal launcher exits after worker answers local status request. Keep desktop awake and worker running.
 
 ## Verify synthetic lifecycle

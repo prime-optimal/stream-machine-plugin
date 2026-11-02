@@ -1,6 +1,6 @@
 # Plugin package reference
 
-`mcp.json` registers two servers. `stream-machine` connects to the authenticated Site-hosted Twitch endpoint. `stream-machine-local` runs the local stdio server on a desktop host with Bun and fnox on `PATH`. Web and mobile hosts cannot launch the local server and use only the hosted one. See the [hosted guide](hosted-mcp.md) for connection and fallback rules, and the [demo guide](demos/integration.md) for desktop features.
+`mcp.json` registers one server, `stream-machine-desktop`, which runs the local stdio server on a desktop host with Bun and fnox on `PATH`. The package is Stream Machine Desktop, an add-on for OBS and Stream Deck controls. Hosted Twitch tools come from the Stream Machine Site plugin, which this package does not register. Web and mobile hosts cannot launch the stdio server. Install the package through a local plugin marketplace as [Install on desktop](setup.md#install-on-desktop) describes. See the [hosted guide](hosted-mcp.md) for connection and fallback rules, and the [demo guide](demos/integration.md) for desktop features.
 
 The package contains portable and compatibility manifests, `fnox.toml` secret references, skills, the bundled server and UI, worker bundles, documentation, and dependency notices. It does not need `node_modules` inside the archive. Secret values and runtime databases are excluded.
 
@@ -10,32 +10,21 @@ The separate **Build plugin packages** workflow runs after each main push and on
 
 ## Server and tools
 
-The hosted endpoint exposes nine Twitch tools. Each request uses its authenticated Sites caller's account. The #147 Site source adds three clip library tools; they appear after that source is published. The `stream-machine-local` command resolves optional private credentials with fnox, then runs `bun ${PLUGIN_ROOT}/dist/server.js`. That local server exposes 38 tools, including its own Twitch tools for the explicit fallback. It retains these mock-sample tools:
+The Site plugin's hosted endpoint exposes nine Twitch tools. Each request uses its authenticated Sites caller's account. The #147 Site source adds three clip library tools; they appear after that source is published.
 
-| Tool | Behavior |
-| --- | --- |
-| `stream_machine_open` | Returns the demo workspace and declares a global entrypoint. |
-| `stream_machine_workspace` | Returns the demo workspace and declares a thread entrypoint. |
-| `stream_machine_connect_demo` | Selects the fictional Twitch account. |
-| `stream_machine_list_recipes` | Returns the recipe catalog and capability status. |
-| `stream_machine_preview` | Returns proposed channel updates without applying them. |
-| `stream_machine_reset` | Disconnects the fictional account. |
+The `stream-machine-desktop` command resolves optional private credentials with fnox, then runs `bun ${PLUGIN_ROOT}/dist/server.js`. That server exposes 7 tools: `stream_machine_obs_preflight`, `stream_machine_obs_list_scenes`, `stream_machine_obs_show_alert`, `stream_machine_streamdeck_inventory`, `stream_machine_streamdeck_preview`, `stream_machine_streamdeck_apply`, and `stream_machine_streamdeck_release`. It registers no UI resource. `mise run smoke` verifies the count and names.
 
-The local server also registers three OBS tools, four USB Stream Deck tools, ten Twitch tools including the clip library, five creative tools, four worker controls, one independent OpenAI transcription tool, one clip media information tool, two package-update tools, one IGDB game lookup tool, and one streaming-metric tool. `mise run smoke` verifies the current total of 38 and the mock boundary. The profile read returns the connected account description, photo, and offline image. See the [Twitch profile reference](twitch-profile.md). The local UI resource uses `text/html;profile=mcp-app`.
-
-The transcription tool explicitly uploads one selected local audio file to OpenAI. It resolves `OPENAI_API_KEY` through fnox and stays independent of Twitch metadata. See [Transcribe one local audio file](demos/transcription.md). The media information tool reads one authorized Twitch clip and can add a transcript through that tool. See [Show details or a transcript for one clip](demos/media-info.md).
+Issue #159 comments out every other registration in `src/server.ts`: the mock-sample workspace tools, update, Twitch, creative, worker, IGDB, analytics, transcription, and clip media tools, and the workspace UI resource. The source modules and their unit tests remain. Re-enable a tool by uncommenting its import and registration.
 
 ## State and limits
 
-The fictional demo remains mock-only. The provider tools perform real operations and report failures without substituting demo data. Title and button writes require the corresponding preview flow. The independent worker starts separately and remains paused until explicitly armed.
-
-The fictional demo's connection state lasts for the current local MCP process. A restart disconnects that demo account. Hosted Twitch credentials use encrypted owner-bound D1 records; hosted title previews persist across requests. The explicit desktop fallback has its own encrypted local store. Creative requests and worker event IDs have separate local records.
+The provider tools perform real operations and report failures without substituting demo data. Title and button writes require the corresponding preview flow. Hosted Twitch credentials use encrypted owner-bound D1 records, and hosted title previews persist across requests.
 
 The local browser preview is a development page, not a hosted MCP endpoint. Packaging does not upload or install the plugin. A successful browser test does not verify native host rendering.
 
 ## Provider connections
 
-The package reuses local OBS tools, a pinned USB Stream Deck provider, local Twitch OAuth storage, and the existing OpenDesign service. Onboarding checks each selected connection. The credential references are specific to the creator's private setup.
+The package reuses local OBS tools and a pinned USB Stream Deck provider. Onboarding checks each selected connection.
 
 Each provider retains its own connection and authorization. Stream Machine backend jobs do not inherit another plugin's tools or credentials. A desktop MCP host can call local OBS and Stream Deck servers directly.
 

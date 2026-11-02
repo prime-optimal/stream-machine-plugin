@@ -1,5 +1,7 @@
 # Local Twitch OAuth scopes
 
+The desktop server does not expose these tools after #159. Their registrations are commented out in `src/server.ts`.
+
 The local OAuth request includes these 12 baseline scopes, defined by `requiredTwitchScopes` in [the permission registry](../src/auth/permissions.ts):
 
 ```text

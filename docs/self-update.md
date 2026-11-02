@@ -1,5 +1,7 @@
 # Update Stream Machine
 
+The desktop server does not expose these tools after #159. Their registrations are commented out in `src/server.ts`.
+
 Ask Stream Machine to check for updates. The `self-update` skill shows the running MCP version, latest stable release, and changelog. Ask to update to download and verify the package before Plugin Creator saves a release.
 
 The MCP host needs authenticated `gh` access to the private repository. A maintainer must publish a stable GitHub release with tag `vVERSION` and asset `stream-machine-VERSION.tar.gz`. GitHub must provide its `sha256:` asset digest. Issue #107's private Actions artifacts do not meet this contract. No compatible release means unavailable, not up to date.

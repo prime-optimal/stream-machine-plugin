@@ -1,5 +1,7 @@
 # Show details or a transcript for one clip
 
+The desktop server does not expose these tools after #159. Their registrations are commented out in `src/server.ts`.
+
 Use `stream_machine_media_info` to read the details of one authorized Twitch clip. Optionally add the spoken text of the clip. Details come from the official Twitch clip API. The transcript comes from the OpenAI transcription tool described in [Transcribe one local audio file](transcription.md).
 
 ## Prepare the server

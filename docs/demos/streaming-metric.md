@@ -1,5 +1,7 @@
 # Observed broadcast duration
 
+The desktop server does not expose these tools after #159. Their registrations are commented out in `src/server.ts`.
+
 `src/analytics/register.ts` exports `registerAnalyticsTools(server)` and the main server calls it. It registers `stream_machine_streaming_metric`. The tool is available through bundled stdio MCP; no graphical UI is required.
 
 The tool calculates duration from an explicitly user-supplied report. It does not fetch a provider, verify report authenticity, infer missing sessions, or claim Creator Dashboard access. `complete` describes supplied coverage, not independently verified completeness.
@@ -30,4 +32,4 @@ Run `bun test tests/broadcast-duration.test.ts tests/analytics-registration.test
 
 ## Bundled integration verification
 
-Run `mise run smoke` to build the server and invoke the synthetic sample through a real stdio MCP client. The bundled server advertises 38 tools. Smoke validates 6,300 seconds, 1.75 hours, partial coverage, the exact 900-second gap, and unverified user-supplied provenance. `mise run package` creates and inspects the plugin archive. The separate mise-managed package smoke check verifies packaged launch. These checks do not contact analytics providers.
+The streaming-metric tool is commented out in `src/server.ts` (#159), so the bundled server no longer advertises it. The `tests/analytics-registration.test.ts` unit test still covers the 6,300-second, 1.75-hour, partial-coverage, and 900-second-gap results through its own server. `mise run package` creates and inspects the plugin archive. The separate mise-managed package smoke check verifies packaged launch. These checks do not contact analytics providers.

@@ -1,5 +1,7 @@
 # Download one Twitch clip
 
+The desktop server does not expose these tools after #159. Their registrations are commented out in `src/server.ts`.
+
 Use the existing Twitch connection to download a clip owned by the connected broadcaster. Editor downloads and batch requests are not implemented.
 
 ## Authorize and download

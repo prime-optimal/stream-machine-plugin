@@ -1,68 +1,34 @@
 ---
 name: onboarding
-description: Connect Twitch through the Stream Machine Site by default, or use the explicit local fallback for desktop streaming tools.
+description: Route Twitch calls to the Stream Machine Site plugin, and use Stream Machine Desktop for OBS and Stream Deck controls.
 ---
 
-# Start a Stream Machine demo
+# Start with Stream Machine
 
-Use the hosted `stream-machine` server's Twitch tools by default. Call `stream_machine_twitch_preflight`, then `stream_machine_twitch_status`. If hosted tools are missing, open the [Stream Machine Site](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site) and use its Sites-generated plugin connection. Do not substitute the local Twitch tools automatically.
+Stream Machine Desktop gives you OBS and Stream Deck controls for your desktop. The Stream Machine Site plugin provides Twitch, clips, and the Stream Machine menu, and it installs on desktop, web, and mobile. Use the Site plugin for every Twitch call. Stream Machine Desktop has no Twitch tools and no local workspace.
 
-Sites sign-in identifies the caller. Twitch consent connects that caller's channel. Read status after consent to verify the account and scopes. A browser login alone does not prove that the host's plugin is connected.
+For Twitch, call the Site plugin's `stream_machine_twitch_preflight`, then `stream_machine_twitch_status`. If the Site plugin's tools are missing, open the [Stream Machine Site](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site) and connect its Sites-generated plugin. Sites sign-in identifies the caller. Twitch consent connects that caller's channel. Read status after consent to verify the account and scopes.
 
-Keep status, channel reads, previews, and apply calls on the same provider. Open the returned hosted connection or approval URL through the host's navigation. Hosted connect returns a link; it does not launch a browser on the server.
+After status verifies the account, call the Site plugin's `stream_machine_open` to open the Stream Machine menu, then offer the title preview. Use `preview-recipe` for the exact title preview and browser approval. Open the returned connection or approval URL through the host's navigation. Never replay a failed mutation through another provider.
 
-After hosted `stream_machine_twitch_status` verifies the account, call the hosted `stream_machine_open`. The user lands on Home. Home confirms "Connected to Twitch as <name>", shows a channel snapshot from `stream_machine_twitch_snapshot`, and lists suggestion cards. Then offer the title preview. Device controls (OBS, Stream Deck, creative, and worker) are not in the hosted menu. Open them with the local `stream_machine_workspace` on a desktop host.
+The user lands on Home. Home confirms "Connected to Twitch as <name>", shows a channel snapshot from `stream_machine_twitch_snapshot`, and lists suggestion cards. OBS and Stream Deck controls are not in the hosted menu. Use Stream Machine Desktop's tools for them on a desktop host.
 
-## Choose the local fallback
+## Check the connection
 
-Offer the local Twitch tools when the hosted service is unreachable, returns a server error, or is unconfigured, and a desktop runtime is available. Wait for the user's choice. A hosted 401 requires hosted sign-in. Denied consent, cancellation, invalid state, or revoked access never starts local OAuth. Never replay a failed mutation through localhost.
+Read before you act:
 
-On a desktop host, the `stream-machine-local` server also exposes Twitch tools with the same names. Use them only after the user selects the desktop fallback. Verify the local Twitch account before using it. If it differs from the hosted account, ask before proceeding. Hosted consent does not connect the local store.
-
-The `stream-machine-local` server also provides `stream_machine_workspace`, OBS, Stream Deck, creative, transcription, and worker tools. Use them directly; they do not require the fallback choice. Open the desktop device workspace with `stream_machine_workspace` only when that local tool exists. Explain that the fictional demo is separate from real controls.
-
-## Check the selected connection
-
-Use the relevant read tool before an action:
-
-- Twitch: `stream_machine_twitch_preflight`, then `stream_machine_twitch_status` and `stream_machine_twitch_channel`.
 - OBS: `stream_machine_obs_preflight`.
 - Stream Deck: `stream_machine_streamdeck_inventory`.
-- OpenDesign: `stream_machine_creative_list`.
-- Independent worker: `stream_machine_worker_status`.
 
-A missing connection does not block unrelated demos. Never substitute mock results for a failed real check. Never request tokens or passwords in chat. The private package uses fnox references to the owner's 1Password items.
+A missing connection does not block unrelated work. Never substitute mock results for a failed real check. Never request tokens or passwords in chat.
 
-## Connect Twitch through the local fallback
-
-Run `stream_machine_twitch_preflight` before Twitch setup. It checks configuration and whether the registered callback port can be bound, then releases the probe. The Connect action checks again because another process can acquire the port after preflight. Never pick an unregistered callback port.
-
-An idle Stream Machine chat releases port 4017 ten minutes after its last Connect, approval page, or callback request. Two errors describe an occupied port:
-
-- `TWITCH_LOCAL_PORT_PLUGIN` means another Stream Machine chat on this computer holds port 4017. Tell the user that they can close that chat or stop it from here. Stopping it ends that chat's Stream Machine tools until its host restarts them. Call `stream_machine_twitch_connect` with `replacePluginListener: true` only after the user approves the stop.
-- `TWITCH_LOCAL_PORT_BUSY` means another app holds port 4017, or Stream Machine could not verify the holder. Report the conflict before consent. Stream Machine never stops that process.
-
-Call `stream_machine_twitch_connect` to connect or upgrade missing permissions. Initial consent requests the owner's 12-permission policy. Only `channel:manage:broadcast` for title updates and `channel:manage:clips` for own-channel clip downloads support implemented privileged actions. The other ten permissions cover future chat, followers, subscriptions, cheers, rewards, clip creation, and bot use. They do not enable active features. The full list and Twitch excess-scope policy conflict appear in the returned `disclosure` and [scope reference](../../docs/reviews/83-twitch-scope-audit.md). Broadcaster consent does not authorize a separate bot account. Existing grants are retained. Review `requiredScopes`, `grantedScopes`, `missingScopes`, and `requestedScopes` before consent. For an explicitly requested connection, pass `openBrowser: true` to open the local authorization flow directly in the desktop browser. The plugin button uses this path; the user does not need to copy the URL. Empty inputs preserve the existing link-only response. `browserRequested` reports a successful browser-launch request, not completed consent. On a browser-launch error, report the failure and wait for an explicit retry. The registered callback is `http://localhost:4017/api/twitch/callback`.
-
-Read `stream_machine_twitch_status` after consent. Missing permissions require reconnect, not disconnect. Consent does not change a title, download a clip, or arm a worker. Read the account after consent. Use `preview-recipe` for the exact title preview and browser approval. OAuth consent does not approve an arbitrary title.
-
-## Use local devices
+## Use OBS
 
 OBS controls target the running local WebSocket server. Showing an alert selects the Stream Machine demo scene. Never start or stop broadcasting or recording.
 
-The Stream Deck demo uses the original 15-key USB device. Preview the exact button and URL. Apply only when the user has authorized the setup. Keep one USB owner running. Release the current demo before another process claims the device. USB pages are separate from Elgato profiles.
+## Use Stream Deck
 
-## Use existing creative tools
-
-Use the existing OpenDesign service. Select an exact project or create an isolated `stream-machine-` test project. Supported recipes are `overlay` and `hyperframes-html`.
-
-HyperFrames produces editable, playable HTML. Do not request MP4 rendering or install a separate renderer. Keep the request ID after submission and poll that request. A failed or unknown result does not authorize an automatic resubmission.
-
-## Keep the worker explicit
-
-The worker starts separately through the trusted packaged CLI and starts paused. Arm only the configured account, event, and OBS action requested by the user. Pause prevents new alerts. Keep the desktop awake.
-
-For a fictional demo, use `stream_machine_connect_demo`, `stream_machine_list_recipes`, and `stream_machine_preview`. Label its results as mock data. `stream_machine_reset` resets only that sample.
+The Stream Deck tools use the original 15-key USB device. Preview the exact button and URL. Apply only when the user has authorized the setup. Keep one USB owner running. Release the current demo before another process claims the device. USB pages are separate from Elgato profiles.
 
 ## Examples
 
@@ -73,5 +39,5 @@ assistant: "I'll check OBS, then show the requested message in the Stream Machin
 
 <example>
 user: "Connect my Twitch account."
-assistant: "I'll open the Stream Machine Site connection and verify which account connected. Then I'll open the hosted Stream Machine menu and offer a title preview."
+assistant: "I'll open the Stream Machine Site connection and verify which account connected. Then I'll open the Stream Machine menu and offer a title preview."
 </example>
