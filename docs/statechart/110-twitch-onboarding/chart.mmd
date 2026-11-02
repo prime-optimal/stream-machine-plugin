@@ -1,5 +1,5 @@
 ---
-title: "Twitch authorization checks and explicit browser request"
+title: "Twitch authorization checks, approved replace, and idle release"
 ---
 stateDiagram-v2
   s0: Not checked
@@ -9,36 +9,60 @@ stateDiagram-v2
   s4: Checking callback port
   s5: Access not verified
   s6: Chat authorization link ready
-  s7: Callback port in use
-  s8: Callback port available
-  s9: Ready to start authorization
-  s10: Account verified by explicit check
-  s11: Requesting authorization browser
-  s12: Browser could not be opened
-  s13: Browser requested, access not verified
+  s7: Port in use by another app
+  s8: Port held by another Stream Machine chat
+  s9: Callback port available
+  s10: Ready to start authorization
+  s11: Account verified by explicit check
+  s12: Chat link ready, listener stopped after idle
+  s13: Replace approved, starting listener
+  s14: Requesting authorization browser
+  s15: Replace refused, nothing stopped
+  s16: Waiting for the other chat to release the port
+  s17: Browser could not be opened
+  s18: Browser requested, access not verified
+  s19: Browser could not be opened, listener stopped after idle
+  s20: Browser requested, listener stopped after idle
+  s21: Other chat did not release the port
   [*] --> s0
   s0 --> s1: chat requests a link without opening it
-  s0 --> s2: you recheck Twitch access
   s0 --> s3: you choose Connect in the plugin
   s0 --> s4: onboarding checks the port
-  s1 --> s7: another process owns the port at bind
+  s1 --> s7: another app holds the port at bind
   s1 --> s6: the session owns the callback listener
+  s1 --> s8: a Stream Machine chat holds the port at bind
   s2 --> s5: authenticated read fails
-  s2 --> s10: authenticated read succeeds
-  s3 --> s7: another process owns the port
-  s3 --> s9: port is available or owned by this session
-  s4 --> s7: another process owns the port
-  s4 --> s8: port is available or owned by this session
+  s2 --> s11: authenticated read succeeds
+  s3 --> s7: another app holds the port
+  s3 --> s10: port is available or owned by this session
+  s3 --> s8: a Stream Machine chat holds the port
+  s4 --> s7: another app holds the port
+  s4 --> s9: port is available or owned by this session
+  s4 --> s8: a Stream Machine chat holds the port
   s6 --> s2: you recheck Twitch access
-  s7 --> s1: chat requests a link without opening it
-  s7 --> s2: you recheck Twitch access
+  s6 --> s12: 10 minutes pass with no request
   s7 --> s3: you choose Connect in the plugin
-  s8 --> s1: chat requests a link without opening it
-  s8 --> s2: you recheck Twitch access
+  s7 --> s13: chat sets the replace flag after you approve
   s8 --> s3: you choose Connect in the plugin
-  s9 --> s1: the plugin requests authorization
-  s1 --> s11: the session owns the callback listener
-  s11 --> s12: desktop rejects or times out
-  s11 --> s13: desktop accepts the browser request
+  s8 --> s13: you approve stopping the other chat
+  s9 --> s3: you choose Connect in the plugin
+  s10 --> s1: the plugin requests authorization
+  s1 --> s14: the session owns the callback listener
   s12 --> s2: you recheck Twitch access
-  s13 --> s2: you recheck Twitch access
+  s13 --> s16: the plugin sends one stop signal to the Stream Machine process
+  s13 --> s15: the holder is not Stream Machine, so nothing is stopped
+  s14 --> s17: desktop rejects or times out
+  s14 --> s18: desktop accepts the browser request
+  s15 --> s2: you recheck Twitch access
+  s13 --> s14: the port is free, so no one is stopped
+  s13 --> s6: the port is free, so no one is stopped
+  s17 --> s2: you recheck Twitch access
+  s17 --> s19: 10 minutes pass with no request
+  s18 --> s2: you recheck Twitch access
+  s18 --> s20: 10 minutes pass with no request
+  s16 --> s14: the freed port is bound within 5 seconds
+  s16 --> s6: the freed port is bound within 5 seconds
+  s19 --> s2: you recheck Twitch access
+  s20 --> s2: you recheck Twitch access
+  s16 --> s21: 5 seconds pass and the port is still held
+  s21 --> s2: you recheck Twitch access

@@ -1,9 +1,9 @@
 # TwitchOnboarding
 
-TLC reached 71 states and 118 steps. The chart draws 14 states and 25 arrows.
-The chart does not draw 38 steps that stay in one chart state.
-The view hides 2 steps, so the chart does not draw them.
+TLC reached 432 states and 753 steps. The chart draws 22 states and 41 arrows.
+The chart does not draw 10 steps that stay in one chart state.
+The view hides 367 steps, so the chart does not draw them.
 
 ## Rules that hold
 
-TypeOK, ProbeDoesNotClaimPort, BusyNeverOpensBrowser, BrowserRequiresOwnedListener, BrowserDoesNotVerify, VerifiedRequiresExplicitCheck, NoAutomaticRetry, ChatLinkDoesNotOpenBrowser, NoDeadlock
+TypeOK, ProbeDoesNotClaimPort, BusyNeverOpensBrowser, BrowserRequiresOwnedListener, BrowserDoesNotVerify, VerifiedRequiresExplicitCheck, NoAutomaticRetry, ChatLinkDoesNotOpenBrowser, ReplaceNeverTargetsForeign, ReplaceRequiresApproval, SignalSentOnce, IdleReleaseFreesPort, StaleHoldsNoListener, NoDeadlock
