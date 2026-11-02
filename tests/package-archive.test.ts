@@ -12,14 +12,15 @@ afterEach(async () => { for (const folder of folders.splice(0)) await rm(folder,
 async function fixture() {
   const root = await mkdtemp(join(tmpdir(), "stream-machine-package-"));
   folders.push(root);
-  for (const path of ["scripts", "docs/nested", "skills/onboarding", "skills/preview-recipe", "dist", "node_modules"]) {
+  for (const path of ["scripts", "docs/nested", "dist", "node_modules"]) {
     await mkdir(join(root, path), { recursive: true });
   }
   for (const file of ["plugin.json", "mcp.json", "fnox.toml"]) await cp(join(source, file), join(root, file));
   for (const file of await readdir(join(source, "scripts"))) {
     if (file === "package.ts" || file === "package-archive.ts") await cp(join(source, "scripts", file), join(root, "scripts", file));
   }
-  for (const skill of ["onboarding", "preview-recipe"]) {
+  for (const skill of ["onboarding", "preview-recipe", "self-update"]) {
+    await mkdir(join(root, "skills", skill), { recursive: true });
     await writeFile(join(root, "skills", skill, "SKILL.md"), `---\nname: ${skill}\ndescription: Fixture\n---\nFixture\n`);
   }
   await writeFile(join(root, "docs/nested/guide.md"), "Fixture guide\n");
