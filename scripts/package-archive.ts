@@ -1,11 +1,8 @@
 import { lstat, readdir, rm } from "node:fs/promises";
-import { basename, join, relative, sep } from "node:path";
+import { basename, join } from "node:path";
 
-export function includePackagePath(root: string, source: string) {
-  const path = relative(root, source).split(sep).join("/");
-  return path !== "docs/packages" && !path.startsWith("docs/packages/") &&
-    path !== "docs/hosted-oauth-site" && !path.startsWith("docs/hosted-oauth-site/") &&
-    basename(source) !== ".DS_Store" && !basename(source).startsWith("._");
+export function includePackagePath(source: string) {
+  return basename(source) !== ".DS_Store" && !basename(source).startsWith("._");
 }
 
 export function validateArchiveEntries(entries: string[]) {
