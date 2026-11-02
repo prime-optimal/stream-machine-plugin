@@ -4,6 +4,8 @@ These reports come from the `plugin-eval` CLI in [openai/plugins](https://github
 
 To evaluate Stream Machine, run `mise run package`, unpack `docs/packages/stream-machine-<version>.tar.gz`, and run `plugin-eval analyze <unpacked>/stream-machine --format markdown`. The source checkout has no `.codex-plugin/` folder because `scripts/package.ts` generates it.
 
+For the full story of the 0-to-54 change and a comparison with the NLPM rubric, read [About the plugin-eval score and what NLPM misses](report.md).
+
 ## Stream Machine 0.8.1 before issue #176
 
 - Report: [stream-machine-0.8.1.md](stream-machine-0.8.1.md).
