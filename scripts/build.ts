@@ -14,6 +14,16 @@ const inlinePng: Bun.BunPlugin = {
 const ui = await Bun.build({ entrypoints: ["src/ui/app.ts"], target: "browser", minify: true, plugins: [inlinePng] });
 if (!ui.success) throw new AggregateError(ui.logs, "UI build failed");
 const js = await ui.outputs.find(output => output.path.endsWith(".js"))!.text();
+const creative = await Bun.build({ entrypoints: ["src/ui/creative-app.ts"], target: "browser", minify: true });
+if (!creative.success) throw new AggregateError(creative.logs, "Creative UI build failed");
+const creativeJs = await creative.outputs.find(output => output.path.endsWith(".js"))!.text();
+const creativeCss = await Bun.file("src/ui/creative-style.css").text();
+const creativeTemplate = await Bun.file("src/ui/creative-index.html").text();
+const creativeHtml = creativeTemplate.replace("__CREATIVE_JS__", () => creativeJs.replace(/<\/script/gi, "<\\/script")).replace("__CREATIVE_CSS__", () => creativeCss);
+if (/__CREATIVE_(JS|CSS)__/.test(creativeHtml)) throw new Error("Unresolved creative template marker");
+await Bun.write("dist/creative-app.html", creativeHtml);
+const creativeServer = await Bun.build({ entrypoints: ["src/creative-stdio.ts"], target: "bun", outdir: "dist", naming: "creative-server.js", define: { __STREAM_MACHINE_CREATIVE_HTML__: JSON.stringify(creativeHtml) } });
+if (!creativeServer.success) throw new AggregateError(creativeServer.logs, "Creative server build failed");
 const css = (await Bun.file("src/ui/style.css").text()) + "\n" + (await Bun.file("src/ui/widget-shell.css").text());
 const template = await Bun.file("src/ui/index.html").text();
 const html = template.replace("__APP_JS__", () => js.replace(/<\/script/gi, "<\\/script")).replace("__APP_CSS__", () => css);

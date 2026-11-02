@@ -44,6 +44,8 @@ jobs:
           for format in tar zip; do
             env -i HOME="$scratch/home" PATH=/usr/bin:/bin TMPDIR="$scratch" \
               "$bun" "$GITHUB_WORKSPACE/scripts/smoke.ts" "$scratch/$format/stream-machine/dist/server.js"
+            env -i HOME="$scratch/home" PATH=/usr/bin:/bin TMPDIR="$scratch" \
+              "$bun" "$GITHUB_WORKSPACE/scripts/creative-smoke.ts" "$scratch/$format/stream-machine/dist/creative-server.js"
           done
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
