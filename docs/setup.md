@@ -55,6 +55,10 @@ The task builds and validates both `docs/packages/stream-machine-0.3.0.zip` and 
 
 To install the archive, use your host's supported plugin installation flow. For requirements and package contents, see the [package reference](package-reference.md).
 
+## Download a released package
+
+Open [Releases](https://github.com/prime-optimal/stream-machine-plugin/releases) and select the version. Download `stream-machine-<version>.zip` from its assets. Repository access and GitHub sign-in are required. Release packages do not expire.
+
 ## Download a CI package
 
 Open [Build plugin packages](https://github.com/prime-optimal/stream-machine-plugin/actions/workflows/package.yml) and select a successful run for the intended commit. Download its `stream-machine-<version>-<full-commit-SHA>` artifact. Repository access and GitHub sign-in are required.

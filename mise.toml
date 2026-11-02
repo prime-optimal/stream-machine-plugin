@@ -98,5 +98,9 @@ run = "uv run scripts/release-plan.py preview"
 description = "Prepare synchronized release files without commits or tags"
 run = "uv run scripts/release-plan.py prepare"
 
+[tasks."release:publish"]
+description = "Publish the current version as a GitHub Release with its packages; pass --dry-run to only report"
+run = "bun scripts/release-publish.ts"
+
 [env]
 HK_MISE = "1"

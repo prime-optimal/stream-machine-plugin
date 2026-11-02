@@ -69,7 +69,7 @@ The source check is a point-in-time observation. Main can advance between that c
 
 The model treats Commitizen's eligible-range result as an input. It does not prove parsing, version selection, changelog formatting, or version consistency. The helper's fixture tests cover those behaviors.
 
-`NoAutomaticRelease` checks that the modeled actions exclude automatic release operations. Source review must confirm that the workflow continues to exclude them. The human merge action represents an external reviewer, not workflow code.
+`NoAutomaticRelease` checks that the modeled actions exclude automatic release operations. Source review must confirm that the workflow continues to exclude them. The human merge action represents an external reviewer, not workflow code. Since #120, a separate `Publish release` workflow tags and publishes after the merge. Its [publish model](../120-release-publish/report.md) covers that step.
 
 ## Regenerate
 

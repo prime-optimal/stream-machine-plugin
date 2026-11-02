@@ -99,4 +99,4 @@ jobs:
             Previous release boundary: ${{ steps.release.outputs.boundary }}.
             Commitizen 4.19.3 calculates the version and changelog.
             Checks: TypeScript, tests, stdio smoke, package, and check-only hooks.
-            Review and merge manually. No tags, publishing, approval, or automatic merge.
+            Review and merge manually. No approval or automatic merge. After the merge, the Publish release workflow tags the version and creates the GitHub Release.

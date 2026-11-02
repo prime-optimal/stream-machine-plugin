@@ -1,0 +1,60 @@
+name: Publish release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: release-publish
+  cancel-in-progress: false
+jobs:
+  plan:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      commit: ${{ steps.plan.outputs.commit }}
+      published: ${{ steps.plan.outputs.published }}
+      tag: ${{ steps.plan.outputs.tag }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac
+      - name: Find release commit
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mise run release:publish --dry-run | tee "$RUNNER_TEMP/release.json"
+          jq -r '"commit=\(.commit)", "published=\(.published)", "tag=\(.tag)"' "$RUNNER_TEMP/release.json" >> "$GITHUB_OUTPUT"
+  publish:
+    needs: plan
+    if: needs.plan.outputs.published == 'false'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ needs.plan.outputs.commit }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify release commit
+        env:
+          COMMIT: ${{ needs.plan.outputs.commit }}
+        run: test "$(git rev-parse HEAD)" = "$COMMIT"
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac
+      - run: mise run install
+      - run: mise run check
+      - run: mise run test
+      - run: mise run smoke
+      - run: mise run package
+      - name: Publish ${{ needs.plan.outputs.tag }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: mise run release:publish
