@@ -12,7 +12,7 @@ assert.deepEqual(manifest.extensions["com.openai"].interface.defaultPrompt, lega
 const config = await Bun.file(`${root}/mcp.json`).json();
 const legacyConfig = await Bun.file(`${root}/.mcp.json`).json();
 assert.deepEqual(config.mcpServers, legacyConfig.mcpServers);
-for (const [id, file, kind] of [["stream-machine-obs", "obs-server.js", "obs"], ["stream-machine-streamdeck", "server.js", "streamdeck"]] as const) {
+for (const [id, file, kind] of [["stream-machine-obs", "obs-server.js", "obs"], ["stream-machine-streamdeck", "server.js", "streamdeck"], ["stream-machine-creative", "creative-server.js", "creative"]] as const) {
   assert.deepEqual(config.mcpServers[id], { type: "stdio", command: "bun", args: ["${PLUGIN_ROOT}/dist/" + file], cwd: "${PLUGIN_ROOT}" });
   await verifyServer(`${root}/dist/${file}`, kind);
 }
