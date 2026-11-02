@@ -29,7 +29,7 @@ Observed with `bun run dev` and the local test sign-in: the image loaded at 170Ã
 
 ![Hosted Site in the disconnected state with the image button](site-disconnected.png)
 
-Site gates: `bun run check` and `bun run build` passed. `bun test tests` had 88 passing and 4 failing tests, and lint reported 4 errors. The base commit `7bd13f6` has the same test failures (`miniflare` is not resolvable in this install) and the same lint errors. This change adds one lint warning, `@next/next/no-img-element`, for the fixed-size image.
+Site gates: `bun run check` and `bun run build` passed. `bun test tests` passed 125 of 125 tests after a temporary `node_modules/miniflare` symlink was added. The test files import `miniflare`, but this aube install keeps it only under `node_modules/.aube`; without the link, the 4 worker test files fail to load at the base commit `7bd13f6` too. Lint reports the same 4 errors as the base commit. This change adds one lint warning, `@next/next/no-img-element`, for the fixed-size image.
 
 ## Not verified
 
