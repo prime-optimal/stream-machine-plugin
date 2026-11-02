@@ -109,7 +109,7 @@ For each retained worktree, inspect its status and local-only commits. Check ign
 
 Name each remaining dirty worktree, local-only commit, or running process. Give the owner, the reason it stays, and the next step. Link any cleanup record under `docs/reviews/`.
 
-Complete [the issue evidence procedure](#finish-the-issue). Link the posted verification comment and confirm the issue and board status. Report any missing attachment or publication blocker.
+Complete [the issue evidence procedure](#finish-the-issue). Link the posted evidence comment and confirm the issue and board status. Report any missing attachment or publication blocker.
 
 If a completion check fails, report the path and blocker. Do not claim completion until completed task work is committed and pushed.
 
