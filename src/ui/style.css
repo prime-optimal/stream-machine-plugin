@@ -319,19 +319,17 @@ footer > span:last-child { margin-left: auto; }
 .home-clip:hover .home-thumb { outline: 2px solid var(--accent); }
 .home-clip-title { font-size: 12px; font-weight: 550; overflow-wrap: anywhere; }
 .home-failure { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); font-size: 12px; }
-.home-suggestions { display: grid; gap: 12px; min-width: 0; }
+.home-suggestions { display: grid; gap: 12px; min-width: 0; container: home-features / inline-size; }
 .home-suggestions h2 { font-size: 18px; }
-.home-carousel-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px; }
-.home-carousel-row.no-overflow { grid-template-columns: minmax(0, 1fr); }
-.home-carousel { list-style: none; margin: 0; padding: 4px 2px; display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; min-width: 0; }
-.home-carousel::-webkit-scrollbar { display: none; }
-.home-suggestion { flex: 0 0 min(240px, 78%); scroll-snap-align: start; display: grid; gap: 8px; align-content: start; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); min-width: 0; }
-.home-suggestion h3 { overflow-wrap: anywhere; }
-.home-suggestion .live-button { justify-self: start; }
+.home-feature-view { display: grid; gap: 16px; min-width: 0; }
+.home-feature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; list-style: none; margin: 0; padding: 0; min-width: 0; }
+.home-feature-card { display: grid; grid-template-rows: auto auto 1fr auto; gap: 8px; padding: 16px; border: 1px solid var(--sm-border, var(--line)); border-radius: 4px; background: var(--sm-panel, var(--panel)); min-width: 0; }
+.home-feature-card h3, .home-feature-card p { min-width: 0; overflow-wrap: anywhere; }
+.home-feature-card .live-button { justify-self: start; align-self: end; min-height: 44px; }
+.home-explore { display: inline-flex; justify-self: start; align-items: center; gap: 8px; white-space: normal; max-width: 100%; min-height: 44px; overflow-wrap: anywhere; }
+.home-feature-view h2:focus { outline: 2px solid var(--color-ring-primary, var(--sm-highlight, var(--accent))); outline-offset: 4px; }
+.home-explore svg { flex: 0 0 20px; width: 20px; height: 20px; }
 .home-suggestion-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .home-suggestion-icon { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: var(--panel-raised); }
-.home-arrow { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 50%; background: var(--panel); color: var(--text); padding: 0; }
-.home-arrow:hover:not(:disabled) { border-color: var(--accent); }
-.home-arrow-prev svg { transform: rotate(180deg); }
+@container home-features (width < 480px) { .home-feature-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 480px) { .home-banner { aspect-ratio: 16 / 7; } }
-@media (prefers-reduced-motion: reduce) { .home-carousel { scroll-behavior: auto; } }

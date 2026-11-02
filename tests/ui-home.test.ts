@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   clipCountLabel, createHomeState, homeCacheKey, readCache, snapshotNotes, type CacheStorage, type ChannelSnapshot,
 } from "../src/ui/home-state";
-import { canTry, carouselState, messageParams, scrollTarget, suggestions, tryLabel } from "../src/ui/suggestions";
+import { canTry, messageParams, priorityFeatures, suggestions, tryLabel } from "../src/ui/suggestions";
 import type { ToolResult } from "../src/ui/tool-transport";
 
 function snapshot(id = "owner", over: Partial<ChannelSnapshot> = {}): ChannelSnapshot {
@@ -104,18 +104,23 @@ describe("hosted Home state", () => {
   });
 });
 
-describe("suggestion carousel", () => {
-  test("arrows disable at the ends and hide when everything fits", () => {
-    expect(carouselState({ scrollLeft: 0, clientWidth: 400, scrollWidth: 400 })).toEqual({ overflow: false, canPrev: false, canNext: false });
-    expect(carouselState({ scrollLeft: 0, clientWidth: 400, scrollWidth: 1000 })).toEqual({ overflow: true, canPrev: false, canNext: true });
-    expect(carouselState({ scrollLeft: 300, clientWidth: 400, scrollWidth: 1000 })).toEqual({ overflow: true, canPrev: true, canNext: true });
-    expect(carouselState({ scrollLeft: 599, clientWidth: 400, scrollWidth: 1000 })).toEqual({ overflow: true, canPrev: true, canNext: false });
-  });
-  test("scrolls one card width and clamps at the edges", () => {
-    const metrics = { scrollLeft: 100, clientWidth: 400, scrollWidth: 1000 };
-    expect(scrollTarget(metrics, 252, 1)).toBe(352);
-    expect(scrollTarget(metrics, 252, -1)).toBe(0);
-    expect(scrollTarget({ ...metrics, scrollLeft: 500 }, 252, 1)).toBe(600);
+describe("Home feature actions", () => {
+  test("Clips opens the existing workspace while authoring actions prepare a brief", () => {
+    expect(priorityFeatures.filter(card => card.action.kind === "navigate").map(card => card.action)).toEqual([{ kind: "navigate", section: "clips" }]);
+    const brand = priorityFeatures.find(card => card.id === "brand-kit");
+    const assets = priorityFeatures.find(card => card.id === "stream-assets");
+    expect(brand?.action.kind).toBe("message"); expect(assets?.action.kind).toBe("message");
+    if (brand?.action.kind === "message") {
+      expect(brand.action.prompt).toContain("draft DESIGN.md");
+      expect(brand.action.prompt).toContain("Do not assume a saved brand kit or persistent settings exist");
+    }
+    if (assets?.action.kind === "message") {
+      expect(assets.action.prompt).toContain("Confirm the brief");
+      expect(assets.action.prompt).toContain("OpenDesign tools are available");
+      expect(assets.action.prompt).toContain("Do not install it in OBS");
+      expect(assets.action.prompt).not.toBe(suggestions.find(card => card.id === "overlay")?.prompt);
+    }
+    expect(priorityFeatures.filter(card => card.desktopOnly).map(card => card.id)).toEqual(["local-setup"]);
   });
   test("Try needs a host that supports messages and sends a plain user prompt", () => {
     expect(canTry({ standalone: true, messageSupported: true })).toBe(false);

@@ -22,7 +22,9 @@ Hosted Home reads Twitch on its own once connected. It calls `stream_machine_twi
 
 Home caches the last snapshot in `localStorage` under `stream-machine:home:v1`. It paints the cache first, then replaces it with the fresh result. It drops the cache when status reports a different account or no connection. The cache holds only the public snapshot fields, never a token. A status request that fails for a transient reason keeps the cache.
 
-Under the snapshot, **See what Stream Machine can do** lists suggestion cards. **Try** sends the card's prompt into the chat with `ui/message`. It is enabled only when the host advertises message support and is disabled in the standalone preview. OBS and Stream Deck cards are labeled **Desktop only**.
+Under the snapshot, Home shows four priority cards in two rows: Brand kit and Stream assets, then Clips and OBS & Stream Deck setup. Narrow containers stack the cards. **Open Clips** selects the existing gallery directly. The other cards use **Try** to send a capability-gated chat prompt; they do not promise persistent brand settings or apply assets automatically. Only local setup carries the **Local only** label.
+
+**Explore all features** opens the seven existing suggestion cards. **Back** returns to the priorities. Both controls change the view without running tools or sending messages. **Try** remains enabled only when the host advertises message support and stays disabled in standalone previews. Snapshot failures do not hide the actions.
 
 ## Approve a title
 

@@ -3,7 +3,7 @@ import {
   clipCountLabel, createHomeState, snapshotNotes, type CacheStorage, type ChannelSnapshot, type HomeAccount,
 } from "./home-state";
 import {
-  canTry, carouselState, messageParams, scrollTarget, suggestions, suggestionsHeading, tryLabel, type MessageParams, type Suggestion,
+  canTry, messageParams, priorityFeatures, suggestions, suggestionsHeading, tryLabel, type MessageParams, type PriorityFeature,
 } from "./suggestions";
 import type { ToolRequest } from "./tool-transport";
 
@@ -11,6 +11,7 @@ type MessageResult = { isError?: boolean };
 export type HomeOptions = {
   request: ToolRequest;
   openLink: (url: string) => void;
+  openClips: () => void;
   icon: (name: string) => string;
   standalone: boolean;
   messageSupported: () => boolean;
@@ -41,10 +42,11 @@ export function createHome(options: HomeOptions) {
   const snapshotArea = node("section", "", "home-snapshot");
   snapshotArea.setAttribute("aria-label", "Twitch channel snapshot");
   const suggestionArea = node("section", "", "home-suggestions");
-  suggestionArea.setAttribute("aria-labelledby", "home-suggestions-title");
+  suggestionArea.setAttribute("aria-labelledby", "home-priority-title");
   const model = createHomeState(options.request, render, options.storage);
   let sendStatus = "";
   let sending = false;
+  let disposed = false;
 
   function externalLink(label: string, url: string, className = "") {
     const safe = safeHttpsUrl(url, twitchHosts);
@@ -130,73 +132,77 @@ export function createHome(options: HomeOptions) {
     }
   }
 
-  const row = node("div", "", "home-carousel-row");
-  const prev = node("button", "", "home-arrow"); prev.type = "button"; prev.setAttribute("aria-label", "Previous suggestions");
-  const next = node("button", "", "home-arrow"); next.type = "button"; next.setAttribute("aria-label", "Next suggestions");
-  prev.innerHTML = options.icon("arrow"); next.innerHTML = options.icon("arrow");
-  prev.classList.add("home-arrow-prev");
-  const track = node("ul", "", "home-carousel");
-  track.setAttribute("aria-label", "Suggestions"); track.tabIndex = 0;
+  const priorityView = node("div", "", "home-feature-view");
+  const priorityHeading = node("h2", "What would you like to do?"); priorityHeading.id = "home-priority-title";
+  const priorityGrid = node("ul", "", "home-feature-grid"); priorityGrid.setAttribute("aria-labelledby", priorityHeading.id);
+  const allView = node("div", "", "home-feature-view"); allView.id = "home-all-features"; allView.hidden = true;
+  const allHeading = node("h2", suggestionsHeading); allHeading.id = "home-all-features-title"; allHeading.tabIndex = -1;
+  const allGrid = node("ul", "", "home-feature-grid"); allGrid.setAttribute("aria-labelledby", allHeading.id);
+  const explore = node("button", "", "live-button home-explore"); explore.type = "button";
+  explore.innerHTML = options.icon("lightbulb"); explore.append(node("span", "Explore all features"));
+  explore.setAttribute("aria-controls", allView.id); explore.setAttribute("aria-expanded", "false");
+  const back = node("button", "Back", "live-button home-explore"); back.type = "button";
+  back.setAttribute("aria-label", "Back to priority features");
   const feedback = node("p", "", "home-quiet");
   feedback.setAttribute("role", "status");
-  const tryButtons: { card: Suggestion; button: HTMLButtonElement }[] = [];
+  const tryButtons: HTMLButtonElement[] = [];
 
   function host() { return { standalone: options.standalone, messageSupported: options.messageSupported() }; }
-  function metrics() { return { scrollLeft: track.scrollLeft, clientWidth: track.clientWidth, scrollWidth: track.scrollWidth }; }
-  function updateArrows() {
-    const state = carouselState(metrics());
-    row.classList.toggle("no-overflow", !state.overflow);
-    prev.hidden = next.hidden = !state.overflow;
-    prev.disabled = !state.canPrev; next.disabled = !state.canNext;
-  }
-  function scrollBy(direction: -1 | 1) {
-    const first = track.querySelector("li");
-    const width = (first?.getBoundingClientRect().width ?? track.clientWidth) + 12;
-    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    track.scrollTo({ left: scrollTarget(metrics(), width, direction), behavior: reduced ? "auto" : "smooth" });
-  }
-  async function send(card: Suggestion) {
-    if (sending || !canTry(host())) return;
-    sending = true; feedback.textContent = ""; updateTry();
+  async function send(prompt: string) {
+    if (disposed || sending || !canTry(host())) return;
+    sending = true; sendStatus = ""; updateTry();
+    let failure = "";
     try {
-      const result = await options.sendMessage(messageParams(card.prompt));
-      sendStatus = result.isError ? "Could not send that to the chat. Try again." : "";
-    } catch { sendStatus = "Could not send that to the chat. Try again."; }
-    sending = false; feedback.textContent = sendStatus; updateTry();
+      const result = await options.sendMessage(messageParams(prompt));
+      failure = result.isError ? "Could not send that to the chat. Try again." : "";
+    } catch { failure = "Could not send that to the chat. Try again."; }
+    if (disposed) return;
+    sendStatus = failure; sending = false; updateTry();
   }
   function updateTry() {
     const allowed = canTry(host());
-    for (const { button } of tryButtons) button.disabled = !allowed || sending;
-    if (!sendStatus) feedback.textContent = tryLabel(host());
+    for (const button of tryButtons) button.disabled = !allowed || sending;
+    feedback.textContent = sendStatus || tryLabel(host());
   }
-  prev.addEventListener("click", () => scrollBy(-1));
-  next.addEventListener("click", () => scrollBy(1));
-  track.addEventListener("scroll", updateArrows, { passive: true });
-  if (typeof ResizeObserver !== "undefined") new ResizeObserver(updateArrows).observe(track);
-  for (const card of suggestions) {
-    const item = node("li", "", "home-suggestion");
+  function featureCard(card: PriorityFeature, localLabel: string) {
+    const item = node("li", "", "home-feature-card");
     const head = node("span", "", "home-suggestion-head");
     const tile = node("span", "", "home-suggestion-icon"); tile.innerHTML = options.icon(card.icon);
     head.append(tile);
-    if (card.desktopOnly) head.append(node("span", "Desktop only", "badge subtle"));
-    const button = node("button", "Try", "live-button"); button.type = "button"; button.dataset.suggestion = card.id;
-    button.setAttribute("aria-label", `Try: ${card.title}`);
-    button.addEventListener("click", () => void send(card));
+    if (card.desktopOnly) head.append(node("span", localLabel, "badge subtle"));
+    const action = card.action;
+    const label = action.kind === "navigate" ? "Open Clips" : "Try";
+    const button = node("button", label, "live-button"); button.type = "button"; button.dataset.suggestion = card.id;
+    button.setAttribute("aria-label", action.kind === "navigate" ? label : `Try: ${card.title}`);
+    if (action.kind === "navigate") button.addEventListener("click", () => { if (!disposed) options.openClips(); });
+    else { button.addEventListener("click", () => void send(action.prompt)); tryButtons.push(button); }
     item.append(head, node("h3", card.title), node("p", card.description, "home-quiet"), button);
-    track.append(item); tryButtons.push({ card, button });
+    return item;
   }
-  const heading = node("h2", suggestionsHeading); heading.id = "home-suggestions-title";
-  row.append(prev, track, next);
-  suggestionArea.append(heading, row, feedback);
+  for (const card of priorityFeatures) priorityGrid.append(featureCard(card, "Local only"));
+  for (const card of suggestions) allGrid.append(featureCard({ ...card, action: { kind: "message", prompt: card.prompt } }, "Desktop only"));
+  priorityView.append(priorityHeading, priorityGrid, explore);
+  allView.append(back, allHeading, allGrid);
+  explore.addEventListener("click", () => {
+    if (disposed) return;
+    priorityView.hidden = true; allView.hidden = false;
+    explore.setAttribute("aria-expanded", "true"); suggestionArea.setAttribute("aria-labelledby", allHeading.id); allHeading.focus();
+  });
+  back.addEventListener("click", () => {
+    if (disposed) return;
+    allView.hidden = true; priorityView.hidden = false;
+    explore.setAttribute("aria-expanded", "false"); suggestionArea.setAttribute("aria-labelledby", priorityHeading.id); explore.focus();
+  });
+  suggestionArea.append(priorityView, allView, feedback);
 
   function render() {
+    if (disposed) return;
     const { status } = model.state();
     const connected = status.kind === "connected";
     confirmation.hidden = !connected;
     confirmation.textContent = connected ? `Connected to Twitch as ${status.account.displayName}` : "";
     renderSnapshot();
     updateTry();
-    requestAnimationFrame(updateArrows);
   }
 
   element.append(confirmation, snapshotArea, suggestionArea);
@@ -206,6 +212,6 @@ export function createHome(options: HomeOptions) {
     verified(account: HomeAccount) { return model.verified(account); },
     connectedAccountId(): string | null { const { status } = model.state(); return status.kind === "connected" ? status.account.id : null; },
     refresh: render,
-    dispose: model.dispose,
+    dispose() { disposed = true; model.dispose(); },
   };
 }
