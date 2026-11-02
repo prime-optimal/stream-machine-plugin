@@ -38,6 +38,8 @@ test("package workflow smokes both extracted archives without inherited credenti
   expect(smoke).toContain('HOME="$scratch/home"');
   expect(smoke).toContain('$GITHUB_WORKSPACE/scripts/smoke.ts');
   expect(smoke).toContain('$scratch/$format/stream-machine/dist/server.js');
+  expect(smoke).toContain('$GITHUB_WORKSPACE/scripts/creative-smoke.ts');
+  expect(smoke).toContain('$scratch/$format/stream-machine/dist/creative-server.js');
   expect(index).toBeGreaterThan(steps.findIndex(step => step.run === "mise run package"));
   expect(index).toBeLessThan(steps.findIndex(step => step.uses?.startsWith("actions/upload-artifact@")));
 });

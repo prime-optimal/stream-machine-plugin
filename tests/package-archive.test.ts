@@ -28,6 +28,8 @@ async function fixture() {
   await writeFile(join(root, "dist/server.js"), "Fixture server\n");
   await writeFile(join(root, "dist/obs-server.js"), "Fixture OBS server\n");
   await writeFile(join(root, "dist/streamdeck-action.js"), "Fixture Stream Deck action runner\n");
+  await writeFile(join(root, "dist/creative-server.js"), "Fixture creative server\n");
+  await writeFile(join(root, "dist/creative-app.html"), "Fixture creative UI\n");
   return root;
 }
 
@@ -78,6 +80,9 @@ test("real ZIP and tar.gz preserve the same root, hidden manifests, and file byt
   expect(extracted[1]).toEqual(staged);
   expect(staged.some(([path]) => path === ".codex-plugin/plugin.json")).toBe(true);
   expect(staged.some(([path]) => path === ".mcp.json")).toBe(true);
+  for (const file of ["obs-server.js", "server.js", "streamdeck-action.js", "creative-server.js", "creative-app.html"]) {
+    expect(staged.some(([path]) => path === `dist/${file}`)).toBe(true);
+  }
   expect(staged.filter(([path]) => path.startsWith("docs/")).map(([path]) => path)).toEqual(["docs/setup.md"]);
 }, 30_000);
 

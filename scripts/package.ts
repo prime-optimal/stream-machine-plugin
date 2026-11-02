@@ -7,8 +7,8 @@ process.chdir(root);
 const manifest = await Bun.file("plugin.json").json();
 if (manifest.name !== "stream-machine" || manifest.extensions["com.openai"].interface.shortDescription.length > 30) throw new Error("Invalid plugin identity/listing");
 const config = await Bun.file("mcp.json").json();
-if (Object.keys(config.mcpServers).join() !== "stream-machine,stream-machine-obs,stream-machine-streamdeck") throw new Error("Unexpected provider enabled");
-for (const bundle of ["obs-server.js", "server.js", "streamdeck-action.js"]) if (!await Bun.file(`dist/${bundle}`).exists()) throw new Error(`Missing local bundle: ${bundle}`);
+if (Object.keys(config.mcpServers).join() !== "stream-machine,stream-machine-obs,stream-machine-streamdeck,stream-machine-creative") throw new Error("Unexpected provider enabled");
+for (const bundle of ["obs-server.js", "server.js", "streamdeck-action.js", "creative-server.js", "creative-app.html"]) if (!await Bun.file(`dist/${bundle}`).exists()) throw new Error(`Missing local bundle: ${bundle}`);
 for (const skill of ["onboarding", "preview-recipe", "self-update"]) {
   const text = await Bun.file(`skills/${skill}/SKILL.md`).text();
   const frontmatter = text.match(/^---\n([\s\S]*?)\n---/);
