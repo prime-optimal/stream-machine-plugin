@@ -1,0 +1,30 @@
+---
+title: "Release preparation stops at human review"
+---
+stateDiagram-v2
+  s0: Main push or manual retry
+  s1: No release needed
+  s2: Release files prepared locally
+  s3: Required check failed
+  s4: Required checks passed
+  s5: Release branch pushed
+  s6: Main changed before push
+  s7: PR API failed after branch push
+  s8: PR creation blocked after branch push
+  s9: One release PR awaits review
+  s10: Human merged release PR
+  [*] --> s0
+  s0 --> s1: Commitizen finds no bump
+  s0 --> s2: Commitizen prepares eligible range
+  s2 --> s3: A check fails
+  s2 --> s4: Checks pass
+  s4 --> s6: Latest main differs from source
+  s4 --> s5: Push fixed release branch [source check passes]
+  s5 --> s7: PR API request fails
+  s5 --> s8: Repository disallows PR creation
+  s5 --> s9: Create or update fixed PR
+  s7 --> s2: Retry from current main
+  s8 --> s2: Retry from current main
+  s9 --> s10: Reviewer merges PR
+  s9 --> s2: Retry from current main
+  s10 --> s0: Run after merge with consumed boundary

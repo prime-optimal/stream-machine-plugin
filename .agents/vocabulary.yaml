@@ -46,6 +46,54 @@ nouns:
       deprecated: [stopping the dependency]
     - canonical: independent worker
       deprecated: [background worker, detached worker, event worker]
+    - canonical: onboarding skill
+      deprecated: [setup skill]
+    - canonical: clip scope
+      deprecated: [clip permission]
+    - canonical: clip scopes
+      deprecated: [clip permissions]
+    - canonical: Connect OpenDesign service
+      deprecated: [Connect design service]
+    - canonical: recent item
+      deprecated: [session reference]
+    - canonical: recent items
+      deprecated: [session references, recent-work references, recent work]
+    - canonical: recent item records
+      deprecated: [recent-work records]
+    - canonical: recent item model
+      deprecated: [recent-work model]
+    - canonical: recent item state
+      deprecated: [recent-work state]
+    - canonical: Work browser
+      deprecated: [Work web]
+    - canonical: UI evidence
+      deprecated: [UI proof]
+    - canonical: usability evidence
+      deprecated: [usability proof]
+    - canonical: not evidence that
+      deprecated: [not proof that]
+    - canonical: preserve evidence
+      deprecated: [preserve proof]
+    - canonical: request reservation
+      deprecated: [request slot]
+    - canonical: shared reservation
+      deprecated: [shared slot]
+    - canonical: the reservation
+      deprecated: [the slot]
+    - canonical: no reservation
+      deprecated: [no slot]
+    - canonical: release reservation
+      deprecated: [release slot]
+    - canonical: reservation free
+      deprecated: [slot free]
+    - canonical: evidence comment
+      deprecated: [verification comment]
+    - canonical: evidence comments
+      deprecated: [verification comments]
+    - canonical: event SHA
+      deprecated: [event commit SHA]
+    - canonical: exact event SHA
+      deprecated: [exact event commit]
 rejected:
   - term: mock
     reason: Names the mock data layer and status value (status "mock" in catalog.ts); demo names the user-facing account.
@@ -85,3 +133,31 @@ rejected:
     reason: Live controls also means overlay playback controls; preview server is the process, not the page.
   - term: job
     reason: Creative job is a generation task; request ID identifies a call. Different things.
+  - term: dependency
+    reason: Dependency also means package, adapter, and local MCP dependencies across docs.
+  - term: workspace
+    reason: Workspace is a UI module with drafts; view is one screen.
+  - term: attempt
+    reason: Attempt is a retry of a request; job is already rejected.
+  - term: approval
+    reason: Approval is user consent; authorization is the resulting grant applied to a preview.
+  - term: response
+    reason: Response is generic; acknowledgment is a specific dispatch confirmation.
+  - term: creator
+    reason: Clipper made a clip; creator also means the streamer using the plugin.
+  - term: scope
+    reason: Scope is the OAuth identifier (requiredScopes); permission is the user-facing label.
+  - term: authorize
+    reason: Authorize is the OAuth action; consent is the user's approval.
+  - term: hosted worker
+    reason: Hosted worker is a future cloud process; independent worker is the implemented local one.
+  - term: asset
+    reason: Assets is a workspace name; artifact is a generated output.
+  - term: dispatch
+    reason: Dispatch is the send moment; upload is the multipart action; dispatch also used elsewhere.
+  - term: post
+    reason: Ordinary verb; publish also means release publishing, so a mapping is unsafe.
+  - term: native host
+    reason: Native host contrasts with browser preview; desktop host means the computer running local processes.
+  - term: view
+    reason: View names UI views and saved board views; evidence means verification records.

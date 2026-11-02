@@ -45,15 +45,33 @@ The smoke test starts the bundled server and checks its tools, demo connection, 
 
 ## Build a plugin archive
 
-Run the package task:
+Ensure that `tar`, `zip`, and `unzip` are on `PATH`. Run the package task:
 
 ```sh
 mise run package
 ```
 
-The task writes `docs/packages/stream-machine-0.2.0.tar.gz`. It prints the archive path and reports that it inspected the entries.
+The task builds and validates both `docs/packages/stream-machine-0.3.0.zip` and `docs/packages/stream-machine-0.3.0.tar.gz`. Names follow the committed version in `plugin.json`. Both archives contain the same `stream-machine/` root. Git ignores these generated files. No provider credentials are needed for this build.
 
 To install the archive, use your host's supported plugin installation flow. For requirements and package contents, see the [package reference](package-reference.md).
+
+## Download a released package
+
+Open [Releases](https://github.com/prime-optimal/stream-machine-plugin/releases) and select the version. Download `stream-machine-<version>.zip` from its assets. Repository access and GitHub sign-in are required. Release packages do not expire.
+
+## Download a CI package
+
+Open [Build plugin packages](https://github.com/prime-optimal/stream-machine-plugin/actions/workflows/package.yml) and select a successful run for the intended commit. Download its `stream-machine-<version>-<full-commit-SHA>` artifact. Repository access and GitHub sign-in are required.
+
+Extract the downloaded Actions wrapper ZIP once. The files inside are the actual plugin ZIP and tar.gz. Use the inner `stream-machine-<version>.zip` for the desktop update, not the wrapper. Artifacts expire after 30 days.
+
+To rebuild manually, select **Run workflow** and choose the intended branch. The workflow checks out that dispatch event's exact commit. For a local rebuild, check out the desired commit in a separate worktree, then run `mise run install` and `mise run package`.
+
+Package checks do not verify a desktop update. Native-host installation is a separate manual check.
+
+## Transcribe a local recording
+
+Follow [Transcribe one local audio file](demos/transcription.md) for the explicit OpenAI upload tool. `OPENAI_API_KEY` is optional for other workflows. Discovery and smoke checks do not upload audio.
 
 ## Choose optional providers
 

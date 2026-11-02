@@ -1,0 +1,14 @@
+{
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+  "errors": [],
+  "calls": [
+    "stream_machine_twitch_status",
+    "stream_machine_twitch_connect"
+  ],
+  "text": "03 / Twitch title\n\nCurrent features use title updates and own-channel clip downloads, with broader broadcast and clip management access. Future permissions, not active features: read/send chat; read followers, subscriptions, and cheers; read/manage rewards; create clips; bot use. Requesting unused permissions conflicts with Twitch policy and risks API access suspension. Consent does not authorize a separate bot account. Existing grants are retained. Consent performs no channel action. Review the exact title and approve it separately before applying.\n\nExact requested permissions\nbits:read\nchannel:bot\nchannel:manage:broadcast\nchannel:manage:clips\nchannel:manage:redemptions\nchannel:read:redemptions\nchannel:read:subscriptions\nclips:edit\nmoderator:read:followers\nuser:bot\nuser:read:chat\nuser:write:chat\nCheck connection\nConnect or reconnect Twitch · 12 permissions\nRead current channel\nProposed stream title\nPreview title · no write\nApply browser-approved title\nmode: mock\nrequiredScopes: bits:read, channel:bot, channel:manage:broadcast, channel:manage:clips, channel:manage:redemptions, channel:read:redemptions, channel:read:subscriptions, clips:edit, moderator:read:followers, user:bot, user:read:chat, user:write:chat\nimplementedScopes: channel:manage:broadcast, channel:manage:clips\nfutureScopes: bits:read, channel:bot, channel:manage:redemptions, channel:read:redemptions, channel:read:subscriptions, clips:edit, moderator:read:followers, user:bot, user:read:chat, user:write:chat\ngrantedScopes: channel:manage:broadcast\nmissingScopes: bits:read, channel:bot, channel:manage:clips, channel:manage:redemptions, channel:read:redemptions, channel:read:subscriptions, clips:edit, moderator:read:followers, user:bot, user:read:chat, user:write:chat\nreconnectRequired: true\nrequestedScopes: bits:read, channel:bot, channel:manage:broadcast, channel:manage:clips, channel:manage:redemptions, channel:read:redemptions, channel:read:subscriptions, clips:edit, moderator:read:followers, user:bot, user:read:chat, user:write:chat\nretainedScopes: (none)\ndisclosure: Current features use title updates and own-channel clip downloads, with broader broadcast and clip management access. Future permissions, not active features: read/send chat; read followers, subscriptions, and cheers; read/manage rewards; c\ngrantSource: mock stored grants\nOpen Twitch connection\nIf the host cannot open this link, copy its address into your normal browser.",
+  "links": [
+    "http://127.0.0.1:48383/mock-consent-do-not-open"
+  ],
+  "location": "http://127.0.0.1:48383/",
+  "exactDetailsExpanded": true
+}

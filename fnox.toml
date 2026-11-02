@@ -16,3 +16,7 @@ TWITCH_CLIENT_SECRET = { provider = "onepass", value = "op://Developer/zbv55k6yh
 TWITCH_TOKEN_ENCRYPTION_KEY = { provider = "onepass", value = "op://Developer/2pouahi5cewdu4mprn4pvya5na/credential" }
 STREAM_MACHINE_DESIGN_USERNAME = { provider = "onepass", value = "op://Developer/up33vpyv7jy3lrbzx62zetb2ue/username" }
 STREAM_MACHINE_DESIGN_PASSWORD = { provider = "onepass", value = "op://Developer/up33vpyv7jy3lrbzx62zetb2ue/password" }
+
+[secrets.OPENAI_API_KEY]
+provider = "onepass"
+value = "op://Developer/zm54c26m5zkcaehkhtyp2bivce/credential"

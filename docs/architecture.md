@@ -132,7 +132,7 @@ Global and thread entrypoints could expose the recipe library and the current ru
 
 Composer mentions could refer to a selected recipe or artifact. Stable IDs in chat provide the same reference when mentions are unavailable. Model context can describe the current selection and preview, while structured tool results remain available without that extension. Proposed deep links would reopen a recipe or run. Finding the record by ID remains the fallback.
 
-In the Extensions specification, "Web" means the Work browser rather than classic ChatGPT. The [platform table](https://github.com/openai/mcp-extensions/blob/main/docs/spec.md#L7-L25) lists global and thread entrypoints, onboarding, and settings across desktop, Work web, iOS, and Android. Composer mentions cover desktop and Work web. File handlers support desktop only, and deep links exclude Android.
+In the Extensions specification, "Web" means the Work browser rather than classic ChatGPT. The [platform table](https://github.com/openai/mcp-extensions/blob/main/docs/spec.md#L7-L25) lists global and thread entrypoints, onboarding, and settings across desktop, Work browser, iOS, and Android. Composer mentions cover desktop and Work browser. File handlers support desktop only, and deep links exclude Android.
 
 The table guides design choices, but it does not verify availability in this prototype. Capability negotiation and tests in each host establish what Stream Machine can use. The design therefore makes no claim of equal mobile and web support.
 

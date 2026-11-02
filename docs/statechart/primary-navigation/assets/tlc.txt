@@ -1,0 +1,19 @@
+TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)
+Warning: Please run the Java VM which executes TLC with a throughput optimized garbage collector by passing the "-XX:+UseParallelGC" property.
+(Use the -nowarning option to disable this warning.)
+Running breadth-first search Model-Checking with fp 0 and seed 3178376829949148656 with 1 worker on 10 cores with 4096MB heap and 64MB offheap memory [pid: 82771] (Mac OS X 27.2 aarch64, Eclipse Adoptium 25.0.5 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file /private/tmp/stream-machine-assets-statechart/Assets.tla
+Parsing file /private/var/folders/dz/b9ltjv7d41z92cfhdnb9d2dr0000gn/T/statechart-4OgyxG/statechart-3twB9u/tmp-verdict-1/Naturals.tla
+Semantic processing of module Naturals
+Semantic processing of module Assets
+Starting... (2026-11-01 14:55:27)
+Computing initial states...
+Finished computing initial states: 2 distinct states generated at 2026-11-01 14:55:27.
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+  calculated (optimistic):  val = 4.2E-17
+58 states generated, 21 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 6.
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 3 and the 95th percentile is 2).
+Finished in 00s at (2026-11-01 14:55:27)

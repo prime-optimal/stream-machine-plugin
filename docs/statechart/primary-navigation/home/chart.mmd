@@ -1,0 +1,18 @@
+---
+title: "Home: choose and resume work"
+---
+stateDiagram-v2
+  s0: Open Stream Machine
+  s1: Home: tasks and recent work
+  s2: Task, recipe, or recent item selected
+  s3: Connections: keep selected task
+  s4: Selected workspace
+  [*] --> s0
+  s0 --> s1: show Home without provider calls
+  s1 --> s2: resume recent work or choose a recipe or choose a task
+  s2 --> s3: open setup for selected task
+  s2 --> s4: open selected workspace
+  s2 --> s1: return Home with context saved
+  s3 --> s4: return to selected workspace
+  s3 --> s1: return Home with context saved
+  s4 --> s1: return Home with context saved

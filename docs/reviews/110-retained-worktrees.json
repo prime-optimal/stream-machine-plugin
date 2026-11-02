@@ -1,0 +1,128 @@
+[
+  {
+    "path": "/Users/prime/Documents/ChatGPT/stream-machine-plugin",
+    "branch": "refs/heads/main",
+    "status": "M mise.toml\n M package.json\n?? src/ui/twitch_login.png",
+    "localOnly": 0
+  },
+  {
+    "path": "/private/tmp/stream-machine-connect-110",
+    "branch": "refs/heads/fix/110-twitch-connect",
+    "status": "M docs/reviews/110-twitch-connect.md\n M scripts/smoke.ts\n M skills/onboarding/SKILL.md\n M src/adapters/twitch/register.ts\n M src/auth/local-runtime.ts\n M src/auth/permissions.ts\n M src/server.ts\n M src/ui/app.ts\n M src/ui/connections.ts\n M tests/twitch-profile.test.ts\n M tests/ui-connections.test.ts\n?? docs/statechart/110-twitch-onboarding/\n?? docs/verification/110-twitch-onboarding/\n?? src/auth/desktop-browser.ts\n?? tests/desktop-browser.test.ts\n?? tests/twitch-onboarding-registration.test.ts\n?? tests/twitch-onboarding.test.ts",
+    "localOnly": 0
+  },
+  {
+    "path": "/private/tmp/stream-machine-main-1784082",
+    "branch": "detached",
+    "status": "",
+    "localOnly": 0
+  },
+  {
+    "path": "/private/tmp/stream-machine-secrets",
+    "branch": "refs/heads/codex/70-secrets-repoprompt",
+    "status": "",
+    "localOnly": 0
+  },
+  {
+    "path": "/private/tmp/stream-machine-ui-113",
+    "branch": "refs/heads/chore/113-ui-extension-docs",
+    "status": "M mise.toml\n M package.json\n?? scripts/ui-audit.ts",
+    "localOnly": 0
+  },
+  {
+    "path": "/private/tmp/stream-machine-update-109",
+    "branch": "refs/heads/feat/109-guided-update",
+    "status": "",
+    "localOnly": 1
+  },
+  {
+    "path": "/private/tmp/stream-machine-ux-review-86",
+    "branch": "refs/heads/chore/86-ux-review",
+    "status": "",
+    "localOnly": 1
+  },
+  {
+    "path": "/Users/prime/Documents/ChatGPT/.repoprompt-worktrees/stream-machine-plugin/rp-agent-0118fb60-feat-88-navigation-connections-8a31610b",
+    "branch": "refs/heads/feat/88-navigation-connections",
+    "status": "",
+    "localOnly": 0
+  },
+  {
+    "path": "/Users/prime/Documents/ChatGPT/.repoprompt-worktrees/stream-machine-plugin/rp-agent-1a00dad1-chore-105-release-automation-d1a17186",
+    "branch": "refs/heads/chore/105-release-automation",
+    "status": "",
+    "localOnly": 1
+  },
+  {
+    "path": "/Users/prime/Documents/ChatGPT/.repoprompt-worktrees/stream-machine-plugin/rp-agent-37bc3a4d-chore-107-package-on-merge-0c55b81c",
+    "branch": "refs/heads/chore/107-package-on-merge",
+    "status": "",
+    "localOnly": 0
+  },
+  {
+    "path": "/Users/prime/Documents/ChatGPT/.repoprompt-worktrees/stream-machine-plugin/rp-agent-50c48c29-feat-39-clip-download-e53aa619",
+    "branch": "refs/heads/feat/39-clip-download",
+    "status": "",
+    "localOnly": 0
+  },
+  {
+    "path": "/Users/prime/Documents/ChatGPT/.repoprompt-worktrees/stream-machine-plugin/rp-agent-d7047a0d-feat-18-media-integration-9fafbb41",
+    "branch": "refs/heads/feat/18-media-integration",
+    "status": "",
+    "localOnly": 0
+  },
+  {
+    "path": "/Users/prime/Documents/ChatGPT/.repoprompt-worktrees/stream-machine-plugin/rp-agent-d94af7be-feat-40-media-info-906b7ab4",
+    "branch": "refs/heads/feat/40-media-info",
+    "status": "",
+    "localOnly": 0
+  },
+  {
+    "path": "/Users/prime/Documents/ChatGPT/.repoprompt-worktrees/stream-machine-plugin/rp-agent-e27d02a8-feat-42-streaming-metric-6cc74b06",
+    "branch": "refs/heads/feat/42-streaming-metric",
+    "status": "",
+    "localOnly": 0
+  },
+  {
+    "path": "/Users/prime/Documents/ChatGPT/.repoprompt-worktrees/stream-machine-plugin/rp-agent-ec343fb3-feat-41-game-lookup-242fd5d7",
+    "branch": "refs/heads/feat/41-game-lookup",
+    "status": "",
+    "localOnly": 0
+  },
+  {
+    "path": "/Users/prime/Documents/ChatGPT/.repoprompt-worktrees/stream-machine-plugin/rp-agent-faf7449c-fix-83-initial-twitch-scopes-2440ae1c",
+    "branch": "refs/heads/fix/83-initial-twitch-scopes",
+    "status": "",
+    "localOnly": 1
+  },
+  {
+    "path": "/Users/prime/Documents/ChatGPT/stream-machine-demo",
+    "branch": "refs/heads/codex/49-demo-integration",
+    "status": "",
+    "localOnly": 0
+  },
+  {
+    "path": "/Users/prime/Documents/ChatGPT/stream-machine-native-46",
+    "branch": "refs/heads/codex/46-native-verification",
+    "status": "",
+    "localOnly": 1
+  },
+  {
+    "path": "/Users/prime/Documents/ChatGPT/stream-machine-transcribe-85",
+    "branch": "refs/heads/feat/85-gpt-transcribe",
+    "status": "",
+    "localOnly": 1
+  },
+  {
+    "path": "/Users/prime/Documents/ChatGPT/stream-machine-twitch-53",
+    "branch": "refs/heads/feat/53-channel-profile",
+    "status": "",
+    "localOnly": 0
+  },
+  {
+    "path": "/Users/prime/Documents/ChatGPT/stream-machine-ux-81",
+    "branch": "refs/heads/chore/81-plugin-ux-plan",
+    "status": "",
+    "localOnly": 3
+  }
+]

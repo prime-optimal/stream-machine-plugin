@@ -23,7 +23,7 @@ function fixture(reply: () => Response | Promise<Response> = () => Response.json
   }, { preconnect: fetch.preconnect });
   const accounts: TwitchAccountProvider = { async withAccount(fn) { return fn(access); } };
   const titles = new TwitchTitleService(accounts, new TwitchChannelClient(fetcher));
-  const runtime: LocalTwitchRuntime = { accounts, titles, diagnostics: () => [], connect() { throw new Error("Unexpected connect"); }, approvalUrl() { throw new Error("Unexpected approval"); }, close() {} };
+  const runtime: LocalTwitchRuntime = { accounts, titles, diagnostics: () => [], preflight() { throw new Error("Unexpected preflight"); }, connect() { throw new Error("Unexpected connect"); }, approvalUrl() { throw new Error("Unexpected approval"); }, close() {} };
   return { titles, runtime, reads: () => reads };
 }
 describe("Connected Twitch profile with fake external provider", () => {

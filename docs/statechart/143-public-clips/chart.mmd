@@ -1,0 +1,28 @@
+---
+title: "Completed clip links are public"
+---
+stateDiagram-v2
+  s0: Start
+  s1: Upload denied
+  s2: Uploading
+  s3: Failed
+  s4: Uploaded privately
+  s5: Ready
+  s6: Object missing
+  s7: Read denied
+  s8: Clip link opened
+  s9: Private owner read
+  [*] --> s0
+  s0 --> s1: anonymous upload is denied
+  s0 --> s2: signed-in owner starts upload
+  s2 --> s3: upload or metadata validation fails
+  s2 --> s4: private object finishes uploading
+  s4 --> s3: upload or metadata validation fails
+  s4 --> s5: validated metadata publishes artifact
+  s5 --> s6: published object becomes unavailable
+  s5 --> s8: anyone opens completed clip URL
+  s5 --> s7: missing ID or private file is denied
+  s5 --> s9: owner opens private file
+  s7 --> s6: published object becomes unavailable
+  s8 --> s6: published object becomes unavailable
+  s9 --> s6: published object becomes unavailable

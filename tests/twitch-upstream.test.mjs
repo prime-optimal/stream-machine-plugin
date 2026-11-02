@@ -1,9 +1,52 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {TwitchService,FOLLOWER_SCOPE} from '../src/auth/upstream/service.ts';
+import {requiredTwitchScopes} from '../src/auth/permissions.ts';
 import {decryptTokens,encryptTokens,randomState} from '../src/auth/upstream/crypto.ts';
 import {TwitchError} from '../src/auth/upstream/client.ts';
 import {fixture,key} from './twitch-helpers.mjs';
+import {createLocalTwitchRuntime} from '../src/auth/local-runtime.ts';
+test('current feature permissions require an actual grant',async()=>{
+ const {store,client}=fixture(),service=new TwitchService(store,client);
+ const start=await service.begin('owner',false,false,true);
+ assert.equal(new URL(start.url).searchParams.get('scope'),requiredTwitchScopes.join(' '));
+ client.scopes=['channel:manage:broadcast'];
+ await assert.rejects(service.complete('owner',start.state,start.state,'code',null),{code:'missing_permissions'});
+ assert.equal(await store.get('owner'),null);
+ client.scopes=[...requiredTwitchScopes];
+ const next=await service.begin('owner');
+ await service.complete('owner',next.state,next.state,'code',null);
+ assert.deepEqual((await service.status('owner')).scopes,requiredTwitchScopes);
+});
+test('legacy flags cannot reduce baseline or lose existing grants',async()=>{
+ const {store,client}=fixture(),service=new TwitchService(store,client);
+ client.scopes=[...new Set([...requiredTwitchScopes,FOLLOWER_SCOPE])];
+ const first=await service.begin('owner',true);
+ await service.complete('owner',first.state,first.state,'code',null);
+ for(const [broadcast,clips] of [[false,false],[false,true],[true,false],[true,true]]){
+  const next=await service.begin('owner',false,broadcast,clips);
+  assert.deepEqual(next.requestedScopes,[...new Set([...requiredTwitchScopes,FOLLOWER_SCOPE])].sort());
+  assert.deepEqual(new URL(next.url).searchParams.get('scope').split(' '),next.requestedScopes);
+ }
+});
+test('local connect discloses both baseline scopes independent of legacy flags',async()=>{
+ const runtime=createLocalTwitchRuntime({TWITCH_CLIENT_ID:'test-client',TWITCH_CLIENT_SECRET:'test-secret',TWITCH_TOKEN_ENCRYPTION_KEY:key(),STREAM_MACHINE_TWITCH_STORE:':memory:'},fetch,0);
+ assert.ok(runtime);
+ try {
+  for(const flags of [[],[false,true],[true,false],[true,true]]){
+   const result=await runtime.connect(...flags);
+   assert.deepEqual(result.requiredScopes,requiredTwitchScopes);
+   assert.deepEqual(result.requestedScopes,requiredTwitchScopes);
+   assert.deepEqual(result.grantedScopes,[]);
+   assert.deepEqual(result.missingScopes,requiredTwitchScopes);
+   assert.equal(result.reconnectRequired,true);
+   assert.equal(new URL(result.connectUrl).search,'');
+   assert.equal(result.disclosure.includes('channel:manage:clips'),true);
+   assert.equal(result.disclosure.includes('channel:manage:broadcast'),true);
+   assert.equal('requiredScope' in result,false);
+  }
+ } finally {runtime.close();}
+});
 
 async function connected(){const f=fixture();const service=new TwitchService(f.store,f.client);const started=await service.begin('owner');await service.complete('owner',started.state,started.state,'code',null);return {...f,service};}
 
@@ -16,10 +59,10 @@ test('seals tokens to both the key and owner',async()=>{
  await assert.rejects(decryptTokens(sealed,key(),'owner'));
  await assert.rejects(decryptTokens('invalid',secret,'owner'));
 });
-test('basic connection requests no optional scopes and stores no raw state or token',async()=>{
+test('basic connection requests current feature scopes and stores no raw state or token',async()=>{
  const {store,client,sql}=fixture(),service=new TwitchService(store,client);
  const start=await service.begin('owner');
- assert.equal(new URL(start.url).searchParams.get('scope'),'');
+ assert.equal(new URL(start.url).searchParams.get('scope'),requiredTwitchScopes.join(' '));
  const state=sql.prepare('SELECT hash AS state_hash FROM states').get();assert.notEqual(state.state_hash,start.state);
  await service.complete('owner',start.state,start.state,'code',null);
  const row=await store.get('owner');assert.ok(!row.ciphertext.includes('test-access'));assert.ok(!row.ciphertext.includes('test-refresh'));
@@ -49,13 +92,14 @@ test('denial consumes a valid state without creating a connection',async()=>{
  assert.equal(client.exchanges,0);assert.equal(await store.get('owner'),null);
  await assert.rejects(service.complete('owner',start.state,start.state,'code',null),{code:'expired_state'});
 });
-test('follower permissions require an explicit request and actual grant',async()=>{
+test('future follower permission is requested but still requires an actual grant',async()=>{
  const {store,client}=fixture(),service=new TwitchService(store,client),start=await service.begin('owner',true);
- assert.equal(new URL(start.url).searchParams.get('scope'),FOLLOWER_SCOPE);
+ client.scopes=requiredTwitchScopes.filter(scope=>scope!==FOLLOWER_SCOPE);
+ assert.equal(new URL(start.url).searchParams.get('scope'),[...new Set([...requiredTwitchScopes,FOLLOWER_SCOPE])].sort().join(' '));
  await assert.rejects(service.complete('owner',start.state,start.state,'code',null),{code:'missing_permissions'});
  assert.equal(await store.get('owner'),null);assert.deepEqual(client.revocations,['test-access']);
- client.scopes=[FOLLOWER_SCOPE];const next=await service.begin('owner',true);await service.complete('owner',next.state,next.state,'code',null);
- assert.deepEqual((await service.status('owner')).scopes,[FOLLOWER_SCOPE]);
+ client.scopes=[...new Set([...requiredTwitchScopes,FOLLOWER_SCOPE])];const next=await service.begin('owner',true);await service.complete('owner',next.state,next.state,'code',null);
+ assert.deepEqual((await service.status('owner')).scopes,[...new Set([...requiredTwitchScopes,FOLLOWER_SCOPE])]);
 });
 test('refreshes after a 401 and persists the rotated refresh token',async()=>{
  const {service,client,store}=await connected();client.invalidAccess=true;
