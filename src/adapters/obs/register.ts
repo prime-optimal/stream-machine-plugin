@@ -2,6 +2,7 @@ import type { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { alertTextSchema } from "./artifact";
 import { obsListScenes, obsPreflight, obsShowAlert } from "./actions";
+import { sceneSchema, createBrowserSchema, removeBrowserSchema, runSceneAction } from "./scenes";
 export { obsListScenes, obsPreflight, obsShowAlert } from "./actions";
 
 const empty = z.object({}).strict();
@@ -16,6 +17,22 @@ async function result(action: () => Promise<unknown>) {
   }
 }
 export function registerObsTools(server: McpServer) {
+  server.registerTool("stream_machine_obs_create_scene", {
+    description: "Create an empty OBS scene without selecting it.",
+    inputSchema: sceneSchema, annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  }, input => result(() => runSceneAction("create_scene", input)));
+  server.registerTool("stream_machine_obs_remove_scene", {
+    description: "Remove a non-program OBS scene. This may remove scene references; never removes the current or last scene.",
+    inputSchema: sceneSchema, annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
+  }, input => result(() => runSceneAction("remove_scene", input)));
+  server.registerTool("stream_machine_obs_create_browser_source", {
+    description: "Create an enabled browser source from an HTTP(S) URL or an existing absolute local HTML file. Adding to the program scene changes visible content.",
+    inputSchema: createBrowserSchema, annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  }, input => result(() => runSceneAction("create_browser_source", input)));
+  server.registerTool("stream_machine_obs_remove_browser_source", {
+    description: "Delete a browser source only if it has one direct reference in the named scene. Refuses shared or grouped sources.",
+    inputSchema: removeBrowserSchema, annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
+  }, input => result(() => runSceneAction("remove_browser_source", input)));
   server.registerTool("stream_machine_obs_preflight", {
     description: "Read running local OBS version, output state and scenes using obs-cli. No broadcast or recording changes.",
     inputSchema: empty, annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },

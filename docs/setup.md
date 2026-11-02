@@ -75,7 +75,7 @@ For web and mobile, install the Stream Machine Site plugin instead. If you insta
 
 5. Start a new conversation in the Codex desktop app.
 
-Expected result: `codex plugin list` shows `stream-machine` from `stream-machine-desktop-local`. The desktop app lists hosted Twitch tools, three OBS tools on `stream-machine-obs`, and four Stream Deck tools on `stream-machine-desktop`. The first use of a hosted tool asks you to sign in through Sites and connect Twitch. Web and mobile conversations do not show this package.
+Expected result: `codex plugin list` shows `stream-machine` from `stream-machine-desktop-local`. The desktop app lists hosted Twitch tools, seven OBS tools on `stream-machine-obs`, and four Stream Deck tools on `stream-machine-desktop`. The first use of a hosted tool asks you to sign in through Sites and connect Twitch. Web and mobile conversations do not show this package.
 
 To update, unpack the new archive over `~/stream-machine-marketplace/plugins/stream-machine`, then run `codex plugin marketplace list` to confirm the root and reinstall with `codex plugin add stream-machine@stream-machine-desktop-local`. To remove the plugin, run `codex plugin remove stream-machine`.
 

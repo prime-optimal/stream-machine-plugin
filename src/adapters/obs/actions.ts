@@ -2,6 +2,7 @@ import { join } from "node:path";
 import { z } from "zod";
 import { withObs } from "./client";
 import { installAlert, obsDataDirectory, obsAlertSchema } from "./artifact";
+import { serialize } from "./queue";
 
 export const OBS_DEMO_SCENE = "Stream Machine Demo";
 export const OBS_ALERT_SOURCE = "Stream Machine Alert";
@@ -33,10 +34,9 @@ const inputSchema = z.object({ inputs: z.array(z.object({ inputName: z.string(),
 const sceneListSchema = z.object({ scenes: z.array(z.object({ sceneName: z.string() })) });
 const itemsSchema = z.object({ sceneItems: z.array(z.object({ sourceName: z.string(), sceneItemId: z.number() })) });
 const lastSchema = z.object({ text: z.string() });
-let tail: Promise<unknown> = Promise.resolve();
 export function obsShowAlert(input: { text?: string; replay?: boolean }) {
   const parsed = obsAlertSchema.parse(input.replay ? { action: "replay" } : { action: "play", text: input.text });
-  const run = tail.catch(() => {}).then(async () => {
+  return serialize(async () => {
     const preflight = await obsPreflight();
     const statePath = join(obsDataDirectory(), "last-alert.json");
     const text = parsed.action === "play" ? parsed.text : lastSchema.parse(await Bun.file(statePath).json().catch(() => { throw new Error("No saved OBS alert to replay"); })).text;
@@ -69,6 +69,4 @@ export function obsShowAlert(input: { text?: string; replay?: boolean }) {
     await Bun.sleep(4250);
     return result;
   });
-  tail = run;
-  return run;
 }
