@@ -9,7 +9,7 @@ export class TwitchClipClient {
     let response: Response;
     try {
       response = await this.fetcher(`https://api.twitch.tv/helix/${path}?${new URLSearchParams(params)}`, {
-        redirect: "error", signal: AbortSignal.timeout(12000),
+        redirect: "manual", signal: AbortSignal.timeout(12000),
         headers: { Authorization: `Bearer ${access.accessToken}`, "Client-Id": access.clientId },
       });
     } catch { throw new TwitchFault("TWITCH_UNAVAILABLE"); }
