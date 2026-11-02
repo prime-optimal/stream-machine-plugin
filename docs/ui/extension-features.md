@@ -29,7 +29,7 @@ Audit result on `main` at `00eb73f` (`mise run ui:audit`, 34 tools). Run the tas
 | form-elicitation | missing | [Forms](#forms) |
 | host-styles | partial (variables copied, `styles.css` not imported) | [Host styles](#host-styles-and-csp) |
 | csp | used (empty domains) | [Host styles](#host-styles-and-csp) |
-| send-message | missing | [Follow-up messages](#follow-up-messages-and-deep-links) |
+| send-message | used (Home suggestions) | [Follow-up messages](#follow-up-messages-and-deep-links) |
 | deep-link | missing | [Follow-up messages](#follow-up-messages-and-deep-links) |
 
 ## Platform rules that apply everywhere
@@ -186,7 +186,7 @@ Audit result on `main` at `00eb73f` (`mise run ui:audit`, 34 tools). Run the tas
 
 **API.** `ui/message` with `openai/message { target, send }` (`spec L1143-1265`, L1184-1215; defaults `active` and `true` at L1190). Deep links arrive in `hostContext["openai/deepLink"]` (`spec L120-202`, key at L142). Reference: `controller.ts` `openai.message.send` at L1117, deep link handling at L806-817 and L1524.
 
-**Status.** Both missing. `src/ui/app.ts` has no `sendMessage` call and does not read `openai/deepLink`.
+**Status.** send-message is used for Home suggestion cards (#164). `src/ui/app.ts` calls `app.sendMessage` with the default `active` target and `send: true`, only when `getHostCapabilities().message.text` is advertised. The standalone preview has no host, so Try stays disabled. Deep links are still missing: the app does not read `openai/deepLink`.
 
 **Stream Machine use.** A Send to chat action on an inline card that asks the model to continue ("clip this and suggest a title"). Deep links let a recipe mention open the workspace on that recipe.
 

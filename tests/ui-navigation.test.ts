@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { parseSection, sections, sectionLabels } from "../src/ui/navigation";
+import { parseSection, sections, sectionLabels, visibleSections } from "../src/ui/navigation";
 
 describe("local workspace sections", () => {
   test("keeps primary sections and explicit migration/demo destinations", () => {
@@ -10,5 +10,9 @@ describe("local workspace sections", () => {
   test("unknown and hostile inputs fall back to Home without executing anything", () => {
     for (const input of [undefined, null, {}, ["assets"], "", "twitch_connect", "/connections", "__proto__", "<script>"])
       expect(parseSection(input)).toBe("home");
+  });
+  test("hosted menu hides device and mock sections", () => {
+    expect(visibleSections("hosted")).toEqual(["home", "clips", "connections", "tools"]);
+    expect(visibleSections("local")).toEqual(sections);
   });
 });

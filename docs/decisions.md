@@ -43,6 +43,14 @@ Public Site pages do not make user data public. Every MCP request, title approva
 
 The platform contract is documented in the installed Sites skill's `references/site-mcp-server.md`. Hosted code uses Web APIs and the supported Workers runtime; desktop modules stay outside the synchronized dependency graph. See [Cloudflare's Node.js compatibility reference](https://developers.cloudflare.com/workers/runtime-apis/nodejs/) for runtime limits.
 
+## Hosted menu and desktop workspace
+
+Decided 2026-11-02 in issue [#157](https://github.com/prime-optimal/stream-machine-plugin/issues/157). After hosted Twitch consent, the user lands in a hosted Stream Machine menu. The Site no longer ends in a page that repeats onboarding. Device controls stay in a separate desktop workspace.
+
+An MCP app can call only the server that served it. The hosted server cannot reach OBS or a USB Stream Deck, and the local server cannot read hosted Twitch consent. Two UI bundles would drift, so both servers serve the same `ui://stream-machine/workspace-v4.html`. At boot the bundle calls `stream_machine_open`, reads `runtime` (`hosted` or `local`), and shows the sections for that runtime. The hosted `stream_machine_open` carries the global entrypoint. The local one has none, and `stream_machine_workspace` keeps the thread entrypoint.
+
+The local Connections panel now links to the Site first. Local preflight and OAuth sit inside an explicit "Use desktop fallback" disclosure, which keeps the earlier rule that the fallback needs the user's choice. The hosted Connect action opens only the exact `${siteOrigin}/` through the host, with no preflight and no browser launch.
+
 ## Deferred, with triggers
 
 The initial architecture deferred these decisions until the stated need arose.
