@@ -1,6 +1,6 @@
 # Review hosted-first OAuth integration for #127
 
-This review lists what Stream Machine needs before hosted Twitch OAuth becomes the default and local OAuth becomes a fallback. Web and mobile users need the hosted path. Desktop keeps local-only features such as OBS, Stream Deck, and clip downloads.
+This review lists what Stream Machine needs before hosted Twitch OAuth becomes the default and local OAuth becomes a fallback. Web and mobile users need the hosted path. OBS WebSocket control and Stream Deck updates stay on desktop.
 
 Inputs: merged [PR #125](https://github.com/prime-optimal/stream-machine-plugin/pull/125), which verified a standalone hosted Sites test, and plugin source at `aa3fd74`. Tracking issue: [#127](https://github.com/prime-optimal/stream-machine-plugin/issues/127).
 
@@ -48,9 +48,13 @@ Start the default connection with hosted availability and authentication. Open a
 
 The local runtime uses one owner, `local-desktop-owner` (`src/auth/local-runtime.ts:13`). Each hosted caller must map to its own hosted Twitch record. Reject caller-supplied owner identifiers. Reuse the hosted service's encrypted token storage, refresh, and revocation. Keep provider credentials and Twitch tokens out of UI and tool responses. Do not reuse the local owner constant for hosted users.
 
-### P2: Clip download is desktop-only
+### P2: Hosted clip download needs Sites storage
 
-`stream_machine_twitch_download_clip` writes a private local file (`src/adapters/twitch/clips-register.ts:12`). List it with OBS and Stream Deck as a desktop-only capability. Hosted callers must receive a clear unavailable error instead of a partial download.
+`stream_machine_twitch_download_clip` writes a private local file (`src/adapters/twitch/clips-register.ts:12`). Web and mobile hosts have no local file system, but the hosted service can store the clip in ChatGPT Sites storage, as it stores OAuth connections. Bind each stored clip to its caller, and return a link that only that caller can open. Keep the local file path for local fallback.
+
+### P2: OBS and Stream Deck stay on desktop
+
+OBS WebSocket control and Stream Deck updates need a desktop runtime on the user's machine. Hosted callers without one must receive a clear unavailable error that names the missing desktop runtime.
 
 ### P2: Fallback can switch Twitch accounts
 
@@ -58,7 +62,7 @@ The local store and the hosted store can hold different Twitch accounts. Before 
 
 ### P2: Plugin metadata still says desktop-only
 
-`plugin.json` describes Stream Machine as a "Desktop prototype" that "Requires local provider tools". Update `longDescription` when hosted OAuth becomes the default. Name the desktop-only capabilities.
+`plugin.json` describes Stream Machine as a "Desktop prototype" that "Requires local provider tools". Update `longDescription` when hosted OAuth becomes the default. State that OBS WebSocket control and Stream Deck updates need desktop.
 
 ### P2: Web and mobile acceptance remains unproved
 
@@ -81,6 +85,8 @@ Select the provider once per connection attempt and use it for later operations.
 - Test a fallback where the local and hosted Twitch accounts differ.
 - Verify that status and a read-only Twitch operation use the selected account after reload.
 - Verify title preview and approval through the hosted approval page.
+- Verify hosted clip download to Sites storage, and confirm that another caller cannot open the stored clip.
+- Verify that OBS and Stream Deck tools return the unavailable error on web and mobile.
 - Verify the actual plugin on desktop, web, and mobile. Standalone Sites verification is separate evidence.
 
 ## Review checks
