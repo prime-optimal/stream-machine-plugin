@@ -19,7 +19,7 @@ export type CheckState =
 export type ConnectState =
   | { kind: "idle" } | { kind: "creating" }
   | { kind: "link"; url: string; requested: string[]; retained: string[]; disclosure: string; browserRequested: boolean }
-  | { kind: "failed"; message: string };
+  | { kind: "failed"; message: string; replaceable: boolean };
 export function connectionUrl(value: string): string {
   const url = new URL(value);
   if (url.origin !== "http://localhost:4017" || url.pathname !== "/connect" ||
@@ -58,18 +58,18 @@ export function createConnectionState(request: ToolRequest, changed: () => void,
       }
       notify();
     },
-    async startConnect(openBrowser = false) {
+    async startConnect(openBrowser = false, replacePluginListener = false) {
       if (disposed || connect.kind === "creating") return;
       const attempt = ++revision;
       invalidateTitle(); check = { kind: "not_checked" }; previous = null;
       connect = { kind: "creating" }; notify();
       try {
-        if (openBrowser) {
+        if (openBrowser && !replacePluginListener) {
           const preflight = await request("stream_machine_twitch_preflight");
           if (disposed || revision !== attempt) return;
           fault(preflight); preflightSchema.parse(preflight.structuredContent);
         }
-        const result = await request("stream_machine_twitch_connect", openBrowser ? { openBrowser: true } : undefined);
+        const result = await request("stream_machine_twitch_connect", openBrowser ? { openBrowser: true, ...(replacePluginListener && { replacePluginListener: true }) } : undefined);
         if (disposed || revision !== attempt) return;
         fault(result);
         const { twitch } = connectSchema.parse(result.structuredContent);
@@ -80,10 +80,11 @@ export function createConnectionState(request: ToolRequest, changed: () => void,
       } catch (error) {
         if (disposed || revision !== attempt) return;
         const code = error instanceof Error ? error.message : "";
-        const message = code === "TWITCH_LOCAL_PORT_BUSY" ? "Twitch authorization port 4017 is in use by another session or app. Close that session, then try again." :
-          code === "TWITCH_BROWSER_OPEN_FAILED" ? "The authorization browser could not be opened. Check your default browser, then try again. No automatic retry." :
-          "Connection URL unavailable. Check local Twitch setup before trying again.";
-        connect = { kind: "failed", message };
+        const message = code === "TWITCH_LOCAL_PORT_PLUGIN" ? "Another Stream Machine chat is holding Twitch authorization port 4017. Close that chat, or stop it and connect here. Stopping it ends that chat's Stream Machine tools until its host restarts them." :
+          code === "TWITCH_LOCAL_PORT_BUSY" ? "Twitch authorization port 4017 is in use by another app. Close that app, then try again." :
+            code === "TWITCH_BROWSER_OPEN_FAILED" ? "The authorization browser could not be opened. Check your default browser, then try again. No automatic retry." :
+              "Connection URL unavailable. Check local Twitch setup before trying again.";
+        connect = { kind: "failed", message, replaceable: code === "TWITCH_LOCAL_PORT_PLUGIN" };
       }
       notify();
     },
@@ -137,7 +138,10 @@ export function createConnections(options: {
     }
     element.append(disclosure);
     if (connect.kind === "creating") element.append(node("p", "Creating connection URL…"));
-    if (connect.kind === "failed") element.append(node("p", connect.message));
+    if (connect.kind === "failed") {
+      element.append(node("p", connect.message));
+      if (connect.replaceable) element.append(action("Stop the other chat and connect", () => void model.startConnect(true, true)));
+    }
     if (connect.kind === "link") {
       element.append(node("p", connect.browserRequested ? "Browser requested. Approve permissions in your browser, then return and recheck Twitch access." :
         "Connection ready. Open Twitch authorization, then return and recheck Twitch access."));

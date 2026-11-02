@@ -47,7 +47,7 @@ test("real MCP preserves link-only inputs and launches once only on explicit opt
 
 test("preflight and bind race reject foreign listeners without browser launch", async () => {
   const port = portNumber();
-  expect(preflightTwitch(environment, port).status).toBe("ready");
+  expect((await preflightTwitch(environment, port)).status).toBe("ready");
   let launched = 0;
   const blocker = Bun.serve({ hostname: "127.0.0.1", port, fetch: () => new Response("foreign") });
   const runtime = createLocalTwitchRuntime(environment, forbidden, port, async () => { launched++; });
@@ -67,6 +67,6 @@ test("preflight and bind race reject foreign listeners without browser launch", 
   } finally { await client.close(); await server.close(); runtime.close(); blocker.stop(true); }
 });
 
-test("missing setup fails before probing any callback port", () => {
-  expect(() => preflightTwitch({}, 0)).toThrow(new TwitchFault("TWITCH_NOT_CONFIGURED"));
+test("missing setup fails before probing any callback port", async () => {
+  await expect(preflightTwitch({}, 0)).rejects.toThrow(new TwitchFault("TWITCH_NOT_CONFIGURED"));
 });

@@ -1,5 +1,6 @@
 import { homedir } from "node:os";
 import { openDesktopBrowser } from "./desktop-browser";
+import { findPluginListener } from "./callback-owner";
 import { join } from "node:path";
 import { LocalConnectionStore } from "./local-store";
 import { TwitchClient, TwitchError } from "./upstream/client";
@@ -18,9 +19,14 @@ function bindCallback(port: number, handler: (request: Request) => Response | Pr
     throw error;
   }
 }
-export function preflightTwitch(environment: Record<string, string | undefined> = process.env, port = 4017) {
+async function portBusy(port: number): Promise<never> {
+  throw new TwitchFault(await findPluginListener(port) === null ? "TWITCH_LOCAL_PORT_BUSY" : "TWITCH_LOCAL_PORT_PLUGIN");
+}
+const isPortBusy = (error: unknown) => error instanceof TwitchFault && error.code === "TWITCH_LOCAL_PORT_BUSY";
+export async function preflightTwitch(environment: Record<string, string | undefined> = process.env, port = 4017) {
   if (!environment.TWITCH_CLIENT_ID || !environment.TWITCH_CLIENT_SECRET || !environment.TWITCH_TOKEN_ENCRYPTION_KEY) throw new TwitchFault("TWITCH_NOT_CONFIGURED");
-  const probe = bindCallback(port, () => new Response(null, { status: 503 })); probe.stop(true);
+  try { bindCallback(port, () => new Response(null, { status: 503 })).stop(true); }
+  catch (error) { if (isPortBusy(error)) await portBusy(port); throw error; }
   return { mode: "live", status: "ready", callbackUrl: `http://localhost:${port}/api/twitch/callback` };
 }
 const htmlEscape = (value: string) => value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll('"', "&quot;");
@@ -47,10 +53,17 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
   const completions = new Map<string, { expiresAt: number; result: Promise<unknown> }>();
   const failures: ({ class: "TwitchError" | "Error"; code: string; status: number } | { class: "ApprovalGuard"; code: "approval_rejected"; status: 403; originIsSameOrigin: boolean; originIsNull: boolean; cookiePresent: boolean })[] = [];
   let server: ReturnType<typeof Bun.serve> | undefined;
+  let idle: Timer | undefined;
+  function touch() {
+    clearTimeout(idle);
+    idle = setTimeout(() => { server?.stop(true); server = undefined; }, 600_000);
+    idle.unref();
+  }
   const response = (body: string, status = 200, headers: Record<string, string> = {}) => new Response(body, { status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "Content-Security-Policy": "default-src 'none'; form-action 'self'; frame-ancestors 'none'", ...headers } });
   function listen() {
-    if (server) return;
+    if (server) return touch();
     server = bindCallback(port, async request => {
+      touch();
       const url = new URL(request.url);
       if (request.headers.get("host") !== `localhost:${port}`) return response("Invalid host", 403);
       try {
@@ -100,15 +113,31 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
       }
     });
     server.unref();
+    touch();
+  }
+  async function replacePluginListener() {
+    const pid = await findPluginListener(port);
+    if (pid === null) throw new TwitchFault("TWITCH_LOCAL_PORT_BUSY");
+    process.kill(pid, "SIGTERM");
+    for (let attempt = 0; attempt < 50; attempt++) {
+      await Bun.sleep(100);
+      try { return listen(); } catch (error) { if (!isPortBusy(error)) throw error; }
+    }
+    throw new TwitchFault("TWITCH_LOCAL_PORT_BUSY");
   }
   return {
     accounts, titles,
     diagnostics() { return failures.map(failure => ({ ...failure })); },
-    preflight() {
-      return server ? { mode: "live", status: "ready", callbackUrl } : preflightTwitch(environment, port);
+    async preflight() {
+      return server ? { mode: "live", status: "ready", callbackUrl } : await preflightTwitch(environment, port);
     },
-    async connect(_manage = false, _manageClips = false, openBrowser = false) {
-      listen();
+    async connect(_manage = false, _manageClips = false, openBrowser = false, replaceListener = false) {
+      try { listen(); }
+      catch (error) {
+        if (!isPortBusy(error)) throw error;
+        if (replaceListener) await replacePluginListener();
+        else await portBusy(port);
+      }
       const previous = await store.get(OWNER);
       const granted = previous?.scopes ?? [];
       if (openBrowser) {
@@ -122,7 +151,7 @@ export function createLocalTwitchRuntime(environment: Record<string, string | un
       };
     },
     approvalUrl(id: string) { listen(); return `${ORIGIN}/approve?id=${encodeURIComponent(id)}`; },
-    close() { server?.stop(true); store.close(); },
+    close() { clearTimeout(idle); server?.stop(true); server = undefined; store.close(); },
   };
 }
 export type LocalTwitchRuntime = NonNullable<ReturnType<typeof createLocalTwitchRuntime>>;

@@ -18,9 +18,14 @@ const runtime = createLocalTwitchRuntime({ TWITCH_CLIENT_ID: "synthetic-client",
 });
 if (!runtime) throw Error("Fixture runtime missing");
 const connect = runtime.connect, preflight = runtime.preflight;
-runtime.preflight = () => { if (scenario === "busy") throw new TwitchFault("TWITCH_LOCAL_PORT_BUSY"); return preflight(); };
-runtime.connect = async (...args) => {
-  const result = await connect(...args);
+runtime.preflight = async () => {
+  if (scenario === "busy") throw new TwitchFault("TWITCH_LOCAL_PORT_BUSY");
+  if (scenario === "plugin") throw new TwitchFault("TWITCH_LOCAL_PORT_PLUGIN");
+  return preflight();
+};
+runtime.connect = async (manage, clips, openBrowser, replaceListener) => {
+  if (scenario === "plugin" && !replaceListener) throw new TwitchFault("TWITCH_LOCAL_PORT_PLUGIN");
+  const result = await connect(manage, clips, openBrowser);
   return { ...result, connectUrl: "http://localhost:4017/connect", callbackUrl: "http://localhost:4017/api/twitch/callback" };
 };
 const mcp = new McpServer({ name: "synthetic-onboarding", version: "test" });

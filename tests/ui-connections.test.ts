@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { connectionUrl, createConnectionState } from "../src/ui/connections";
-import { requiredTwitchScopes, twitchPermissions } from "../src/auth/permissions";
+import { requiredTwitchScopes, twitchConsentDisclosure, twitchPermissions } from "../src/auth/permissions";
 import type { ToolResult } from "../src/ui/tool-transport";
 
 function status(id = "owner", scopes = requiredTwitchScopes): ToolResult {
@@ -85,14 +85,35 @@ describe("Twitch Connections", () => {
       expect(() => connectionUrl(url)).toThrow();
   });
   test("busy port and browser failures stay actionable without automatic retries", async () => {
-    for (const [code, message] of [["TWITCH_LOCAL_PORT_BUSY", "port 4017 is in use"], ["TWITCH_BROWSER_OPEN_FAILED", "browser could not be opened"]]) {
+    for (const [code, message] of [["TWITCH_LOCAL_PORT_BUSY", "port 4017 is in use"], ["TWITCH_LOCAL_PORT_PLUGIN", "Another Stream Machine chat"], ["TWITCH_BROWSER_OPEN_FAILED", "browser could not be opened"]]) {
       let attempts = 0;
-      const model = createConnectionState(async name => { if (name.endsWith("preflight") && code !== "TWITCH_LOCAL_PORT_BUSY") return { structuredContent: { twitch: { mode: "live", status: "ready" } } }; attempts++; return { isError: true, structuredContent: { error: { code } } }; }, () => {}, () => {});
+      const model = createConnectionState(async name => { if (name.endsWith("preflight") && code === "TWITCH_BROWSER_OPEN_FAILED") return { structuredContent: { twitch: { mode: "live", status: "ready" } } }; attempts++; return { isError: true, structuredContent: { error: { code } } }; }, () => { }, () => { });
       await model.startConnect(true);
       const state = model.state();
       expect(state.connect.kind === "failed" && state.connect.message).toContain(message);
+      expect(state.connect.kind === "failed" && state.connect.replaceable).toBe(code === "TWITCH_LOCAL_PORT_PLUGIN");
       expect(state.check.kind).toBe("not_checked");
       expect(attempts).toBe(1);
     }
+  });
+  test("replacing another Stream Machine chat is a separate explicit request", async () => {
+    const calls: { name: string; args: unknown }[] = [];
+    const model = createConnectionState(async (name, args) => {
+      calls.push({ name, args });
+      if (calls.length === 1) return { isError: true, structuredContent: { error: { code: "TWITCH_LOCAL_PORT_PLUGIN" } } };
+      return {
+        structuredContent: {
+          twitch: {
+            mode: "live", connectUrl: "http://localhost:4017/connect", requestedScopes: requiredTwitchScopes,
+            retainedScopes: [], disclosure: twitchConsentDisclosure, browserRequested: true
+          }
+        }
+      };
+    }, () => { }, () => { });
+    await model.startConnect(true);
+    expect(calls).toEqual([{ name: "stream_machine_twitch_preflight", args: undefined }]);
+    await model.startConnect(true, true);
+    expect(calls.slice(1)).toEqual([{ name: "stream_machine_twitch_connect", args: { openBrowser: true, replacePluginListener: true } }]);
+    expect(model.state().connect.kind).toBe("link");
   });
 });

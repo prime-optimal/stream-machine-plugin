@@ -9,7 +9,7 @@ import { registerCreativeTools } from "./adapters/design/register";
 import { registerWorkerTools } from "./worker/register";
 import { registerTranscriptionTool } from "./adapters/openai/transcription-register";
 
-export const UI_URI = "ui://stream-machine/workspace-v3.html";
+export const UI_URI = "ui://stream-machine/workspace-v4.html";
 const descriptions: Record<ToolName, string> = {
   stream_machine_open: "Open Stream Machine live demo controls and a separate mock sample. Use provider checks for real connection status.",
   stream_machine_workspace: "Open Stream Machine live demos alongside the conversation, with a separate mock sample.",

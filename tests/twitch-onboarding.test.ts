@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { expect, test, vi } from "bun:test";
 import { createLocalTwitchRuntime } from "../src/auth/local-runtime";
 import { createConnectionState } from "../src/ui/connections";
 import { requiredTwitchScopes, twitchConsentDisclosure } from "../src/auth/permissions";
@@ -13,15 +13,15 @@ function availablePort() {
   const port = probe.port; probe.stop(true); return port;
 }
 
-test("onboarding checks callback availability without retaining a listener", () => {
+test("onboarding checks callback availability without retaining a listener", async () => {
   const port = availablePort();
   const runtime = createLocalTwitchRuntime(environment, forbidden, port);
   if (!runtime) throw Error("Runtime missing");
   try {
-    expect(runtime.preflight()).toMatchObject({ mode: "live", status: "ready", callbackUrl: `http://localhost:${port}/api/twitch/callback` });
+    expect(await runtime.preflight()).toMatchObject({ mode: "live", status: "ready", callbackUrl: `http://localhost:${port}/api/twitch/callback` });
     const other = Bun.serve({ hostname: "127.0.0.1", port, fetch: () => new Response("unrelated") });
-    try { expect(() => runtime.preflight()).toThrow("TWITCH_LOCAL_PORT_BUSY"); } finally { other.stop(true); }
-    expect(runtime.preflight().status).toBe("ready");
+    try { await expect(runtime.preflight()).rejects.toThrow("TWITCH_LOCAL_PORT_BUSY"); } finally { other.stop(true); }
+    expect((await runtime.preflight()).status).toBe("ready");
   } finally { runtime.close(); }
 });
 
@@ -32,11 +32,27 @@ test("second plugin runtime reports occupied callback port without altering its 
   if (!owner || !other) throw Error("Runtime missing");
   try {
     await owner.connect();
-    expect(owner.preflight().status).toBe("ready");
-    expect(() => other.preflight()).toThrow("TWITCH_LOCAL_PORT_BUSY");
+    expect((await owner.preflight()).status).toBe("ready");
+    await expect(other.preflight()).rejects.toThrow("TWITCH_LOCAL_PORT_BUSY");
     await expect(other.connect()).rejects.toThrow("TWITCH_LOCAL_PORT_BUSY");
+    await expect(other.connect(false, false, false, true)).rejects.toThrow("TWITCH_LOCAL_PORT_BUSY");
     expect((await owner.connect()).connectUrl).toBe(`http://localhost:${port}/connect`);
   } finally { other.close(); owner.close(); }
+});
+
+test("idle callback listener releases the port for another session", async () => {
+  const port = availablePort();
+  const owner = createLocalTwitchRuntime(environment, forbidden, port);
+  const other = createLocalTwitchRuntime(environment, forbidden, port);
+  if (!owner || !other) throw Error("Runtime missing");
+  vi.useFakeTimers();
+  try {
+    await owner.connect();
+    vi.advanceTimersByTime(599_000);
+    await expect(other.connect()).rejects.toThrow("TWITCH_LOCAL_PORT_BUSY");
+    vi.advanceTimersByTime(1_000);
+    expect((await other.connect()).connectUrl).toBe(`http://localhost:${port}/connect`);
+  } finally { vi.useRealTimers(); other.close(); owner.close(); }
 });
 
 test("explicit UI authorization uses the local tool once and stays unverified", async () => {
