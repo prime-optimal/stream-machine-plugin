@@ -1,3 +1,10 @@
+## 0.4.1 (2026-11-01)
+
+### Fix
+
+- add self-update skill to package test fixture (#116) (#117)
+- open Twitch authorization and check callback port (#110) (#114)
+
 ## 0.4.0 (2026-11-01)
 
 ### Feat
