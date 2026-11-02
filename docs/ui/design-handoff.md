@@ -19,13 +19,13 @@ Citations use the same short forms as the reference page: `spec L<n>` and `patte
 ## Constraints
 
 - **Host look.** Import `@openai/mcp-extensions/app/styles.css` (exports map to `typescript/styles.css`, `typescript/package.json` L15), then call `applyDocumentTheme` and `applyHostStyleVariables` from ext-apps on the host context (SDK README L67-96). Inline the stylesheet at build time because of the CSP (README L117). Use the wrapper classes from README L109 and the cursor class `.cursor-interaction` from L111.
-- **Theme.** Remove the dark default (`src/ui/app.ts:135`, `dataset.theme` defaults to dark) and follow the host. Remove the `--page`, `--panel`, `--accent` family (`src/ui/style.css:26-41`).
-- **Safe areas.** `applyHost` maps insets to `--safe-{edge}` (`src/ui/app.ts:139-142`). `style.css` reads them on `.shell` (L55, L183) but pads with `max(36px, ...)` and `max(20px, ...)`, so the inset only wins when larger. Decide whether that is intended and check it in the host (`patterns L21-25`). `BB` uses a `.safe-area` wrapper that reads `--safe-area-*` (`BB index.html` L29-33, `<div class="safe-area">` at L937). The variable names differ, so confirm which names the host sets before relying on either.
+- **Theme.** Remove the dark defaults and follow the host. `applyHost` falls back to `dark` when the host sends no theme (`src/ui/app.ts:134`), and `:root` sets `color-scheme: dark` (`src/ui/style.css:24`). Remove the `--page`, `--panel`, `--accent` family (`src/ui/style.css:26-41`).
+- **Safe areas.** `applyHost` maps insets to `--safe-{edge}` (`src/ui/app.ts:139-141`). `style.css` reads them on `.shell` (L55, L183) but pads with `max(36px, ...)` and `max(20px, ...)`, so the inset only wins when larger. Decide whether that is intended and check it in the host (`patterns L21-25`). `BB` uses a `.safe-area` wrapper that reads `--safe-area-*` (`BB src/app/index.html` L29-33, `<div class="safe-area">` at L937). The variable names differ, so confirm which names the host sets before relying on either.
 - **Responsive.** Replace the 370, 600, 720, 950 and 1200 px breakpoints (`src/ui/style.css`) with container-based rules that work from 375 px up, including the half-width thread tab.
 - **Reduced motion.** Keep the existing `prefers-reduced-motion` blocks.
 - **Fonts.** Use `var(--font-sans)` and the `--font-text-*` sizes. Do not load web fonts. If one is needed, add its origin to `resourceDomains` in the resource `_meta` CSP (`src/server.ts:57`, currently empty) and name the origin in the review.
-- **Display modes.** Request a mode only from a user action, and do not draw a fullscreen button the host already shows (`patterns L27-35`, `spec L858-863`).
-- **Version gate.** On any entrypoint open, compare the host version to `26.928.20710` and show an update message below it (`patterns L5-11`, `BB controller.ts` L1504-1510). Desktop only.
+- **Display modes.** Request a mode only in response to a user action, such as opening a selected item. Do not add dedicated buttons for changing display modes, because ChatGPT provides them (`patterns L29`). Supported modes are in `spec L858-863`.
+- **Version gate.** On any entrypoint open, compare the host version to `26.928.20710`. If the host is older, show an update message instead of the app (`patterns L5-11`, `BB controller.ts` L1504-1510). Desktop only.
 - **Do not invent APIs.** Every `_meta` key and method must appear in the spec or SDK. `openai/iconStyle`, `prefersBorder` and the manifest keys `composerIcon`, `logo`, `logoDark` are used by `BB` only and are not in the spec. Use them only after testing in the real host, and say so in the review.
 
 ## Current token inventory
@@ -45,7 +45,7 @@ Defined at `src/ui/style.css:26-35` (dark) and L41 (light).
 | `--accent-text` | `#19230e` | `#19230e` | `--color-text-inverse` |
 | `--accent-soft` | `#202b19` | `#e9f5d8` | `--color-background-info` (SDK `--accent`) |
 
-Host variable names come from the ext-apps `McpUiStyleVariableKey` union (`spec.types.d.ts:31`) and the SDK stylesheet: `--color-background-primary/secondary/info/danger`, `--color-text-primary/secondary/info/inverse/warning/danger`, `--color-border-primary/secondary`, `--color-ring-primary`, `--font-sans`, `--font-text-{xs,sm,md,lg}-size`, `--font-heading-sm-size`, `--font-weight-*`, `--border-radius-lg`. `applyHostStyleVariables` only sets the ones the host sends. The SDK `--destructive` maps to `--color-text-warning`, not `--color-text-danger`, so use the danger variables directly for errors.
+Host variable names come from the ext-apps `McpUiStyleVariableKey` union (`dist/src/spec.types.d.ts:31`) and the SDK stylesheet: `--color-background-primary/secondary/info/danger`, `--color-text-primary/secondary/info/inverse/warning/danger`, `--color-border-primary/secondary/danger`, `--color-ring-primary`, `--font-sans`, `--font-text-{xs,sm,md,lg}-size`, `--font-heading-sm-size`, `--font-weight-*`, `--border-radius-lg`. The union has more keys. This list names the ones the tables below use. `applyHostStyleVariables` only sets the ones the host sends. The SDK `--destructive` maps to `--color-text-warning`, not `--color-text-danger`, so use the danger variables directly for errors.
 
 ### Hard-coded colors to remove
 
@@ -74,16 +74,16 @@ Body text uses `--font-text-md-size`, secondary text `--font-text-sm-size`, capt
 
 ## Iconography
 
-- **Entrypoint icons.** Add `icons` to the global quick action (shape at `SDK shared/ui.ts:6-14`; order and light and dark variants at `spec L59-63`). Give each a light and a dark SVG, 20x20 viewport, 1.33px stroke, single color, transparent background (`patterns L114-127`). Note that `BB assets/icon.svg` uses a 32x32 viewBox with stroke 2, so follow `patterns` and verify in the host.
+- **Entrypoint icons.** Add `icons` to `stream_machine_open` and `stream_machine_workspace`, and to the server info. The host checks tool `icons` first, then server icons (`spec L59-63`). Give each a light and a dark SVG (`patterns L122`), 20x20 viewport, 1.33px stroke, single color, transparent background (`patterns L114-127`). Follow `BB src/server/index.ts:8-25`: read each SVG at startup and pass it as an `image/svg+xml` data URI with `theme: "light"` or `theme: "dark"`. A data URI needs no CSP domain. Note that `BB assets/icon.svg` uses a 32x32 viewBox with stroke 2, so follow `patterns` and verify in the host. `quickAction` icons (`SDK shared/ui.ts:6-14`) are optional, are not in the spec, and are not counted by the audit.
 - **Plugin icons.** `BB .codex-plugin/plugin.json` L22-25 sets `composerIcon`, `logo` and `logoDark` under `interface`. The spec does not document them, so treat as unverified. Our `plugin.json:19-29` nests `interface` under `extensions.com.openai` and has none of them. Test in the host before committing to either layout.
-- **In-app icons.** `icon()` (`src/ui/app.ts:43-55`) sizes SVGs to 20x20 (`style.css:51`). Keep that, use `currentColor`.
-- **Tool titles.** Add a `title` to every tool (audit `tool-titles`, 0 of 33 today). Sentence case, verb first.
+- **In-app icons.** `icon()` (`src/ui/app.ts:42-54`) draws 24x24 SVGs with `currentColor` strokes, and `style.css:51` sizes them to 20x20. Keep that.
+- **Tool titles.** Add a `title` to every tool (audit `tool-titles`, 0 of 34 at `00eb73f`). Sentence case, verb first.
 
 ## Layout per display mode
 
 | Mode | Where | Content |
 | --- | --- | --- |
-| Inline | Chat card (screenshot 11, left) | One selected item or result, a short status, and Open workspace. No navigation chrome. |
+| Inline | Chat card (screenshot 11, left) | One selected item or result, a short status, and Open workspace. Open workspace opens that item in the workspace and requests fullscreen. Do not add a separate Full screen button. No navigation chrome. |
 | Fullscreen | Tab (screenshot 11, right; global entrypoint, screenshot 01) | Five-section navigation, search, card grid or detail view. Do not draw an exit button. |
 | Thread tab | Beside chat (screenshot 02) | Same views at about half width. Sidebar navigation collapses to a top row. |
 
@@ -95,7 +95,7 @@ Paint from a cache first (`patterns L129-153`) so the first frame is not empty. 
 
 1. **Host styles (host-styles).** Import `styles.css`, switch `applyHost` to the SDK helpers, delete the custom palette, map the hard-coded colors. Highest value and unblocks every later step.
 2. **Safe areas and responsive.** Apply `--safe-*`, rebuild breakpoints, and check the three viewports.
-3. **Tool titles and icons (tool-titles, entrypoint-icons).** Metadata only, in `src/server.ts`, a new `assets/` directory and `plugin.json`.
+3. **Tool titles and icons (tool-titles, entrypoint-icons).** Metadata only, in `src/server.ts` and a new `assets/` directory. `plugin.json` icon keys wait for host verification.
 4. **Display modes (display-modes).** Read `displayMode`, build the inline card, request fullscreen on user action. Add the version gate here.
 5. **Model context (model-context).** Add `content` blocks with a `resource_link`, a title and a thumbnail, gated by `hostContext["openai/modelContext"]` capabilities.
 6. **Settings and mentions (settings, mentions).** New server modules. Both change `src/` beyond metadata, so open a separate issue per feature before starting.
@@ -128,7 +128,12 @@ Run these in the worktree.
 | `mise run ui:audit` | host-styles, tool-titles, entrypoint-icons and display-modes read `used`. Any feature left `missing` or `partial` has a written reason in the PR. |
 | Host screenshots | Captures of the app in the real host: light and dark, inline and fullscreen, thread tab, at 375, 768 and 1440 px wide. Attach them to the PR. |
 
-The audit cannot see styles or layout. Its host-styles result comes from a static scan of the `src/ui` sources (not the built HTML, which bundles SDK code), so the screenshots are the only evidence for how the app looks. `display-modes` reads `used` only when the resource declares available modes and `src/ui` contains the text `requestDisplayMode`. `tool-titles` needs a `title` on all 33 tools. `entrypoint-icons` counts only tool `icons`, server info icons and `plugin.json` icon keys (`scripts/ui-audit.ts:37-39, 71, 90`).
+The audit cannot see styles or layout, so the screenshots are the only evidence for how the app looks. Each status comes from these rules in `scripts/ui-audit.ts`:
+
+- `host-styles` reads `used` when the `src/ui` sources import the SDK `styles.css` (L89-92). The audit scans sources, not the built HTML, because the build bundles SDK code that mentions every API (L37-39).
+- `display-modes` reads `used` when the resource declares available modes and `src/ui` contains the text `requestDisplayMode` (L69-73).
+- `tool-titles` reads `used` when every tool has `title` or `annotations.title` (L56-57). `main` has 34 tools at `00eb73f`.
+- `entrypoint-icons` reads `used` when any tool has `icons` or the server info has icons. `plugin.json` icon keys alone read `partial` (L50-54).
 
 ## Evidence rules
 

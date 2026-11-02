@@ -6,13 +6,13 @@ This page maps each host UI feature in the reference screenshots to its API, to 
 
 - Spec: `/Users/prime/working/mcp-extensions/docs/spec.md` (cited as `spec L<n>`) and `docs/patterns.md` (`patterns L<n>`).
 - SDK: `/Users/prime/working/mcp-extensions/typescript` (`SDK`): sources in `src/`, stylesheet at `styles.css`.
-- Reference plugin: `plugins/bits-and-bolts` (`BB`), cited as `register.ts` or `controller.ts` with line numbers.
+- Reference plugin: `/Users/prime/working/mcp-extensions/plugins/bits-and-bolts` (`BB`). `register.ts` is in `src/server/`. `controller.ts` and `point-annotations.ts` are in `src/app/`. Citations give the file name and line numbers.
 - Screenshots: `/Users/prime/working/mcp-extensions/docs/resources/*.png`. The GIFs in `/Users/prime/working/mcp-extensions/resources/` were read as first frames only, so motion is not described.
-- Our code: cited as `src/...:line` in this worktree.
+- Our code: cited as `src/...:line` on `main` at `00eb73f`. Line numbers drift as `src/` changes.
 
 ## Status at a glance
 
-Audit result when this page was written (`bun scripts/ui-audit.ts`, 33 tools). The audit also checks `send-message` and `deep-link`.
+Audit result on `main` at `00eb73f` (`mise run ui:audit`, 34 tools). Run the task again for the current status.
 
 | Feature ID | Status | Section |
 | --- | --- | --- |
@@ -20,7 +20,7 @@ Audit result when this page was written (`bun scripts/ui-audit.ts`, 33 tools). T
 | thread-entrypoint | used | [Thread tray](#thread-entrypoint) |
 | file-entrypoint | missing | [File viewer](#file-entrypoint-desktop-only) |
 | entrypoint-icons | missing | [Global library](#global-library-entrypoint) |
-| tool-titles | missing (0 of 33) | [Global library](#global-library-entrypoint) |
+| tool-titles | missing (0 of 34) | [Global library](#global-library-entrypoint) |
 | settings | missing | [Settings](#settings) |
 | mentions | missing | [Composer mentions](#composer-mentions) |
 | display-modes | partial | [Display modes](#display-modes) |
@@ -51,13 +51,14 @@ Audit result when this page was written (`bun scripts/ui-audit.ts`, 33 tools). T
 - Entrypoint declaration in tool `_meta["openai/ui"].entrypoints` (`spec L40-66`, global section `L76-118`). The spec schema for a global entrypoint is only `{ type: "global" }` (`spec L90-92`). SDK type: `SDK shared/ui.ts:6-37` with `quickAction { title, icons, target: { type: "tool", name, arguments } }`. `quickAction` appears in the SDK and in `BB` but not in `spec.md` `[unverified in spec]`.
 - Icon resolution order (`spec L59-63`): the `icons` property on the tool in `tools/list`, then the server icon (`serverInfo.icons`), then a generic fallback. Tool titles come from `title`, then `annotations.title`, then `name` (`spec L65-74`).
 - Reference: `register.ts` `ui()` L92-96, global entrypoint with `quickAction` at L217-228.
-- Icons are 20x20 viewport, 1.33px stroke, single color, transparent background (`patterns L114-127`). Caveat: `BB/assets/icon.svg` is a 32x32 viewBox with stroke 2, so the reference itself does not match the pattern text.
+- Icons are 20x20 viewport, 1.33px stroke, single color, transparent background, with a light and a dark file (`patterns L114-127`, pair at L122). Caveat: `BB/assets/icon.svg` is a 32x32 viewBox with stroke 2, so the reference itself does not match the pattern text.
+- `BB` serves each icon as an `image/svg+xml` data URI with `theme: "light"` or `theme: "dark"` (`src/server/index.ts:8-25`). It passes the same list to `serverInfo.icons` (L31), to each entrypoint tool (`register.ts:87`), and to `quickAction` (L221).
 
 **Stream Machine status.**
 
 - global-entrypoint: used. `stream_machine_open` is registered with the global entrypoint (`src/server.ts:25-36`).
-- entrypoint-icons: missing. No tool has `icons`, server info has none, and `plugin.json` has no icon keys (`plugin.json:19-29`). The audit counts only tool `icons`, server info icons, and `plugin.json` icon keys (`scripts/ui-audit.ts:50-54`). It does not read `quickAction` icons.
-- tool-titles: missing. No `title` field on any of the 33 tools (`src/server.ts:27-32` shows `description` and `annotations` only).
+- entrypoint-icons: missing. No tool has `icons`, server info has none, and `plugin.json` has no icon keys (`plugin.json:19-29`). The audit reads `used` only for tool `icons` or server info icons. `plugin.json` icon keys alone read `partial`, and `quickAction` icons are not read (`scripts/ui-audit.ts:50-54`).
+- tool-titles: missing. None of the 34 tools has a `title` field (`src/server.ts:27-32` shows `description` and `annotations` only).
 
 **Stream Machine use.** The global view becomes Home: recipe and scene catalog cards with an add-to-context button, plus a connection summary. Give each tool a human title so the sidebar and tool lists read well.
 
@@ -69,7 +70,7 @@ Audit result when this page was written (`bun scripts/ui-audit.ts`, 33 tools). T
 
 **API.** `spec L204-247`. Declared next to the global entrypoint in `openai/ui` `_meta`.
 
-**Status.** used. `stream_machine_workspace` carries the thread entrypoint (`src/server.ts:26`). The CSS has breakpoints at 600, 720, 950 and 1200 px (`src/ui/style.css`), but the narrow-tab case has not been checked against a real host.
+**Status.** used. `stream_machine_workspace` carries the thread entrypoint (`src/server.ts:26`). The CSS has `max-width` breakpoints at 370, 600, 720 and 950 px and a `min-width` breakpoint at 1200 px (`src/ui/style.css:15, 180-182, 225, 249`). The narrow-tab case has not been checked in a real host.
 
 **Stream Machine use.** A live session panel: current stream state, active recipe, last clip, and the next suggested action, kept beside the conversation.
 
@@ -101,7 +102,7 @@ Audit result when this page was written (`bun scripts/ui-audit.ts`, 33 tools). T
 
 **Feature ID:** mentions. **Availability:** web and desktop.
 
-**Screenshot 05 (composer mention) and GIF composer-mentions.** Typing `@` opens a typeahead titled "Bits & Bolts Local · Type to search" with file-icon rows. Picking one inserts a blue pill with the plugin name into the composer.
+**Screenshot 05 (composer mention) and GIF composer-mentions.** Typing `@` opens a typeahead titled "Bits & Bolts Local · Type to search" with file-icon rows. Picking one inserts the plugin icon and the plugin name, in blue text, into the composer.
 
 **API.** `openai/mentions: { searchTool }` in the server capability (`spec L1329-1405`, key at L1339). The search tool needs `readOnlyHint: true` (L1340) and visibility that includes `"app"` (L1341). Items are `resource_link` blocks. SDK: `SDK server/mentions.ts:16-22`, `setHandler(handler)` where the handler receives `{ query }` and returns `{ items }`. Reference: `register.ts` L198-206.
 
@@ -117,7 +118,7 @@ Audit result when this page was written (`bun scripts/ui-audit.ts`, 33 tools). T
 
 **API.** `app.updateModelContext` (`spec L908-1135`). Group blocks with `_meta["openai/group"]` (L959). Titles with `openai/title` (L1058) and thumbnails with `openai/thumbnail` (L1078). Set `audience: ["assistant"]` for model-only blocks (L1106). Calls replace earlier context idempotently (L944). Supported block types: `spec L1128-1134`. Web hosts do not accept images (L942). Hosts expose capabilities in `hostContext["openai/modelContext"]` (L998). Reference: `controller.ts` resource_link block L606-626 (group L621, thumbnail L623); capability checks at L144 (image) and L174, L607 (resource link); `point-annotations.ts` L43-44, L150, L167, L179. Explicit versus background context: `patterns L49-80`.
 
-**Status.** partial. `src/ui/app.ts:96-98` sends `structuredContent` only, and only when not standalone and `extensions.modelContext` is set. No `content` blocks, no thumbnails, no groups.
+**Status.** partial. `src/ui/app.ts:95-97` sends `structuredContent` only, and only when not standalone and `extensions.modelContext` is set. No `content` blocks, no thumbnails, no groups.
 
 **Stream Machine use.** An Add to chat button on a recipe, clip or preview. It attaches a `resource_link` with a title and a thumbnail, grouped by session. Gate the image block on the host capability.
 
@@ -127,11 +128,11 @@ Audit result when this page was written (`bun scripts/ui-audit.ts`, 33 tools). T
 
 **Screenshot 11 (display modes).** The left side shows an inline card in chat: header with plugin name, a "Full screen" link, content, and truncated details. The right side shows the same app in a tab with an "Exit full screen" control.
 
-**API.** `spec L836-880`. Rules at L858-863. Fullscreen applies to all entrypoints (L863). Picture-in-picture is not supported (L858). Declare preferred and available modes in the resource `_meta["openai/ui"]` (L842-853). Request a mode with `requestDisplayMode({ mode })` (ext-apps `dist/src/app.d.ts:1359`), and read `displayMode` and `availableDisplayModes` from host context (`app.d.ts:431-432`). Call it only from a user interaction and do not draw your own fullscreen buttons when the host provides one (`patterns L27-35`). Reference: `register.ts` `readUi` from L603 (`openai/ui` display modes at L615-619), `controller.ts` L1303.
+**API.** `spec L836-880`. Rules at L858-863. Fullscreen applies to all entrypoints (L863). Picture-in-picture is not supported (L858). Declare preferred and available modes in the resource `_meta["openai/ui"]` (L842-853). Request a mode with `requestDisplayMode({ mode })` (ext-apps `dist/src/app.d.ts:1359`), and read `displayMode` and `availableDisplayModes` from host context (`app.d.ts:431-432`). Call it only in response to a user interaction, such as opening a selected item. Do not add dedicated buttons for changing display modes, because ChatGPT provides them (`patterns L29`). Reference: `register.ts` `readUi` from L603 (`openai/ui` display modes at L615-619), `controller.ts` L1303.
 
-**Status.** partial. The resource declares preferred `fullscreen` and available `inline` and `fullscreen` (`src/server.ts:58`). `src/ui/app.ts` never reads `displayMode` (`applyHost` L133-143) and never calls `requestDisplayMode`.
+**Status.** partial. The resource declares preferred `fullscreen` and available `inline` and `fullscreen` (`src/server.ts:58`). `src/ui/app.ts` never reads `displayMode` (`applyHost` at L132-142) and never calls `requestDisplayMode`.
 
-**Stream Machine use.** Inline mode is a status card: selected clip, asset or check, with an Open workspace action. Fullscreen holds the full workspace. See [the UX plan](../plans/plugin-ux-2026-11-01.md) for the inline summary rule.
+**Stream Machine use.** Inline mode is a status card: selected clip, asset or check, with an Open workspace action. Open workspace opens the selected item in the workspace and requests fullscreen as part of that action. It is not a generic Full screen toggle, which `patterns L29` rules out. Fullscreen holds the full workspace. See [the UX plan](../plans/plugin-ux-2026-11-01.md) for the inline summary rule.
 
 ## Onboarding
 
@@ -157,7 +158,7 @@ Audit result when this page was written (`bun scripts/ui-audit.ts`, 33 tools). T
 
 **API.** Forms are `spec L1407-1945`. Servers on the 2026-07-28 protocol use MRTR (L1438). The legacy method is `openai/elicitation/create` (L1439).
 
-- Thumbnails: `x-openai-thumbnail` on options (L1610). All options must have one or none (L1613). Option descriptions: L1581.
+- Thumbnails: `x-openai-thumbnail` on options (L1610). A thumbnail `src` must be an HTTPS URL or a base64 data URI (L1611). If any option of a property has a thumbnail, the host renders every option of that property with an image and shows a fallback image for options without one (L1613-1614). Option descriptions: L1581.
 - Suggestions: `x-openai-suggestions` (L1663).
 - Resource pickers: `x-openai-input` (L1721), explicit or implicit selection (L1727-1737), `userOptions` of `kind` `file` or `directory` and `accept` (L1753-1760). Option `_meta` takes `openai/thumbnail` and `openai/preview` (L1725). On Web, directory selection is unsupported (L1719), and forms requested through MCP Apps support only explicit selection without user uploads (L1720).
 - Reference: `register.ts` `pickFile` L425-463, `pickReferences` L464-527 (thumbnail L494, preview L496), `reviewForm` L528-602 (`x-openai-suggestions` L561, option descriptions L575 and L580).
@@ -174,10 +175,10 @@ Audit result when this page was written (`bun scripts/ui-audit.ts`, 33 tools). T
 
 **Status.**
 
-- host-styles: partial. `applyHost` copies host `--*` variables and sets `data-theme` (`src/ui/app.ts:133-143`), but `style.css` defines its own lime theme (`style.css:26-41`) and uses the host font only as the first fallback (L25). The SDK stylesheet is not imported.
+- host-styles: partial. `applyHost` copies host `--*` variables and sets `data-theme` (`src/ui/app.ts:132-142`), but `style.css` defines its own palette with a lime accent, `#c9f579` (`style.css:23-41`). `font-family` reads `var(--font-sans)` and falls back to a local font stack (L25). The SDK stylesheet is not imported.
 - csp: used. The resource declares empty domains (`src/server.ts:57`). Adding external fonts or images requires listing the domains there.
 
-**Stream Machine use.** Replace the custom palette with host variables so light, dark and high-contrast follow the host. See [design-handoff.md](design-handoff.md) for the mapping.
+**Stream Machine use.** Replace the custom palette with host variables so the app follows the host's light, dark, or custom theme. See [design-handoff.md](design-handoff.md) for the mapping.
 
 ## Follow-up messages and deep links
 
