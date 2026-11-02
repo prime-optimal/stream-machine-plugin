@@ -1,8 +1,8 @@
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 
-const root = resolve(import.meta.dir, "..");
+const root = process.cwd();
 const dryRun = process.argv.includes("--dry-run");
 
 function run(command: string[]) {
