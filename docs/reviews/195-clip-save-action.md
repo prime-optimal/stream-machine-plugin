@@ -20,4 +20,8 @@ The fixture has synthetic save success for clip 2 and a synthetic failure for ot
 - `mise run build`: passed.
 - Browser verification: blocked. Browser access host was unavailable, and the request to run the local fixture outside the sandbox was aborted. No fixture process remained on inspection.
 
-The fixture changes were added after the test and build runs above. Rerun checks and verify the success and failure cases in a browser before merging.
+## Fixture browser check
+
+In Brave on macOS, the local fixture displayed **Save to play** for clip 3. The synthetic failure displayed `FIXTURE_FAILURE` and kept the save action available. Clip 2 returned synthetic success and the refreshed detail displayed **Play clip**.
+
+Selecting **Play clip** displayed native video controls, but Brave reported “Unable to play media” at 0:00. Playback did not succeed. A HEAD request to the public fixture URL returned HTTP 200, `video/mp4`, a 23,167,834-byte content length, and byte-range support. The codec, range GET, and browser failure cause remain unverified. This check does not establish behavior in the ChatGPT host. The fixture server was stopped after the check.
