@@ -1,0 +1,23 @@
+# Clip save action review
+
+Issue #195 remains open. This change moves the existing explicit save action onto the clip poster and labels it **Save to play**. After a confirmed save, the existing library refresh displays **Play clip**. It does not start playback automatically.
+
+The live KLabFM library returned 12 clips, all without stored media. This does not establish the cause of the reported target-host failure. The native player and Site playback still require target-host verification.
+
+The fixture has synthetic save success for clip 2 and a synthetic failure for other unsaved clips. It uses a previously published public clip URL for the success case. The fixture does not change Twitch or Site storage.
+
+## Review
+
+1. Code simplicity: `src/ui/clips-player.ts` accepts the existing action element. It does not add a player library or another media source.
+2. Documentation: The action states why a copy is saved. Existing failure messages remain available below the player. The new fixture cases need browser verification.
+3. Statechart: No save or playback transition changed. The existing clips library model needs no update for this label and placement change.
+4. Issue completion: Target-host reproduction, playback, controls, and visual evidence remain outstanding. Do not close #195.
+
+## Verification
+
+- `mise run check`: passed.
+- `mise run test`: 279 passed, two skipped.
+- `mise run build`: passed.
+- Browser verification: blocked. Browser access host was unavailable, and the request to run the local fixture outside the sandbox was aborted. No fixture process remained on inspection.
+
+The fixture changes were added after the test and build runs above. Rerun checks and verify the success and failure cases in a browser before merging.

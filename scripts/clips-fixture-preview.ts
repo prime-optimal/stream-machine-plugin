@@ -28,13 +28,20 @@ Bun.serve({
     const url = new URL(request.url);
     if (request.method === "GET" && url.pathname === "/") return new Response(Bun.file(new URL("../dist/app.html", import.meta.url)), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
     if (request.method !== "POST" || url.pathname !== "/api/tool") return new Response("Not found", { status: 404 });
-    const { name, arguments: args } = await request.json() as { name: string; arguments: { cursor?: string } };
+    const { name, arguments: args } = await request.json() as { name: string; arguments: { cursor?: string; clipId?: string } };
     if (name === "stream_machine_clips_library") {
       const second = args.cursor === "page2";
       return Response.json({ structuredContent: { clips: {
         account: { id: "0", login: "fixture_channel", displayName: "Fixture channel" },
         items: second ? pages.page2 : pages.first, cursor: second ? null : "page2", storage: "site",
       } } });
+    }
+    if (name === "stream_machine_clips_archive") {
+      if (args.clipId === "FixtureClip2") {
+        pages.first[1] = fixtureClip(2, { stored: { fileId: "fixture", playbackUrl: publicClip, downloadUrl: publicClip, bytes: 4_812_345, storedAt: "2026-10-31T09:15:00Z" } });
+        return Response.json({ structuredContent: { archive: { saved: [{ clipId: args.clipId }], skipped: [], failed: [] } } });
+      }
+      return Response.json({ structuredContent: { archive: { saved: [], skipped: [], failed: [{ clipId: args.clipId, code: "FIXTURE_FAILURE", outcome: "failed" }] } } });
     }
     if (name === "stream_machine_clips_zip") {
       return Response.json({ structuredContent: { zip: { clipCount: 1, bytes: 4_812_345, batches: [{
