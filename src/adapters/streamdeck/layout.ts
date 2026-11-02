@@ -15,23 +15,37 @@ export const deckAction = z.discriminatedUnion("type", [
 ]);
 export type DeckAction = z.infer<typeof deckAction>;
 export type Rgb = [number, number, number];
-export interface DeckButton { key: number; label: string; action: DeckAction; image?: string; color: Rgb }
-export interface SceneTile { name: string; image?: string }
+export interface DeckButton { key: number; label: string; action: DeckAction; color: Rgb }
+export interface SceneTile { name: string }
 
 const colors = {
   scene: [42, 25, 100], mic: [150, 30, 40], "desktop-audio": [120, 60, 20], record: [110, 0, 0], stream: [200, 20, 60], url: [100, 65, 165],
 } satisfies Record<DeckAction["type"], Rgb>;
 const labels = { mic: "MIC", "desktop-audio": "DESK\nAUDIO", record: "REC", stream: "GO\nLIVE" } as const;
 
-export function button(key: number, action: DeckAction, label?: string, image?: string): DeckButton {
+export function button(key: number, action: DeckAction, label?: string): DeckButton {
   const fallback = action.type === "scene" ? action.scene : action.type === "url" ? new URL(action.url).hostname : labels[action.type];
-  return { key, action, label: (label ?? fallback).slice(0, 24), image, color: [...colors[action.type]] };
+  return { key, action, label: (label ?? fallback).slice(0, 24), color: [...colors[action.type]] };
+}
+
+export function sceneLabels(names: string[]) {
+  const shared = names.length > 1 ? names.reduce((prefix, name) => { while (!name.startsWith(prefix)) prefix = prefix.slice(0, -1); return prefix; }) : "";
+  const cut = /[\s\-–:|]$/.test(shared) ? shared.length : shared.lastIndexOf(" ") + 1;
+  return names.map((name) => {
+    const short = name.slice(cut).replace(/^[\s\-–:|]+/, "").replace(/^\d+\s*[-–.:]\s*/, "").trim() || name;
+    return short.toUpperCase().split(/\s+/).reduce((lines, word) => {
+      const last = lines.at(-1);
+      if (last !== undefined && (last + " " + word).length <= 8) lines[lines.length - 1] = `${last} ${word}`; else lines.push(word);
+      return lines;
+    }, [] as string[]).join("\n");
+  });
 }
 
 export function streamerLayout(scenes: SceneTile[], channel?: string): DeckButton[] {
   const login = channel?.trim().toLowerCase();
   if (login && !/^[a-z0-9_]{1,25}$/.test(login)) throw new Error("Twitch channel login must be 1-25 letters, digits, or underscores");
-  const buttons = scenes.slice(0, 5).map((scene, index) => button(index, { type: "scene", scene: scene.name }, scene.name, scene.image));
+  const labelsByScene = sceneLabels(scenes.slice(0, 5).map((scene) => scene.name));
+  const buttons = scenes.slice(0, 5).map((scene, index) => button(index, { type: "scene", scene: scene.name }, labelsByScene[index]));
   buttons.push(
     button(5, { type: "mic" }), button(6, { type: "desktop-audio" }), button(8, { type: "record" }), button(9, { type: "stream" }),
     button(10, { type: "url", url: "https://dashboard.twitch.tv/stream-manager" }, "STREAM\nMGR"),

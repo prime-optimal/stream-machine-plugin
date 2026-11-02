@@ -58,7 +58,7 @@ export class StreamDeckWorkspace {
     this.pending = plan;
     return {
       previewId: plan.id, expiresAt: new Date(plan.expires).toISOString(), page: LAYOUT_PAGE, currentObsScene: obs.current,
-      grid: buttons.map((item) => ({ key: item.key, row: Math.floor(item.key / 5) + 1, column: item.key % 5 + 1, label: item.label, action: item.action, thumbnail: item.image ?? null })),
+      grid: buttons.map((item) => ({ key: item.key, row: Math.floor(item.key / 5) + 1, column: item.key % 5 + 1, label: item.label, action: item.action })),
       deckWrites: false,
       notice: "Apply claims the USB deck and replaces its display. Quit the Elgato Stream Deck app first. Keep this server running so presses reach OBS. GO LIVE toggles streaming in OBS.",
     };
@@ -92,8 +92,7 @@ export class StreamDeckWorkspace {
     const input = buttonInput.parse(raw);
     return this.exclusive(async () => {
       this.requireApplied();
-      const image = input.action.type === "scene" ? await this.scenes.thumbnail(input.action.scene).catch(() => undefined) : undefined;
-      const item = button(input.key, input.action, input.label, image);
+      const item = button(input.key, input.action, input.label);
       const command = actionCommand(item.action, this.runner());
       await this.provider.call("streamdeck_clear_button", { key: item.key });
       await this.provider.call("streamdeck_set_button", this.providerButton(item, command));
@@ -149,12 +148,12 @@ export class StreamDeckWorkspace {
   }
 
   private providerButton(item: DeckButton, command: string) {
-    return { key: item.key, text: item.label, ...(item.image ? { image_path: item.image } : {}), bg_color: item.color, text_color: [255, 255, 255], font_size: 16, action: command };
+    return { key: item.key, text: item.label, bg_color: item.color, text_color: [255, 255, 255], font_size: 16, action: command };
   }
 
   private async readback(item: DeckButton, command: string) {
     const readback = buttonSchema.parse(JSON.parse(await this.provider.call("streamdeck_get_button", { key: item.key })));
     if (readback.action !== command || readback.text !== item.label) throw new Error(`Button ${item.key} read-back differs; inspect before retrying`);
-    return { key: item.key, label: item.label, action: item.action, thumbnail: item.image ?? null };
+    return { key: item.key, label: item.label, action: item.action };
   }
 }

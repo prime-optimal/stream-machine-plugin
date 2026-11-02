@@ -33,8 +33,7 @@ class Provider implements DeckProvider {
 }
 
 const scenes: SceneReader = {
-  scenes: async () => ({ current: "Scene 1", scenes: [{ name: "Scene 1", image: "/tmp/one.png" }, { name: "Scene 2" }, { name: "Scene 3" }] }),
-  thumbnail: async () => "/tmp/thumb.png",
+  scenes: async () => ({ current: "Show - Starting", scenes: [{ name: "Show - Starting" }, { name: "Show - Be Right Back" }, { name: "Show - Live" }] }),
 };
 const runner = () => ["/bin/bun", "/plugin/dist/streamdeck-action.js"];
 const workspace = (provider = new Provider()) => ({ provider, deck: new StreamDeckWorkspace(provider, scenes, runner) });
@@ -60,7 +59,7 @@ describe("Stream Deck layout", () => {
   test("preview reads devices and OBS only; no deck writes", async () => {
     const { provider, deck } = workspace();
     const preview = await deck.previewLayout({ serial: "test" });
-    expect(preview.grid.slice(0, 3).map((item) => [item.key, item.label, item.thumbnail])).toEqual([[0, "Scene 1", "/tmp/one.png"], [1, "Scene 2", null], [2, "Scene 3", null]]);
+    expect(preview.grid.slice(0, 3).map((item) => [item.key, item.label])).toEqual([[0, "STARTING"], [1, "BE RIGHT\nBACK"], [2, "LIVE"]]);
     expect(provider.calls).toEqual(["streamdeck_list_devices", "streamdeck_list_pages"]);
     await expect(deck.previewLayout({ serial: "missing" })).rejects.toThrow("deck missing");
   });
@@ -71,10 +70,11 @@ describe("Stream Deck layout", () => {
     const result = await deck.applyLayout(preview.previewId);
     expect(result.buttons).toHaveLength(preview.grid.length);
     expect(provider.current).toBe("stream-machine");
-    expect(provider.buttons.get("stream-machine")?.get(0)).toMatchObject({
-      image_path: "/tmp/one.png",
-      action: "'/bin/bun' '/plugin/dist/streamdeck-action.js' 'scene' 'Scene 1'"
-    });
+    expect(provider.buttons.get("stream-machine")?.get(0)).toEqual(expect.objectContaining({
+      text: "STARTING",
+      action: "'/bin/bun' '/plugin/dist/streamdeck-action.js' 'scene' 'Show - Starting'"
+    }));
+    expect(provider.buttons.get("stream-machine")?.get(0)).not.toHaveProperty("image_path");
     await expect(deck.applyLayout(preview.previewId)).rejects.toThrow("already attempted");
   });
 
@@ -100,7 +100,7 @@ describe("Stream Deck layout", () => {
     await expect(deck.updateButton({ key: 3, action: { type: "record" } })).rejects.toThrow("Apply a layout first");
     await deck.applyLayout((await deck.previewLayout({ serial: "test" })).previewId);
     const updated = await deck.updateButton({ key: 3, label: "BRB", action: { type: "scene", scene: "Be Right Back" } });
-    expect(updated.button).toMatchObject({ key: 3, label: "BRB", thumbnail: "/tmp/thumb.png" });
+    expect(updated.button).toEqual({ key: 3, label: "BRB", action: { type: "scene", scene: "Be Right Back" } });
     expect(provider.buttons.get("stream-machine")?.get(3)?.action).toBe("'/bin/bun' '/plugin/dist/streamdeck-action.js' 'scene' 'Be Right Back'");
     await deck.clearButton({ key: 3 });
     expect(provider.buttons.get("stream-machine")?.has(3)).toBe(false);

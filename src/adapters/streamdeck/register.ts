@@ -25,7 +25,7 @@ export function registerStreamDeckTools(server: McpServer) {
     annotations: { readOnlyHint: true, ...local },
   }, () => result(() => workspace.inventory()));
   server.registerTool("stream_machine_streamdeck_layout_preview", {
-    description: "Preview a one-page streamer layout for an Original 3×5 deck: one button per OBS scene (up to 5, with scene thumbnails), mic and desktop audio mute, record, go live, and Twitch links. Reads OBS scenes. No deck writes.",
+    description: "Preview a one-page streamer layout for an Original 3×5 deck: one text button per OBS scene (up to 5), mic and desktop audio mute, record, go live, and Twitch links. Reads OBS scenes. No deck writes.",
     inputSchema: layoutInput, annotations: { readOnlyHint: true, ...local },
   }, (args) => result(() => workspace.previewLayout(args)));
   server.registerTool("stream_machine_streamdeck_layout_apply", {

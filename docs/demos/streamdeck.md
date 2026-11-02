@@ -45,7 +45,7 @@ Default pinned Git source verified twice with `mise exec -- bun scripts/streamde
 
 | Keys | Buttons |
 | --- | --- |
-| 0 to 4 | One button per OBS scene, up to 5. Each shows an OBS screenshot of its scene, saved under `~/.stream-machine/streamdeck/`. `scenes` picks scene names in order. The default is the first 5 scenes in OBS order. |
+| 0 to 4 | One text button per OBS scene, up to 5. The label drops the prefix that all scene names share and any leading number, so "Show - Starting" becomes STARTING. `scenes` picks scene names in order. The default is the first 5 scenes in OBS order. |
 | 5, 6 | MIC toggles mute on OBS input `mic1`. DESK AUDIO toggles mute on `desktop1`. |
 | 8, 9 | REC toggles recording. GO LIVE toggles streaming. |
 | 10 | STREAM MGR opens the Twitch stream manager. |
@@ -87,7 +87,8 @@ Press a scene key. Expected result: OBS switches its program scene. Keep the pro
 
 - Apply read-back passed for 8 buttons.
 - Running the stored key 0 and key 1 commands switched the OBS program scene.
-- Physical press: pending user confirmation.
+- Physical presses on the Starting, BRB, and Live keys switched the OBS scene.
+- The first version showed 144-pixel OBS screenshots on scene keys. They were too small to read, so scene keys now show text labels.
 
 ## Checks and limits
 
