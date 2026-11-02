@@ -11,7 +11,7 @@ function fixture(options: { status?: number; metadata?: unknown; download?: unkn
   const fetcher: typeof fetch = Object.assign(async (input: string | URL | Request, init?: RequestInit) => {
     const url = new URL(String(input)); calls.push(url);
     expect(new Headers(init?.headers).get("Authorization")).toBe("Bearer TOKEN_SENTINEL");
-    expect(init?.redirect).toBe("error");
+    expect(init?.redirect).toBe("manual");
     if (options.status) return new Response(null, { status: options.status });
     return Response.json(url.pathname.endsWith("downloads") ? options.download ?? { data: [{ clip_id: "Clip-1", landscape_download_url: "https://production.assets.clips.twitchcdn.net/test?sig=SIGNED_SENTINEL", portrait_download_url: null }] } : options.metadata ?? { data: [clip] });
   }, { preconnect: fetch.preconnect });
@@ -46,6 +46,20 @@ test("not found, absent formats, wrong download ID and malformed data fail clear
 test("portrait fallback and sanitized API failures", async () => {
   expect(await fixture({ download: { data: [{ clip_id: "Clip-1", landscape_download_url: null, portrait_download_url: "https://production.assets.clips.twitchcdn.net/test?SIGNED_SENTINEL" }] } }).service.download("Clip-1")).toMatchObject({ format: "portrait" });
   for (const [status, code] of [[401, "TWITCH_RECONNECT_REQUIRED"], [403, "TWITCH_SCOPE_REQUIRED"], [429, "TWITCH_RATE_LIMITED"], [500, "TWITCH_UNAVAILABLE"]] as const) await expect(fixture({ status }).service.clip("Clip-1")).rejects.toThrow(code);
+});
+test("all Helix 3xx statuses fail before parsing redirect bodies", async () => {
+  for (let status = 300; status < 400; status++) {
+    const calls: string[] = [];
+    const fetcher: typeof fetch = Object.assign(async (input: string | URL | Request) => {
+      calls.push(String(input));
+      return new Response(null, { status, headers: { Location: "https://redirect.example/" } });
+    }, { preconnect: fetch.preconnect });
+    const client = new TwitchClipClient(fetcher);
+    await expect(client.read(access, "Clip-1")).rejects.toThrow("TWITCH_UNAVAILABLE");
+    await expect(client.download(access, "Clip-1")).rejects.toThrow("TWITCH_UNAVAILABLE");
+    expect(calls).toHaveLength(2);
+    expect(calls.every(url => url.startsWith("https://api.twitch.tv/helix/"))).toBe(true);
+  }
 });
 test("concurrent download fails without a second provider request", async () => {
   const f = fixture(); const first = f.service.download("Clip-1");
