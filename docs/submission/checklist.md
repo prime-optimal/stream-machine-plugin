@@ -8,10 +8,10 @@ Owners: **Prime** is the repository owner and submitter. **Main agent** is the p
 
 | Requirement | Status | Fix |
 | --- | --- | --- |
-| Code repository open for judging | **Failing.** `prime-optimal/stream-machine-plugin` is private and the only collaborator is the owner. The rules require a public repository, or a private one shared with `testing@devpost.com`. | Pick an option in [Repository access](#repository-access). |
+| Code repository open for judging | **Resolved.** The repository has been public since November 2, 2026. Logged-out requests to the repository page and to the latest release both return 200. | None. |
 | Public YouTube demo under 3 minutes | **Not started.** No video exists. | Record from [demo-script.md](demo-script.md). |
 | Codex session ID | **Collected.** Principal ID and the full list are in [devpost.md](devpost.md#codex-session-id). | Paste the ID into the form. |
-| Free access for judges through the end of judging | **At risk.** Release downloads and Actions artifacts need repository access ([docs/setup.md](../setup.md#download-a-released-package)). The Site must stay published through November 15. | Resolve repository access. Keep the Site published. |
+| Free access for judges through the end of judging | **At risk.** Release downloads work without signing in now that the repository is public. The Site must stay published through November 15. | Keep the Site published. |
 
 ## Repository access
 
