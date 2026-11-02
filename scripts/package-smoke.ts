@@ -21,9 +21,10 @@ try {
     cwd: selected.cwd.replaceAll("${PLUGIN_ROOT}", root), stderr: "pipe",
   }), { timeout: 60_000 });
   const { tools } = await client.listTools();
-  assert.equal(tools.length, 35);
+  assert.equal(tools.length, 37);
   assert.ok(tools.some(tool => tool.name === "stream_machine_transcribe_audio" && tool.annotations?.readOnlyHint === false));
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_profile" && tool.annotations?.readOnlyHint));
+  assert.ok(tools.some(tool => tool.name === "stream_machine_game_lookup"));
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_clip"));
   assert.ok(tools.some(tool => tool.name === "stream_machine_twitch_download_clip"));
   const result = await client.callTool({ name: "stream_machine_open", arguments: {} });
