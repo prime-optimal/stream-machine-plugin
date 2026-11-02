@@ -1,5 +1,7 @@
 # Working Stream Machine demos
 
+The desktop server does not expose these tools after #159. Their registrations are commented out in `src/server.ts`.
+
 The integration branch combines the parallel implementations. Every implementation agent used RepoPrompt context building before editing. Subagents used GPT-6.1 Sol.
 
 ## Verified results

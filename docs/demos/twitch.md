@@ -1,5 +1,7 @@
 # Twitch OAuth and title demo
 
+The desktop server does not expose these tools after #159. Their registrations are commented out in `src/server.ts`.
+
 Issues #25, #26, #27. Local runtime reuses Stream Makeover OAuth instead of trusting fabricated Sites headers or extracting D1 tokens.
 
 ## Reused code

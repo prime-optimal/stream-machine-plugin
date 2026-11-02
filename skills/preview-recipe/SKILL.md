@@ -1,13 +1,13 @@
 ---
 name: preview-recipe
-description: Preview a Stream Machine Twitch title or Stream Deck button, apply an explicitly authorized preview, browse and save the channel's Twitch clips, or inspect the separate mock demo.
+description: Preview a Stream Machine Twitch title through the Site plugin, set a Stream Deck button with Stream Machine Desktop, and browse, save, and zip the channel's Twitch clips through the Site plugin.
 ---
 
 # Preview and run a selected demo
 
 Read the provider first. Use the account or device returned by that provider, not a guessed identifier.
 
-Use the Site-backed Twitch connection by default. Keep every step on that connection. Use localhost only after the user selects the desktop fallback; verify its account before a new preview. Never replay a hosted apply call through the local provider.
+Use the Stream Machine Site plugin for Twitch and clips. Keep every Twitch step on that connection. Stream Machine Desktop provides only OBS and Stream Deck tools, so it has no Twitch fallback.
 
 ## Update a Twitch title
 
@@ -33,7 +33,7 @@ Do not claim the device while another demo process or Elgato app owns it. `strea
 
 ## Browse, save, and zip clips
 
-Use the Site-backed tools by default. The local tools of the same name cannot read Site storage and return `stored: null`. Call them only after the user chooses the desktop fallback.
+Use the Site plugin's tools. Stream Machine Desktop does not expose clip tools.
 
 To browse or search clips, call `stream_machine_clips_library`. Pass `startedAt` and `endedAt` (RFC 3339) to filter by date and `first` (1 to 100, default 24) to set the page size. To read more, call it again with the returned `cursor` until `cursor` is `null`. Each item shows whether the clip is saved to the Site in `stored`.
 
@@ -48,12 +48,6 @@ Do not retry a failed clip in the same run. A failure with an unknown outcome ne
 To save one clip the user names or selects, call `stream_machine_clips_archive` with `{"clipId": id}` only. It ignores `cursor` and `maxClips`, checks that the clip belongs to the connected channel, and returns the same result shape.
 
 To download saved clips as ZIP files ("zip my clips"), call `stream_machine_clips_zip`. Present each returned link as one batch, with its clip count and size. Each link expires after 24 hours. Tell the user that only clips already saved to the Site are included, and offer to save the rest first.
-
-## Preview fictional data
-
-Use `stream_machine_open`, `stream_machine_list_recipes`, and `stream_machine_preview` for the mock demo. Offer `stream_machine_connect_demo` if that sample is disconnected.
-
-Mock results have `mode: mock` and `executable: false`. They cannot update Twitch or a device. Reset the sample only when requested.
 
 ## Examples
 

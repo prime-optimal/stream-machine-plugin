@@ -1,5 +1,7 @@
 # Game lookup module reference
 
+The desktop server does not expose these tools after #159. Their registrations are commented out in `src/server.ts`.
+
 Issue #41 adds a read-only game lookup to the plugin server. The bundled MCP stdio host exposes game text and an artwork reference. No graphical view was added.
 
 ## Tool contract

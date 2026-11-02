@@ -30,7 +30,7 @@ Do not mark #130 complete before its required PR is merged. Keep its board statu
 
 - [Shared definitions](../../src/adapters/twitch/tool-register.ts#L12) keep nine strict schemas in one place. [Title apply](../../src/adapters/twitch/service.ts#L35) acquires the owner lease before reading the current channel.
 - The Site commits `fe62739` through `45f2862` contain the authenticated handler, owner-bound access, generation checks, and retained execution leases. Review them in the Site source repository.
-- [Onboarding](../../skills/onboarding/SKILL.md#choose-the-local-fallback) keeps hosted authentication failures on the hosted path and requires an explicit desktop choice. [Configuration](../../mcp.json) registers the hosted `stream-machine` server and the fnox-launched `stream-machine-local` server, so desktop installs keep their local tools.
+- [Onboarding](../../skills/onboarding/SKILL.md) keeps hosted authentication failures on the hosted path and requires an explicit desktop choice. [Configuration](../../mcp.json) registers the hosted `stream-machine` server and the fnox-launched `stream-machine-local` server, so desktop installs keep their local tools.
 
 ## Published result
 

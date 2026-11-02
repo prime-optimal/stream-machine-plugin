@@ -1,5 +1,7 @@
 # Creative HTML reuse demos
 
+The desktop server does not expose these tools after #159. Their registrations are commented out in `src/server.ts`.
+
 HyperFrames authors editable/playable browser HTML, following TwitchCon overlays. Sealos runs original image `a3aa28203c12996188a2e9ad9037392e1207e719ef33a708abaa8ed7dfc0b50b`. No renderer deployment or media job belongs to this workflow.
 
 ## Tools

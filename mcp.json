@@ -1,11 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
   "mcpServers": {
-    "stream-machine": {
-      "type": "streamable-http",
-      "url": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/mcp"
-    },
-    "stream-machine-local": {
+    "stream-machine-desktop": {
       "type": "stdio",
       "command": "fnox",
       "args": ["--config", "${PLUGIN_ROOT}/fnox.toml", "--if-missing", "ignore", "--non-interactive", "exec", "--", "bun", "${PLUGIN_ROOT}/dist/server.js"],
