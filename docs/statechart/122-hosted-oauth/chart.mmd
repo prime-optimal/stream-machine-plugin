@@ -1,0 +1,27 @@
+---
+title: "Standalone Sites and Twitch connection"
+---
+stateDiagram-v2
+  s0: Deployed, browser signed out
+  s1: Sites signed in
+  s2: Other owner sees disconnected
+  s3: Twitch authorization pending
+  s4: Callback consumed, exchanging code
+  s5: Callback rejected
+  s6: Connected to Twitch
+  s7: Disconnected
+  s8: Refresh in flight
+  [*] --> s0
+  s0 --> s1: Sign in to Sites in this browser
+  s1 --> s3: Connect requests zero optional scopes
+  s1 --> s2: Read another owner's status
+  s3 --> s4: Cookie, owner and one-time state pass
+  s3 --> s5: State invalid, expired or denied
+  s4 --> s6: Provider validates#59; save owner-bound ciphertext
+  s4 --> s7: Disconnect invalidates writes
+  s6 --> s0: Open separate browser session
+  s6 --> s7: Disconnect invalidates writes
+  s6 --> s8: Access token needs refresh
+  s8 --> s6: Lease still owns connection
+  s8 --> s7: Disconnect invalidates writes
+  s1 --> s6: Read own saved connection

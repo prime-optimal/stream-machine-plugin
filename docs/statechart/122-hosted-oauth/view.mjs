@@ -1,0 +1,3 @@
+export const title = "Standalone Sites and Twitch connection";
+export const state = v => v.phase;
+export const step = action => ({SignIn:"Sign in to Sites in this browser",Begin:"Connect requests zero optional scopes",ValidCallback:"Cookie, owner and one-time state pass",InvalidCallback:"State invalid, expired or denied",Save:"Provider validates; save owner-bound ciphertext",Refresh:"Access token needs refresh",SaveRefresh:"Lease still owns connection",Disconnect:"Disconnect invalidates writes",FreshBrowser:"Open separate browser session",OwnStatus:"Read own saved connection",ForeignStatus:"Read another owner's status",Done:"Finish"})[action] ?? action;
