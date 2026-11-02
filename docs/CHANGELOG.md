@@ -1,3 +1,9 @@
+## 0.4.0 (2026-11-01)
+
+### Feat
+
+- add verified guided plugin updates (#109) (#111)
+
 ## 0.3.0 (2026-11-01)
 
 ### Feat
