@@ -26,5 +26,5 @@ try {
     "stream_machine_obs_list_scenes", "stream_machine_obs_preflight", "stream_machine_obs_show_alert",
     "stream_machine_streamdeck_apply", "stream_machine_streamdeck_inventory", "stream_machine_streamdeck_preview", "stream_machine_streamdeck_release",
   ]);
-  process.stdout.write(JSON.stringify({ packageVersion: manifest.version, server: "stream-machine-desktop", tools: tools.length, fnoxLaunch: "passed" }) + "\n");
+  process.stdout.write(JSON.stringify({ packageVersion: manifest.version, server: "stream-machine-desktop", tools: tools.length, launch: "passed" }) + "\n");
 } finally { await client.close(); }
