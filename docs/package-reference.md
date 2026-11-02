@@ -10,7 +10,7 @@ The separate **Build plugin packages** workflow runs after each main push and on
 
 ## Server and tools
 
-The hosted endpoint exposes nine Twitch tools. Each request uses its authenticated Sites caller's account. The `stream-machine-local` command resolves optional private credentials with fnox, then runs `bun ${PLUGIN_ROOT}/dist/server.js`. That local server exposes 36 tools, including its own Twitch tools for the explicit fallback. It retains these mock-sample tools:
+The hosted endpoint exposes nine Twitch tools. Each request uses its authenticated Sites caller's account. The #147 Site source adds three clip library tools; they appear after that source is published. The `stream-machine-local` command resolves optional private credentials with fnox, then runs `bun ${PLUGIN_ROOT}/dist/server.js`. That local server exposes 37 tools, including its own Twitch tools for the explicit fallback. It retains these mock-sample tools:
 
 | Tool | Behavior |
 | --- | --- |

@@ -1,4 +1,5 @@
 import { version } from "../version";
+import { createClips } from "./clips";
 import { createLiveDemos } from "./live-demos";
 import { createNavigation, sectionLabels, sections, type Section } from "./navigation";
 import { createConnections } from "./connections";
@@ -23,6 +24,10 @@ const app = new App({ name: "Stream Machine", version });
 const extensions = new OpenAIExtensions(app);
 const requestTool = createToolRequest({ standalone, native: input => app.callServerTool(input) });
 const liveDemos = createLiveDemos(requestTool);
+const clips = createClips({
+  request: requestTool,
+  openLink: url => { if (standalone) window.open(url, "_blank", "noopener,noreferrer"); else void app.openLink({ url }).catch(() => {}); },
+});
 const mockPanel = document.createElement("section");
 mockPanel.dataset.view = "mock";
 const connections = createConnections({ request: requestTool, invalidateTitle: liveDemos.invalidateTitle,
@@ -147,7 +152,7 @@ app.ontoolresult = (result) => {
   try { rememberDraft(); accept(result); } catch (cause) { showError(cause instanceof Error ? cause.message : "Could not load the workspace."); }
 };
 app.addEventListener("hostcontextchanged", applyHost);
-app.onteardown = async () => { connections.dispose(); return {}; };
+app.onteardown = async () => { connections.dispose(); clips.dispose(); return {}; };
 const shell = document.createElement("div");
 shell.className = "shell";
 shell.innerHTML = '<header class="app-header"><span class="brand">Stream Machine</span><span class="badge">Local workspace</span></header><nav class="workspace-nav" aria-label="Workspace sections"></nav><main id="workspace-main"></main><p id="host-error" role="alert" hidden></p>';
@@ -165,14 +170,16 @@ function panel(section: Exclude<Section, "mock">, description: string, content?:
 const panels = {
   home: panel("home", "Choose a workspace. Opening a section does not run a provider action."),
   assets: panel("assets", "Existing static and HyperFrames HTML authoring. No asset library, images, or video editor.", liveDemos.assets),
-  clips: panel("clips", "Clip gallery and playback are unavailable in this slice. Existing clip tools remain available through conversation."),
+  clips: panel("clips", "Every clip on your connected channel. Select a clip to see its details and play a saved copy.", clips.element),
   streamdeck: panel("streamdeck", "Original 3×5 USB demo controls only. Not an Elgato profile editor.", liveDemos.streamdeck),
   connections: panel("connections", "Twitch account and permissions. Other provider setup remains limited.", connections.element),
   tools: panel("tools", "Existing explicit actions. Check each action's side effects before running it.", liveDemos.tools),
   mock: mockPanel,
 };
 main.append(mockPanel);
-const navigation = createNavigation(shell.querySelector("nav")!, panels);
+const navigation = createNavigation(shell.querySelector("nav")!, panels, section => {
+  if (section === "clips") clips.enter(); else clips.leave();
+});
 const cards = document.createElement("div"); cards.className = "home-actions";
 for (const section of sections.filter(section => section !== "home")) {
   const button = document.createElement("button"); button.type = "button"; button.className = "live-button";

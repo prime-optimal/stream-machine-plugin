@@ -2,7 +2,7 @@
 
 This chart describes the proposed Clips experience in the [UX plan](../../../plans/plugin-ux-2026-11-01.md#clips-experience). It covers account checks, clip lookup, selection, preview, playback, and download results.
 
-Browse clips can contain one clip from the first release's ID lookup or a later gallery. Channel discovery, filters, and saved collections are target capabilities, not claims about current code.
+Browse clips can contain one clip from the first release's ID lookup or a later gallery. The implemented gallery, filters, playback, and ZIP flow from issue #147 have their own checked model in [the clip library chart](library/README.md). This chart keeps the proposed single-clip download flow. Saved collections remain target capabilities, not claims about current code.
 
 ## User flow
 

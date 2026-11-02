@@ -1,0 +1,29 @@
+---
+title: "Clip library"
+---
+stateDiagram-v2
+  s0: Connect Twitch
+  s1: Loading clips
+  s2: No clips found
+  s3: Browsing gallery
+  s4: Clips failed to load
+  s5: Clip details
+  s6: Loading more clips
+  s7: More clips failed to load
+  s8: Playing saved clip
+  [*] --> s0
+  s0 --> s1: you open Clips
+  s1 --> s2: the channel has no clips
+  s1 --> s3: clips arrive
+  s1 --> s4: the library request fails
+  s2 --> s1: you press Try again
+  s3 --> s5: you select a clip
+  s3 --> s6: you press Load more
+  s4 --> s1: you press Try again
+  s5 --> s3: you go back or leave Clips
+  s5 --> s8: you press Play [on a saved clip]
+  s6 --> s3: the next page arrives
+  s6 --> s7: the next page fails
+  s7 --> s6: you press Load more
+  s8 --> s0: account changes
+  s8 --> s3: you go back or leave Clips

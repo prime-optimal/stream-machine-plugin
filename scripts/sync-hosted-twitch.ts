@@ -10,7 +10,7 @@ const hosting = await Bun.file(resolve(site, ".openai/hosting.json")).json();
 if (hosting.project_id !== "appgprj_6ae8040442d481918f55ca79cca3b9b2") throw new Error("Unexpected Site project");
 const paths = [
   "src/auth/twitch.ts", "src/auth/permissions.ts",
-  "src/adapters/twitch/client.ts", "src/adapters/twitch/clips-client.ts",
+  "src/adapters/twitch/client.ts", "src/adapters/twitch/clips-client.ts", "src/adapters/twitch/clip-library.ts",
   "src/adapters/twitch/service.ts", "src/adapters/twitch/title-preview-store.ts",
   "src/adapters/twitch/tool-runtime.ts", "src/adapters/twitch/tool-register.ts",
 ];

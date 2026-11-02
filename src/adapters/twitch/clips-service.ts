@@ -2,6 +2,7 @@ import { TwitchFault, type TwitchAccountProvider } from "../../auth/twitch";
 import { CLIP_SCOPE } from "../../auth/upstream/service";
 import { ClipArtifactWriter } from "./clip-artifact";
 import { TwitchClipClient, clipIdSchema } from "./clips-client";
+import { fetchClipLibraryPage, type ClipLibraryInput } from "./clip-library";
 let downloading = false;
 export class TwitchClipService {
   constructor(private accounts: TwitchAccountProvider, private client = new TwitchClipClient(), private writer: Pick<ClipArtifactWriter, "write"> = new ClipArtifactWriter()) {}
@@ -9,6 +10,9 @@ export class TwitchClipService {
   async clip(clipId: string) {
     this.validate(clipId);
     return this.accounts.withAccount(async access => ({ mode: "live", clip: await this.client.read(access, clipId) }));
+  }
+  async library(input: ClipLibraryInput) {
+    return this.accounts.withAccount(access => fetchClipLibraryPage((path, params) => this.client.get(access, path, params), access.account, input, "local"));
   }
   async download(clipId: string) {
     this.validate(clipId);

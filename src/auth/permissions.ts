@@ -13,6 +13,10 @@ export const twitchFeatures = {
     endpoints: ["PATCH /helix/channels"], events: [], token: "user", identity: "Token user is broadcaster", scopes: [BROADCAST_SCOPE],
   },
   clipMetadata: { tools: ["stream_machine_twitch_clip"], endpoints: ["GET /helix/clips"], events: [], token: "user", identity: "Connected user; any broadcaster's clip", scopes: [] },
+  clipLibrary: {
+    tools: ["stream_machine_clips_library"], endpoints: ["GET /helix/clips", "GET /helix/games"], events: [],
+    token: "user", identity: "Connected broadcaster; own clips only", scopes: [],
+  },
   clipDownload: {
     tools: ["stream_machine_twitch_download_clip"], endpoints: ["GET /helix/clips/downloads"], events: [],
     token: "user", identity: "Token user is both broadcaster and editor; own clips only", scopes: [CLIP_SCOPE],

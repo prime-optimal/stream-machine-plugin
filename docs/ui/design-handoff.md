@@ -14,7 +14,7 @@ Citations use the same short forms as the reference page: `spec L<n>` and `patte
 
 - No change to the tool set, routing, or recipe logic in `src/` beyond `src/server.ts` metadata, `src/ui/`, `plugin.json` and `skills/`.
 - No new navigation model. Use the five sections in the UX plan.
-- No new external fonts or remote images unless the CSP is updated (see constraints).
+- No new external fonts or remote images unless the CSP is updated (see constraints). The Clips gallery already adds its own origins (see Fonts).
 
 ## Constraints
 
@@ -23,7 +23,7 @@ Citations use the same short forms as the reference page: `spec L<n>` and `patte
 - **Safe areas.** `applyHost` maps insets to `--safe-{edge}` (`src/ui/app.ts:139-141`). `style.css` reads them on `.shell` (L55, L183) but pads with `max(36px, ...)` and `max(20px, ...)`, so the inset only wins when larger. Decide whether that is intended and check it in the host (`patterns L21-25`). `BB` uses a `.safe-area` wrapper that reads `--safe-area-*` (`BB src/app/index.html` L29-33, `<div class="safe-area">` at L937). The variable names differ, so confirm which names the host sets before relying on either.
 - **Responsive.** Replace the 370, 600, 720, 950 and 1200 px breakpoints (`src/ui/style.css`) with container-based rules that work from 375 px up, including the half-width thread tab.
 - **Reduced motion.** Keep the existing `prefers-reduced-motion` blocks.
-- **Fonts.** Use `var(--font-sans)` and the `--font-text-*` sizes. Do not load web fonts. If one is needed, add its origin to `resourceDomains` in the resource `_meta` CSP (`src/server.ts:57`, currently empty) and name the origin in the review.
+- **Fonts.** Use `var(--font-sans)` and the `--font-text-*` sizes. Do not load web fonts. If one is needed, add its origin to `resourceDomains` in the resource `_meta` CSP (`src/server.ts:57`) and name the origin in the review. `resourceDomains` now lists three origins for the Clips gallery: the Site (`https://stream-machine-oauth-test.tinycocoa22.chatgpt.site`, saved clip video), `https://static-cdn.jtvnw.net` and `https://clips-media-assets2.twitch.tv` (thumbnails). `connectDomains` stays empty because the UI reaches tools through the host, not the network. Whether a real host applies these origins to `<video>` loads is unverified.
 - **Display modes.** Request a mode only in response to a user action, such as opening a selected item. Do not add dedicated buttons for changing display modes, because ChatGPT provides them (`patterns L29`). Supported modes are in `spec L858-863`.
 - **Version gate.** On any entrypoint open, compare the host version to `26.928.20710`. If the host is older, show an update message instead of the app (`patterns L5-11`, `BB controller.ts` L1504-1510). Desktop only.
 - **Do not invent APIs.** Every `_meta` key and method must appear in the spec or SDK. `openai/iconStyle`, `prefersBorder` and the manifest keys `composerIcon`, `logo`, `logoDark` are used by `BB` only and are not in the spec. Use them only after testing in the real host, and say so in the review.

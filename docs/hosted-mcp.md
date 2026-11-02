@@ -35,7 +35,7 @@ Sites maintains an independent source repository. Its retained checkout is ignor
 mise exec -- bun scripts/sync-hosted-twitch.ts docs/hosted-oauth-site
 ```
 
-Expected result: eight copied modules and `lib/stream-machine/source.json` with source hashes. No local browser launcher, SQLite runtime, USB, OBS, or filesystem writer is copied. Build and publish the Site separately through the Sites workflow. Keep its project ID and current audience.
+Expected result: nine copied modules, including `clip-library.ts`, and `lib/stream-machine/source.json` with source hashes. No local browser launcher, SQLite runtime, USB, OBS, or filesystem writer is copied. Build and publish the Site separately through the Sites workflow. Keep its project ID and current audience.
 
 ## Authorization boundary
 

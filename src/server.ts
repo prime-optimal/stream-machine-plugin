@@ -58,7 +58,7 @@ export function createServer(html: string) {
     contents: [{
       uri: UI_URI, mimeType: "text/html;profile=mcp-app", text: html,
       _meta: {
-        ui: { csp: { connectDomains: [], resourceDomains: [] } },
+        ui: { csp: { connectDomains: [], resourceDomains: ["https://stream-machine-oauth-test.tinycocoa22.chatgpt.site", "https://static-cdn.jtvnw.net", "https://clips-media-assets2.twitch.tv"] } },
         "openai/ui": { preferredDisplayMode: "fullscreen", availableDisplayModes: ["inline", "fullscreen"] },
       },
     }],
