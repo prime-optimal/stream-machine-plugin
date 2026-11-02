@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { twitchConsentSummary, requiredTwitchScopes } from "../auth/permissions";
 import type { ToolRequest, ToolResult } from "./tool-transport";
 
 const record = z.record(z.string(), z.unknown());
-const fields = new Set("mode status provider obsVersion resolution currentProgramScene streaming recording scene source text refreshAcknowledged visibility durationMs previousProgramScene observedAt serial deck_type key_count rows columns id name title categoryName login displayName scopes previewId expiresAt executable requiredScope page label writes ownership notice released storedConfigurationVerified physicalPressVerified keeperRequired url requestId project recipe runId taskId file failureCode entry mime binary truncated connection fixture inFlight ledgerSize received attempted succeeded duplicates skipped error code message ok endpoint".split(" "));
+const fields = new Set("mode status provider obsVersion resolution currentProgramScene streaming recording scene source text refreshAcknowledged visibility durationMs previousProgramScene observedAt serial deck_type key_count rows columns id name title categoryName login displayName scopes requiredScopes implementedScopes futureScopes grantedScopes requestedScopes missingScopes retainedScopes reconnectRequired disclosure grantSource previewId expiresAt executable requiredScope page label writes ownership notice released storedConfigurationVerified physicalPressVerified keeperRequired url requestId project recipe runId taskId file failureCode entry mime binary truncated connection fixture inFlight ledgerSize received attempted succeeded duplicates skipped error code message ok endpoint".split(" "));
 const groups = new Set("scenes devices layout position input button account channel before after project projects scenarios skills files status error".split(" "));
 function object(value: unknown): Record<string, unknown> { const parsed = record.safeParse(value); return parsed.success ? parsed.data : {}; }
 function text(value: unknown): string { return typeof value === "string" ? value : ""; }
@@ -22,7 +23,9 @@ function summary(value: unknown, depth = 0): string[] {
     if (groups.has(key) && typeof item === "object") return summary(item, depth + 1);
     if (!fields.has(key)) return [];
     if (["string", "number", "boolean"].includes(typeof item)) return [`${key}: ${String(item).slice(0, 240)}`];
-    if (key === "scopes" && Array.isArray(item)) return [`scopes: ${item.filter(value => typeof value === "string").join(", ")}`];
+    if (key.endsWith("Scopes") || key === "scopes") {
+      if (Array.isArray(item)) return [`${key}: ${item.filter(value => typeof value === "string").join(", ") || "(none)"}`];
+    }
     return [];
   }).slice(0, 35);
 }
@@ -30,18 +33,15 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, content = ""): H
   const node = document.createElement(tag); node.textContent = content; return node;
 }
 
-export function createLiveDemos(request: ToolRequest): HTMLElement {
-  const section = element("section"); section.className = "live-demos";
-  const eyebrow = element("p", "CONNECTED TO YOUR TOOLS"); eyebrow.className = "eyebrow";
-  section.append(eyebrow, element("h1", "Live demos"), element("p", "Real services. Each action runs only when clicked. Start with a read check."));
-  const grid = element("div"); grid.className = "live-grid"; section.append(grid);
+export function createLiveDemos(request: ToolRequest) {
+
   let mutating = false;
   function card(title: string, note: string) {
     const node = element("article"); node.className = "live-card";
     const controls = element("div"); controls.className = "live-controls";
     const output = element("div", "Not checked"); output.className = "live-result"; output.setAttribute("role", "status"); output.setAttribute("aria-live", "polite");
     const links = element("div"); links.className = "live-links";
-    node.append(element("h2", title), element("p", note), controls, output, links); grid.append(node);
+    node.append(element("h2", title), element("p", note), controls, output, links);
     let pending = false;
     function field(label: string, value = "", type = "text", max = 140) {
       const wrap = element("label", label); const input = element("input"); input.type = type; input.value = value; input.maxLength = max; wrap.append(input); controls.append(wrap); return input;
@@ -82,7 +82,7 @@ export function createLiveDemos(request: ToolRequest): HTMLElement {
         output.classList.add("live-failure"); return undefined;
       } finally { pending = false; if (write) mutating = false; refresh(); }
     }
-    return { field, action, refresh, invoke, link, controls, output };
+    return { node, field, action, refresh, invoke, link, controls, output, clearLinks: () => links.replaceChildren() };
   }
   const obs = card("01 / OBS alert", "Show alert switches program to Stream Machine Demo. Broadcast and recording stay unchanged. Visibility requires checking OBS.");
   obs.action("Check OBS", () => void obs.invoke("obs_preflight"));
@@ -111,14 +111,19 @@ export function createLiveDemos(request: ToolRequest): HTMLElement {
   deck.action("Release demo page + USB", () => void deck.invoke("streamdeck_release", {}, true));
   for (const input of [serial, key, destination]) input.addEventListener("input", () => { deckPreview = ""; deck.refresh(); });
 
-  const twitch = card("03 / Twitch title", "Connect requests channel:manage:broadcast. Review exact title, approve in browser, then apply approved preview here.");
+  const twitch = card("03 / Twitch title", `${twitchConsentSummary} Existing grants are retained. Consent performs no channel action. Review the exact title and approve it separately before applying.`);
+  const permissions = element("details");
+  permissions.append(element("summary", "Exact requested permissions"), element("pre", requiredTwitchScopes.join("\n")));
+  twitch.controls.before(permissions);
   let titlePreview = "";
-  twitch.action("Check connection", () => void twitch.invoke("twitch_status"));
-  twitch.action("Connect Twitch · request title access", () => void (async () => { const data = await twitch.invoke("twitch_connect", { manageBroadcast: true }); twitch.link("Open Twitch connection", data?.connectUrl ?? data?.url); })());
+  let titleRevision = 0;
+  function invalidateTitle() { titleRevision++; titlePreview = ""; twitch.clearLinks(); twitch.output.textContent = "Recheck account and preview the title again after reconnect."; twitch.refresh(); }
   twitch.action("Read current channel", () => void twitch.invoke("twitch_channel"));
   const title = twitch.field("Proposed stream title", "", "text", 140);
   twitch.action("Preview title · no write", () => void (async () => {
-    titlePreview = ""; const data = await twitch.invoke("twitch_preview_title", { title: title.value.trim() });
+    titlePreview = ""; const revision = ++titleRevision;
+    const data = await twitch.invoke("twitch_preview_title", { title: title.value.trim() });
+    if (revision !== titleRevision) return;
     titlePreview = text(data?.previewId); twitch.link("Open exact-title approval", data?.approvalUrl); twitch.refresh();
   })(), () => !!title.value.trim());
   twitch.action("Apply browser-approved title", () => void (async () => { const id = titlePreview; titlePreview = ""; await twitch.invoke("twitch_apply_title", { previewId: id }, true); twitch.refresh(); })(), () => !!titlePreview);
@@ -155,5 +160,6 @@ export function createLiveDemos(request: ToolRequest): HTMLElement {
   worker.action("Arm configured event → OBS action", () => void worker.invoke("worker_arm", {}, true));
   worker.action("Pause new actions", () => void worker.invoke("worker_pause", {}, true));
   worker.action("Stop worker", () => void worker.invoke("worker_stop", {}, true));
-  return section;
+  const tools = element("div"); tools.className = "live-grid"; tools.append(obs.node, twitch.node, worker.node);
+  return { assets: creative.node, streamdeck: deck.node, tools, invalidateTitle };
 }

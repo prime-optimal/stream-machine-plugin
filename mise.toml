@@ -27,12 +27,17 @@ run = "bun run check"
 
 [tasks.test]
 description = "Verify recipe and connection boundaries"
-run = "bun test"
+run = "bun test ./tests"
 
 [tasks.smoke]
 description = "Exercise bundled server over real stdio MCP"
 depends = ["build"]
 run = "bun run smoke"
+
+[tasks."ui:audit"]
+description = "Report OpenAI MCP extension UI feature usage over real stdio MCP"
+depends = ["build"]
+run = "bun run ui:audit"
 
 [tasks.preview]
 description = "Open loopback demo UI against the real MCP server"
@@ -84,6 +89,18 @@ run = "uv run --no-project --with commitizen==4.19.3 cz changelog"
 [tasks."changelog:preview"]
 description = "Preview changelog without writing files"
 run = "uv run --no-project --with commitizen==4.19.3 cz changelog --dry-run"
+
+[tasks."release:preview"]
+description = "Preview next release with Commitizen without writing files"
+run = "uv run scripts/release-plan.py preview"
+
+[tasks."release:prepare"]
+description = "Prepare synchronized release files without commits or tags"
+run = "uv run scripts/release-plan.py prepare"
+
+[tasks."release:publish"]
+description = "Publish the current version as a GitHub Release with its packages; pass --dry-run to only report"
+run = "bun scripts/release-publish.ts"
 
 [env]
 HK_MISE = "1"

@@ -1,3 +1,5 @@
+import { registerUpdateTools } from "./update/register";
+import { version } from "./version";
 import { McpServer } from "@modelcontextprotocol/server";
 import { DemoWorkspace, schemas, toolResult, type ToolName } from "./domain";
 import { registerObsTools } from "./adapters/obs/register";
@@ -6,8 +8,9 @@ import { registerTwitchTools } from "./adapters/twitch/register";
 import { registerCreativeTools } from "./adapters/design/register";
 import { registerWorkerTools } from "./worker/register";
 import { registerGameTools } from "./adapters/igdb/register";
+import { registerTranscriptionTool } from "./adapters/openai/transcription-register";
 
-export const UI_URI = "ui://stream-machine/workspace-v2.html";
+export const UI_URI = "ui://stream-machine/workspace-v4.html";
 const descriptions: Record<ToolName, string> = {
   stream_machine_open: "Open Stream Machine live demo controls and a separate mock sample. Use provider checks for real connection status.",
   stream_machine_workspace: "Open Stream Machine live demos alongside the conversation, with a separate mock sample.",
@@ -19,7 +22,7 @@ const descriptions: Record<ToolName, string> = {
 
 export function createServer(html: string) {
   const workspace = new DemoWorkspace();
-  const server = new McpServer({ name: "stream-machine", version: "0.2.0" });
+  const server = new McpServer({ name: "stream-machine", version });
   for (const name of Object.keys(schemas) as ToolName[]) {
     const entrypoints = name === "stream_machine_open" ? [{ type: "global" }] : name === "stream_machine_workspace" ? [{ type: "thread" }] : [];
     server.registerTool(name, {
@@ -38,13 +41,15 @@ export function createServer(html: string) {
       return { ...result, content: [{ type: "text" as const, text: "Stream Machine workspace opened. The sample data is mock-only. Use the Twitch, OBS, Stream Deck, creative, and worker tools for real status and explicit actions." }] };
     });
   }
+  registerUpdateTools(server);
   registerObsTools(server);
   const deck = registerStreamDeckTools(server);
   registerTwitchTools(server);
   registerCreativeTools(server);
   registerWorkerTools(server);
   registerGameTools(server);
-  server.server.onclose = () => { void deck.close().catch(() => process.stderr.write("Stream Deck cleanup failed.\n")); };
+  const transcription = registerTranscriptionTool(server);
+  server.server.onclose = () => { transcription.close(); void deck.close().catch(() => process.stderr.write("Stream Deck cleanup failed.\n")); };
   server.registerResource("stream-machine-workspace", UI_URI, {
     mimeType: "text/html;profile=mcp-app",
   }, async () => ({

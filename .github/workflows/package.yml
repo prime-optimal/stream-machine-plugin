@@ -1,0 +1,56 @@
+name: Build plugin packages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify source commit
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac
+      - run: mise run install
+      - run: mise run check
+      - run: mise run test
+      - run: mise run smoke
+      - run: mise run package
+      - name: Read package version
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(bun -e 'const { version } = await Bun.file("plugin.json").json(); if (!/^\d+\.\d+\.\d+$/.test(version)) throw new Error("Invalid package version"); console.log(version)')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Smoke extracted packages
+        env:
+          VERSION: ${{ steps.package.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          scratch=$(mktemp -d)
+          trap 'rm -rf "$scratch"' EXIT
+          mkdir -p "$scratch/tar" "$scratch/zip" "$scratch/home"
+          tar -xzf "docs/packages/stream-machine-$VERSION.tar.gz" -C "$scratch/tar"
+          unzip -q "docs/packages/stream-machine-$VERSION.zip" -d "$scratch/zip"
+          bun=$(mise which bun)
+          cd "$scratch"
+          for format in tar zip; do
+            env -i HOME="$scratch/home" PATH=/usr/bin:/bin TMPDIR="$scratch" \
+              "$bun" "$GITHUB_WORKSPACE/scripts/smoke.ts" "$scratch/$format/stream-machine/dist/server.js"
+          done
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: stream-machine-${{ steps.package.outputs.version }}-${{ github.sha }}
+          path: |
+            docs/packages/stream-machine-${{ steps.package.outputs.version }}.tar.gz
+            docs/packages/stream-machine-${{ steps.package.outputs.version }}.zip
+          if-no-files-found: error
+          retention-days: 30
+          overwrite: true

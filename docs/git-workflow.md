@@ -54,7 +54,7 @@ Run `mise run secrets:check` after staging the intended change. The check uses [
 
 Keep reference-only `fnox.toml` updates committable. Do not replace references with credential literals. See [secret setup and refresh](secrets.md) for the required age cache and global helper prerequisites.
 
-A successful check reports no detected secrets, not proof that every password is absent. Default scanner rules have limits. Review the staged diff yourself without copying secrets into logs or chat.
+A successful check reports no detected secrets, not evidence that every password is absent. Default scanner rules have limits. Review the staged diff yourself without copying secrets into logs or chat.
 
 If the check reports a finding, remove the credential from the staged content and rotate it if exposed. If verification cannot complete, fix the missing tool or reported prerequisite and rerun the check. Do not bypass the hook or enable verbose secret output. Use synthetic fixtures for scanner tests, never real credentials.
 
@@ -109,7 +109,7 @@ For each retained worktree, inspect its status and local-only commits. Check ign
 
 Name each remaining dirty worktree, local-only commit, or running process. Give the owner, the reason it stays, and the next step. Link any cleanup record under `docs/reviews/`.
 
-Complete [the issue evidence procedure](#finish-the-issue). Link the posted verification comment and confirm the issue and board status. Report any missing attachment or publication blocker.
+Complete [the issue evidence procedure](#finish-the-issue). Link the posted evidence comment and confirm the issue and board status. Report any missing attachment or publication blocker.
 
 If a completion check fails, report the path and blocker. Do not claim completion until completed task work is committed and pushed.
 
@@ -123,7 +123,47 @@ mise run changelog
 git diff -- docs/CHANGELOG.md
 ```
 
-Commitizen reads conventional commits and writes `docs/CHANGELOG.md`. These tasks do not bump versions, create tags, or publish a release. Before a release, review the entries and commit the changelog. The version in `.cz.toml` starts at the existing package version, `0.2.0`.
+These manual tasks write a full-history changelog without bumping versions. Do not use them to replace the versioned release history after release automation starts.
+
+### Build downloadable packages
+
+The separate `package.yml` workflow builds ZIP and tar.gz packages for each main push, including release-PR merges, and for manual dispatch. It uses the exact event SHA, not the latest main at checkout time. Manual runs use the selected ref's event SHA. Builds retain the committed version, so different commits can share a version but have distinct artifact names.
+
+This workflow has only `contents: read`. It does not prepare a release, write branches, tag, publish, or install the plugin. It does not depend on release-PR creation permissions. Download instructions are in [the setup guide](setup.md#download-a-ci-package). Released versions are also attached to [GitHub Releases](#publish-a-release).
+
+### Prepare a release PR
+
+`mise run release:preview` reports the next version without writing files. `mise run release:prepare` updates versions, release notes, and `.release-state.json` without committing or tagging.
+
+The helper uses Commitizen 4.19.3 and commits after `releasedThrough`. The initial approved boundary is `1246d75`. Version sources are `.cz.toml`, `package.json`, `plugin.json`, and `src/version.ts`. Runtime metadata imports the shared version. Preparation records the source SHA, so repeated preparation and release-only merges do not bump again. Use conventional squash-merge titles.
+
+The `Prepare release PR` workflow runs after pushes to `main` or a manual run on `main`. It runs checks before updating the fixed `automation/release` branch and PR. It rejects stale source and foreign branch provenance. Reserve that branch for automation. Do not edit it manually. A failed PR API call can leave a bot branch; a retry accepts only the expected bot identity, source marker, parent, and release paths.
+
+The workflow uses `GITHUB_TOKEN` with job-scoped `contents: write` and `pull-requests: write`. Activation requires the repository's bundled **Allow GitHub Actions to create and approve pull requests** setting. Read-back during #105 returned `can_approve_pull_request_reviews: false`. This task does not change that setting. No code approves or automatically merges PRs.
+
+Token-created PR checks can require manual approval, and token pushes do not start ordinary push workflows. The preparation workflow runs TypeScript, tests, stdio smoke, package, and check-only hooks itself. See [GitHub token event behavior](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow). Human review and merge remain required. This workflow does not tag or publish. The [publish workflow](#publish-a-release) does that after the merge.
+
+See the [checked lifecycle and limits](statechart/105-release-automation/report.md).
+
+### Publish a release
+
+The `Publish release` workflow (`.github/workflows/release.yml`) creates the GitHub Release after a release PR merges. It runs on every push to `main` and on manual runs from `main`:
+
+1. The `plan` job runs `mise run release:publish --dry-run`. The script reads the version from `plugin.json` and finds the commit that introduced it. It then checks whether release `v<version>` exists.
+2. If that release is already published, the run stops. Ordinary merges therefore publish nothing until the next release PR changes the version.
+3. Otherwise, the `publish` job checks out the release commit, not the pushed commit. It runs check, test, smoke, and package. It then runs `scripts/release-publish.ts` from the pushed commit against that checkout, because older release commits may not contain the script. That creates tag `v<version>` at the release commit and a release with the version's `docs/CHANGELOG.md` section as notes. The `stream-machine-<version>.zip` and `.tar.gz` packages are attached.
+
+Only the `publish` job has `contents: write`. Runs are serialized. The script refuses to publish when a draft release for the tag exists, when the tag points to another commit, when `HEAD` is not the release commit, when the worktree has changes, or when a package is missing. A failed upload can leave a draft release. Delete the draft, then rerun the workflow.
+
+To check what would be published without writing anything, run:
+
+```sh
+mise run release:publish --dry-run
+```
+
+Expected result: JSON with the version, tag, release commit, current `HEAD`, whether the release is published, and the package paths and sizes. Publishing by hand requires a clean checkout of the release commit and `mise run package` first. Prefer a manual run of the workflow.
+
+See the [checked publish lifecycle](statechart/120-release-publish/report.md).
 
 ## Remove merged work
 

@@ -1,0 +1,24 @@
+---
+title: "Local navigation and explicit Twitch checks"
+---
+stateDiagram-v2
+  s0: Access not checked
+  s1: Authorization URL available
+  s2: Check Twitch access
+  s3: Check failed
+  s4: Authenticated account, missing grants
+  s5: Authenticated account and all 12 grants verified
+  [*] --> s0
+  s0 --> s1: explicitly request a connection URL
+  s0 --> s2: explicitly recheck access
+  s1 --> s2: explicitly recheck access
+  s2 --> s1: explicitly request a connection URL
+  s2 --> s3: current read fails
+  s2 --> s4: current authenticated read returns
+  s2 --> s5: current authenticated read returns
+  s3 --> s1: explicitly request a connection URL
+  s3 --> s2: explicitly recheck access
+  s4 --> s1: explicitly request a connection URL
+  s4 --> s2: explicitly recheck access
+  s5 --> s1: explicitly request a connection URL
+  s5 --> s2: explicitly recheck access

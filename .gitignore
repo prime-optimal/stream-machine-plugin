@@ -2,6 +2,8 @@ node_modules/
 dist/
 artifacts/
 docs/packages/
+# Sites owns this standalone test source repository.
+/docs/hosted-oauth-site/
 .env*
 *.log
 .DS_Store
@@ -32,6 +34,9 @@ fnox.local.toml
 !.agents/skills/unslop/
 !.agents/skills/technical-writing/
 !.agents/skills/git-surgeon/
+!.agents/skills/statechart/
+!.agents/skills/mcp-app-ui/
+!.agents/skills/statechart/scripts/test/**/*.out
 .omp/
 .claude/
 .codex/

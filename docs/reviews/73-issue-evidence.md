@@ -4,7 +4,7 @@
 
 ## Changes
 
-`AGENTS.md` now requires verification comments, inline screenshot attachments when relevant, issue and board updates, and confirmation before handoff. The original issue body remains the record of scope and acceptance criteria.
+`AGENTS.md` now requires evidence comments, inline screenshot attachments when relevant, issue and board updates, and confirmation before handoff. The original issue body remains the record of scope and acceptance criteria.
 
 The Git guide gives a `gh issue comment --body-file ... --attach ...` command. Reports and PR links support the comment rather than replacing visible evidence. A failed upload remains a reported blocker.
 
@@ -26,5 +26,5 @@ This change has no visual feature to capture, so no screenshot is needed. Attach
 The review answered each project question:
 
 1. Code simplification. No product code or automation changed. Completion policy stays in `AGENTS.md`, with commands in the Git guide.
-2. Documentation clarity. Verification comments, original issue scope, and board progress have explicit responsibilities. Screenshots must appear directly in the comment.
+2. Documentation clarity. Evidence comments, original issue scope, and board progress have explicit responsibilities. Screenshots must appear directly in the comment.
 3. Statechart need. The two completion cases are short and explicit: required changes wait for merge, while verification-only tasks finish after evidence publication. No separate chart or application model update is needed.

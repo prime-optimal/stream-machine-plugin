@@ -1,0 +1,23 @@
+---
+title: "Transcription request lifecycle"
+---
+stateDiagram-v2
+  s0: Ready for explicit request
+  s1: Check local audio
+  s2: Finish and release request slot
+  s3: All service instances closed
+  s4: Audio ready to upload
+  s5: Upload once
+  s6: Read bounded transcript
+  [*] --> s0
+  s0 --> s1: request transcription [key available, service open, slot free]
+  s0 --> s3: close last open service
+  s1 --> s2: close service [nothing uploaded] or cancel or time out [nothing uploaded] or file checks fail
+  s1 --> s4: file checks pass
+  s2 --> s0: release slot [an open service remains]
+  s4 --> s2: close service [nothing uploaded] or cancel or time out [nothing uploaded]
+  s4 --> s5: send validated audio
+  s2 --> s3: release slot [all services closed]
+  s5 --> s2: OpenAI rejects request or close service [may have been processed] or cancel or time out [may have been processed] or result unavailable after dispatch
+  s5 --> s6: response arrives
+  s6 --> s2: close service [may have been processed] or cancel or time out [may have been processed] or result unavailable after dispatch or transcript accepted

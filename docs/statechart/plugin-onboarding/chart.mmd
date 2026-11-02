@@ -1,0 +1,24 @@
+---
+title: "Contextual connection setup"
+---
+stateDiagram-v2
+  s0: Choose a task
+  s1: Connection needed
+  s2: Set up connection
+  s3: Check connection
+  s4: Setup paused#59; task saved
+  s5: Check failed
+  s6: Ready to resume task
+  [*] --> s0
+  s0 --> s1: choose a task
+  s1 --> s2: open setup
+  s2 --> s3: test connection
+  s2 --> s4: cancel setup
+  s3 --> s4: cancel setup
+  s3 --> s1: connection lost or access revoked
+  s3 --> s5: read fails or times out
+  s3 --> s6: authenticated read succeeds
+  s4 --> s2: open setup
+  s5 --> s2: open setup
+  s5 --> s4: cancel setup
+  s6 --> s1: connection lost or access revoked

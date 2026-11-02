@@ -1,17 +1,29 @@
 ---
 name: onboarding
-description: Set up Stream Machine, check existing streaming tools, and start one local live demo or the separate mock preview.
+description: Connect Twitch through the Stream Machine Site by default, or use the explicit local fallback for desktop streaming tools.
 ---
 
 # Start a Stream Machine demo
 
-Open `stream_machine_open`. Explain that real controls and the fictional demo are separate. Use the user's requested demo when clear. Otherwise, ask which demo they want.
+Use the hosted `stream-machine` server's Twitch tools by default. Call `stream_machine_twitch_preflight`, then `stream_machine_twitch_status`. If hosted tools are missing, open the [Stream Machine Site](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site) and use its Sites-generated plugin connection. Do not substitute the local Twitch tools automatically.
+
+Sites sign-in identifies the caller. Twitch consent connects that caller's channel. Read status after consent to verify the account and scopes. A browser login alone does not prove that the host's plugin is connected.
+
+Keep status, channel reads, previews, and apply calls on the same provider. Open the returned hosted connection or approval URL through the host's navigation. Hosted connect returns a link; it does not launch a browser on the server.
+
+## Choose the local fallback
+
+Offer the local Twitch tools when the hosted service is unreachable, returns a server error, or is unconfigured, and a desktop runtime is available. Wait for the user's choice. A hosted 401 requires hosted sign-in. Denied consent, cancellation, invalid state, or revoked access never starts local OAuth. Never replay a failed mutation through localhost.
+
+On a desktop host, the `stream-machine-local` server also exposes Twitch tools with the same names. Use them only after the user selects the desktop fallback. Verify the local Twitch account before using it. If it differs from the hosted account, ask before proceeding. Hosted consent does not connect the local store.
+
+The `stream-machine-local` server also provides `stream_machine_open`, OBS, Stream Deck, creative, transcription, and worker tools. Use them directly; they do not require the fallback choice. Open the workspace only when that local tool exists. Explain that the fictional demo is separate from real controls.
 
 ## Check the selected connection
 
 Use the relevant read tool before an action:
 
-- Twitch: `stream_machine_twitch_status`, then `stream_machine_twitch_channel`.
+- Twitch: `stream_machine_twitch_preflight`, then `stream_machine_twitch_status` and `stream_machine_twitch_channel`.
 - OBS: `stream_machine_obs_preflight`.
 - Stream Deck: `stream_machine_streamdeck_inventory`.
 - OpenDesign: `stream_machine_creative_list`.
@@ -19,11 +31,18 @@ Use the relevant read tool before an action:
 
 A missing connection does not block unrelated demos. Never substitute mock results for a failed real check. Never request tokens or passwords in chat. The private package uses fnox references to the owner's 1Password items.
 
-## Connect Twitch
+## Connect Twitch through the local fallback
 
-If the user requests a title update and the account is disconnected, call `stream_machine_twitch_connect` with `manageBroadcast: true`. Open the returned URL for Twitch consent. The registered callback is `http://localhost:4017/api/twitch/callback`.
+Run `stream_machine_twitch_preflight` before Twitch setup. It checks configuration and whether the registered callback port can be bound, then releases the probe. The Connect action checks again because another process can acquire the port after preflight. Never pick an unregistered callback port.
 
-Read the account after consent. Use `preview-recipe` for the exact title preview and browser approval. OAuth consent does not approve an arbitrary title.
+An idle Stream Machine chat releases port 4017 ten minutes after its last Connect, approval page, or callback request. Two errors describe an occupied port:
+
+- `TWITCH_LOCAL_PORT_PLUGIN` means another Stream Machine chat on this computer holds port 4017. Tell the user that they can close that chat or stop it from here. Stopping it ends that chat's Stream Machine tools until its host restarts them. Call `stream_machine_twitch_connect` with `replacePluginListener: true` only after the user approves the stop.
+- `TWITCH_LOCAL_PORT_BUSY` means another app holds port 4017, or Stream Machine could not verify the holder. Report the conflict before consent. Stream Machine never stops that process.
+
+Call `stream_machine_twitch_connect` to connect or upgrade missing permissions. Initial consent requests the owner's 12-permission policy. Only `channel:manage:broadcast` for title updates and `channel:manage:clips` for own-channel clip downloads support implemented privileged actions. The other ten permissions cover future chat, followers, subscriptions, cheers, rewards, clip creation, and bot use. They do not enable active features. The full list and Twitch excess-scope policy conflict appear in the returned `disclosure` and [scope reference](../../docs/reviews/83-twitch-scope-audit.md). Broadcaster consent does not authorize a separate bot account. Existing grants are retained. Review `requiredScopes`, `grantedScopes`, `missingScopes`, and `requestedScopes` before consent. For an explicitly requested connection, pass `openBrowser: true` to open the local authorization flow directly in the desktop browser. The plugin button uses this path; the user does not need to copy the URL. Empty inputs preserve the existing link-only response. `browserRequested` reports a successful browser-launch request, not completed consent. On a browser-launch error, report the failure and wait for an explicit retry. The registered callback is `http://localhost:4017/api/twitch/callback`.
+
+Read `stream_machine_twitch_status` after consent. Missing permissions require reconnect, not disconnect. Consent does not change a title, download a clip, or arm a worker. Read the account after consent. Use `preview-recipe` for the exact title preview and browser approval. OAuth consent does not approve an arbitrary title.
 
 ## Use local devices
 
@@ -52,5 +71,5 @@ assistant: "I'll check OBS, then show the requested message in the Stream Machin
 
 <example>
 user: "Connect my Twitch account."
-assistant: "I'll open the existing local authorization flow, then verify which account connected."
+assistant: "I'll open the Stream Machine Site connection, then verify which account connected."
 </example>
