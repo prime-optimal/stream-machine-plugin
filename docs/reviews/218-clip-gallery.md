@@ -1,7 +1,7 @@
 # Clip gallery implementation review
 
 Issue [#218](https://github.com/prime-optimal/stream-machine-plugin/issues/218).
-Plugin baseline: 4eadf6e. Site baseline: dd69c199.
+Plugin baseline: 4eadf6e, rebased onto 28514c2. Site baseline: dd69c199.
 The [implementation plan](../plans/2026-11-02-218-clip-gallery.md) describes the final flow.
 
 ## Findings resolved
@@ -37,7 +37,7 @@ No player dependency was added.
 | Check | Result |
 | --- | --- |
 | Plugin TypeScript | Passed |
-| Plugin domain tests | 298 passed, 2 skipped, 0 failed |
+| Plugin domain tests | 303 passed, 2 skipped, 0 failed after rebase |
 | Plugin build | Passed |
 | Plugin stdio smoke | OBS 3 tools and desktop 4 tools passed |
 | Existing UI audit | Fails with MCP -32601 against the desktop server; not evidence about hosted UI |
@@ -52,7 +52,7 @@ No player dependency was added.
 Site browser sign-in is blocked at OpenAI verification in the current in-app browser session.
 The native Codex app is unavailable to computer use, and no MCP App tab was exposed in this chat.
 These are host-verification limits, not permission to weaken authentication.
-Live source publication, archive results, and final gallery evidence are recorded in the issue comment after completion.
+Version 20 is published from Site source 0795a194f3dde7c7aae96bca007d90f5b7f26227. The final [live verification](../verification/218/verification.md) records 12 saved clips and playback checks for every Site URL. Native MCP-host rendering and the authenticated production gallery session remain unverified.
 
 ## Source provenance
 

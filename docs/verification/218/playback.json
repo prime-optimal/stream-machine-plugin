@@ -1,0 +1,101 @@
+{
+  "mode": "Read-only local gallery using live Site metadata and Site-hosted media",
+  "clips": [
+    {
+      "currentTime": 30.019,
+      "duration": 30.019,
+      "paused": true,
+      "readyState": 4,
+      "src": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/97aae37e-3b38-43c9-a78f-8ea2f7ec98d7",
+      "title": "TIILO"
+    },
+    {
+      "currentTime": 6.353033,
+      "duration": 30.004,
+      "paused": false,
+      "readyState": 4,
+      "src": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/38abe9e3-178d-4d72-bda5-8047921e409c",
+      "title": "MKAE IT BUMP"
+    },
+    {
+      "currentTime": 4.248265,
+      "duration": 30.009,
+      "paused": false,
+      "readyState": 4,
+      "src": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/ed7754a4-0a8e-4982-a0e2-29d00a41f1e1",
+      "title": "K-LAB"
+    },
+    {
+      "currentTime": 4.556148,
+      "duration": 30.014,
+      "paused": false,
+      "readyState": 4,
+      "src": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/2a0e670d-992a-4416-b53d-350293662ecd",
+      "title": "COMRADE DIMPS"
+    },
+    {
+      "currentTime": 4.132257,
+      "duration": 30.02,
+      "paused": false,
+      "readyState": 4,
+      "src": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/06f3b2fb-dfcc-436d-8e28-a5e77bd30790",
+      "title": "CAR CAR"
+    },
+    {
+      "currentTime": 5.223423,
+      "duration": 30.018,
+      "paused": false,
+      "readyState": 4,
+      "src": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/1dee53f9-b229-4cfe-9675-6bf4bb8eebbe",
+      "title": "K-Lab"
+    },
+    {
+      "currentTime": 3.967569,
+      "duration": 30,
+      "paused": false,
+      "readyState": 4,
+      "src": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/f6dc330e-1c0d-4af3-bac6-54b0f4071d63",
+      "title": "vegas 4"
+    },
+    {
+      "currentTime": 5.21019,
+      "duration": 30,
+      "paused": false,
+      "readyState": 4,
+      "src": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/3cf20f20-8c33-4826-954e-ee7ccbb505a4",
+      "title": "vegas 33"
+    },
+    {
+      "currentTime": 4.264364,
+      "duration": 30,
+      "paused": false,
+      "readyState": 4,
+      "src": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/4ef4fb8a-1129-46d4-9d2e-945a6a1d2cae",
+      "title": "vegas 2"
+    },
+    {
+      "currentTime": 4.7702,
+      "duration": 30,
+      "paused": false,
+      "readyState": 4,
+      "src": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/f8b84588-566a-4db2-8b6f-d3837f881323",
+      "title": "K-Lab"
+    },
+    {
+      "currentTime": 7.366823,
+      "duration": 30,
+      "paused": false,
+      "readyState": 4,
+      "src": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/08af670c-cadd-420d-bf94-99c0aff6b10c",
+      "title": "K-LAB DISCOVERY"
+    },
+    {
+      "currentTime": 7.335528,
+      "duration": 30,
+      "paused": false,
+      "readyState": 4,
+      "src": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/438ccd0e-237e-4684-9eda-cc1051d1da0e",
+      "title": "K-LAB FIRST LIVE STREAM"
+    }
+  ]
+}
