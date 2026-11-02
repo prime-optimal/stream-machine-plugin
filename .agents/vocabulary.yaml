@@ -2,6 +2,10 @@ version: 1
 exclude:
   - docs/CHANGELOG.md
   - docs/archive/**
+  - .agents/skills/build-chatgpt-app/**
+  - .agents/skills/chatgpt-app-submission/**
+  - .agents/skills/evaluate-plugin/**
+  - .agents/skills/openai-docs/**
 nouns:
   plugin:
     - canonical: demo

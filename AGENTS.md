@@ -49,6 +49,16 @@ Prefer `rpce-cli` with `-w <window_id>` on every routed call and `-t <context_id
 
 Pass the builder export path in each child's brief. State the assigned section, owned files, completion criteria, and sibling conflicts. Verify each result and record actual validation exits before dispatching dependent work. Inspect persisted state after an indeterminate mutation; never retry it blindly. Remove consumed exports only after recording evidence and completing any required fidelity check.
 
+## Use the ChatGPT plugin skills
+
+The repository vendors skills for ChatGPT plugin work in `.agents/skills/`. Read the matching skill before you change the server, manifest, auth, or app UI:
+
+- `chatgpt-plugin-dev` for manifests, MCP tools, OAuth, connecting to ChatGPT, desktop-only stdio, and submission. It lists where the official skills differ from the current docs. Follow it when they conflict.
+- `chatgpt-plugin-ui` and `mcp-app-ui` for the in-chat app UI and OpenAI MCP extensions.
+- `build-chatgpt-app`, `chatgpt-app-submission`, and `evaluate-plugin` from [openai/plugins](https://github.com/openai/plugins), and `openai-docs` from [openai/skills](https://github.com/openai/skills), for scaffolding, submission files, plugin evaluation, and current OpenAI docs.
+
+The official skills are copies made with the `skills` CLI and recorded in `skills-lock.json`. Keep their license files. Update them with `skills update -p` and review the diff before committing. `plugin-creator` is not vendored because its upstream copy has no license. The two `chatgpt-plugin-*` skills are maintained here. `.agents/` is not part of the plugin package.
+
 ## Write for the reader
 
 Every agent, including subagents, must apply [technical-writing](.agents/skills/technical-writing/SKILL.md) and [unslop](.agents/skills/unslop/SKILL.md) to project writing. Read both skills before writing or reviewing prose. This includes docs, README files, agent instructions, packaged skills, issues, PR descriptions, commit messages, and chat updates.
