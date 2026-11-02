@@ -184,7 +184,7 @@ function render(): void {
 
 function applyHost(): void {
   const context = app.getHostContext();
-  document.documentElement.dataset.theme = context?.theme ?? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+  document.documentElement.dataset.theme = context?.theme === "light" ? "light" : "dark";
   for (const [name, value] of Object.entries(context?.styles?.variables ?? {})) {
     if (name.startsWith("--") && typeof value === "string") document.documentElement.style.setProperty(name, value);
   }
@@ -201,9 +201,7 @@ app.ontoolresult = (result) => {
   try { rememberDraft(); accept(result); } catch (cause) { showError(cause instanceof Error ? cause.message : "Could not load the workspace."); }
 };
 app.addEventListener("hostcontextchanged", applyHost);
-const systemTheme = matchMedia("(prefers-color-scheme: light)");
-systemTheme.addEventListener("change", applyHost);
-app.onteardown = async () => { clipAccountStatus.invalidate(); systemTheme.removeEventListener("change", applyHost); connections.dispose(); clips.dispose(); home.dispose(); return {}; };
+app.onteardown = async () => { clipAccountStatus.invalidate(); connections.dispose(); clips.dispose(); home.dispose(); return {}; };
 const shell = document.createElement("div");
 shell.className = "shell";
 shell.innerHTML = '<header class="app-header"><span class="brand">Stream Machine</span><span class="badge" id="runtime-badge" hidden></span></header><nav class="workspace-nav" aria-label="Workspace sections"></nav><main id="workspace-main"></main><p id="host-error" role="alert" hidden></p>';
