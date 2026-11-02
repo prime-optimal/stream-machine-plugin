@@ -1,3 +1,9 @@
+## 0.11.0 (2026-11-02)
+
+### Feat
+
+- add OBS scene and browser source tools (#220) (#221)
+
 ## 0.10.1 (2026-11-02)
 
 ### Fix
