@@ -1,3 +1,10 @@
+## 0.12.0 (2026-11-02)
+
+### Feat
+
+- add creative desktop MCP workspace (#213) (#216)
+- **ui**: default the workspace to the dark theme (#230)
+
 ## 0.11.0 (2026-11-02)
 
 ### Feat
