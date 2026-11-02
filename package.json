@@ -9,6 +9,7 @@
     "check": "tsc --noEmit",
     "preview": "bun src/preview.ts",
     "smoke": "bun scripts/smoke.ts",
+    "ui:audit": "bun scripts/ui-audit.ts",
     "package": "bun scripts/package.ts"
   },
   "dependencies": {
