@@ -1,13 +1,13 @@
 ---
 name: preview-recipe
-description: Preview a Stream Machine Twitch title through the Site plugin, set a Stream Deck button with Stream Machine Desktop, and browse, save, and zip the channel's Twitch clips through the Site plugin.
+description: Preview a Stream Machine Twitch title through the hosted stream-machine server, set a Stream Deck button with the stream-machine-desktop server, and browse, save, and zip the channel's Twitch clips through the hosted server.
 ---
 
 # Preview and run a selected demo
 
 Read the provider first. Use the account or device returned by that provider, not a guessed identifier.
 
-Use the Stream Machine Site plugin for Twitch and clips. Keep every Twitch step on that connection. Stream Machine Desktop provides only OBS and Stream Deck tools, so it has no Twitch fallback.
+Use this plugin's hosted `stream-machine` server for Twitch and clips. Keep every Twitch step on that connection. The `stream-machine-desktop` server provides only OBS and Stream Deck tools, so it has no Twitch fallback. If the Stream Machine Site plugin is also installed, keep the whole task on one connection and never replay a mutation through the other.
 
 ## Update a Twitch title
 
@@ -33,7 +33,7 @@ Do not claim the device while another demo process or Elgato app owns it. `strea
 
 ## Browse, save, and zip clips
 
-Use the Site plugin's tools. Stream Machine Desktop does not expose clip tools.
+Use the hosted server's tools. `stream-machine-desktop` does not expose clip tools.
 
 To browse or search clips, call `stream_machine_clips_library`. Pass `startedAt` and `endedAt` (RFC 3339) to filter by date and `first` (1 to 100, default 24) to set the page size. To read more, call it again with the returned `cursor` until `cursor` is `null`. Each item shows whether the clip is saved to the Site in `stored`.
 

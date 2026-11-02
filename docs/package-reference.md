@@ -1,6 +1,6 @@
 # Plugin package reference
 
-`mcp.json` registers one server, `stream-machine-desktop`, which runs the local stdio server on a desktop host with Bun on `PATH`. The package is Stream Machine Desktop, an add-on for OBS and Stream Deck controls. Hosted Twitch tools come from the Stream Machine Site plugin, which this package does not register. Web and mobile hosts cannot launch the stdio server. Install the package through a local plugin marketplace as [Install on desktop](setup.md#install-on-desktop) describes. See the [hosted guide](hosted-mcp.md) for connection and fallback rules, and the [demo guide](demos/integration.md) for desktop features.
+`mcp.json` registers two servers. `stream-machine` connects to the hosted Twitch endpoint on the Site. `stream-machine-desktop` runs the local stdio server on a desktop host with Bun on `PATH`. The package is Stream Machine Desktop. Web and mobile hosts cannot launch the stdio server, so those hosts use the separate Stream Machine Site plugin for Twitch. Install the package through a local plugin marketplace as [Install on desktop](setup.md#install-on-desktop) describes. See the [hosted guide](hosted-mcp.md) for connection rules, and the [demo guide](demos/integration.md) for desktop features.
 
 The package contains portable and compatibility manifests, skills, the bundled server and UI, worker bundles, documentation, and dependency notices. It does not need `node_modules` inside the archive. It contains no `fnox.toml`, secret references, secret values, or runtime databases.
 
@@ -12,7 +12,7 @@ The separate **Build plugin packages** workflow runs after each main push and on
 
 ## Server and tools
 
-The Site plugin's hosted endpoint exposes nine Twitch tools. Each request uses its authenticated Sites caller's account. The #147 Site source adds three clip library tools; they appear after that source is published.
+The hosted `stream-machine` endpoint exposes nine Twitch tools. Each request uses its authenticated Sites caller's account. The #147 Site source adds three clip library tools; they appear after that source is published.
 
 The `stream-machine-desktop` command runs `bun ${PLUGIN_ROOT}/dist/server.js` directly. It does not start fnox, so launching the plugin never asks 1Password for access. That server exposes 7 tools: `stream_machine_obs_preflight`, `stream_machine_obs_list_scenes`, `stream_machine_obs_show_alert`, `stream_machine_streamdeck_inventory`, `stream_machine_streamdeck_preview`, `stream_machine_streamdeck_apply`, and `stream_machine_streamdeck_release`. None of them reads a secret. It registers no UI resource. `mise run smoke` verifies the count and names.
 

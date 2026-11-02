@@ -1,17 +1,19 @@
 ---
 name: onboarding
-description: Route Twitch calls to the Stream Machine Site plugin, and use Stream Machine Desktop for OBS and Stream Deck controls.
+description: Route Twitch calls to this plugin's hosted stream-machine server, and use the stream-machine-desktop server for OBS and Stream Deck controls.
 ---
 
 # Start with Stream Machine
 
-Stream Machine Desktop gives you OBS and Stream Deck controls for your desktop. The Stream Machine Site plugin provides Twitch, clips, and the Stream Machine menu, and it installs on desktop, web, and mobile. Use the Site plugin for every Twitch call. Stream Machine Desktop has no Twitch tools and no local workspace.
+Stream Machine Desktop registers two servers. The hosted `stream-machine` server provides Twitch, clips, and the Stream Machine menu. The local `stream-machine-desktop` server provides OBS and Stream Deck controls on a desktop host. Use the hosted `stream-machine` server for every Twitch call. `stream-machine-desktop` has no Twitch tools and no workspace.
 
-For Twitch, call the Site plugin's `stream_machine_twitch_preflight`, then `stream_machine_twitch_status`. If the Site plugin's tools are missing, open the [Stream Machine Site](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site) and connect its Sites-generated plugin. Sites sign-in identifies the caller. Twitch consent connects that caller's channel. Read status after consent to verify the account and scopes.
+For Twitch, call the hosted server's `stream_machine_twitch_preflight`, then `stream_machine_twitch_status`. The first hosted call asks the user to sign in through Sites and connect Twitch. If the sign-in link does not appear, open the [Stream Machine Site](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site). Sites sign-in identifies the caller. Twitch consent connects that caller's channel. Read status after consent to verify the account and scopes.
 
-After status verifies the account, call the Site plugin's `stream_machine_open` to open the Stream Machine menu, then offer the title preview. Use `preview-recipe` for the exact title preview and browser approval. Open the returned connection or approval URL through the host's navigation. Never replay a failed mutation through another provider.
+After status verifies the account, call the hosted `stream_machine_open` to open the Stream Machine menu, then offer the title preview. Use `preview-recipe` for the exact title preview and browser approval. Open the returned connection or approval URL through the host's navigation. Never replay a failed mutation through another provider.
 
-The user lands on Home. Home confirms "Connected to Twitch as <name>", shows a channel snapshot from `stream_machine_twitch_snapshot`, and lists suggestion cards. OBS and Stream Deck controls are not in the hosted menu. Use Stream Machine Desktop's tools for them on a desktop host.
+On web and mobile, the local server cannot start. The user installs the Stream Machine Site plugin there and uses its Twitch tools. If the user has both this package and the Site plugin on desktop, the Twitch tool names duplicate. Keep Twitch on the hosted `stream-machine` server for the whole task.
+
+The user lands on Home. Home confirms "Connected to Twitch as <name>", shows a channel snapshot from `stream_machine_twitch_snapshot`, and lists suggestion cards. OBS and Stream Deck controls are not in the hosted menu. Use the `stream-machine-desktop` tools for them on a desktop host.
 
 ## Check the connection
 

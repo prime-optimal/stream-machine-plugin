@@ -1,6 +1,10 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
   "mcpServers": {
+    "stream-machine": {
+      "type": "streamable-http",
+      "url": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/mcp"
+    },
     "stream-machine-desktop": {
       "type": "stdio",
       "command": "bun",
