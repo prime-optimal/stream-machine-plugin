@@ -1,0 +1,27 @@
+---
+title: "Guided Stream Machine update"
+---
+stateDiagram-v2
+  s0: unchecked
+  s1: available
+  s2: unavailable
+  s3: prepared
+  s4: rejected
+  s5: submitted
+  s6: readback
+  s7: unknown
+  s8: reload pending
+  s9: conflict
+  s10: running target
+  [*] --> s0
+  s0 --> s1: Check finds newer release
+  s0 --> s2: Check unavailable
+  s1 --> s3: Package checks pass
+  s1 --> s4: Package checks fail
+  s3 --> s5: Authorized Creator submission
+  s5 --> s6: Creator reports save
+  s5 --> s7: Response lost
+  s6 --> s8: Target release read back
+  s7 --> s6: Read source before retry
+  s6 --> s9: Target not verified
+  s8 --> s10: Fresh host reports target
