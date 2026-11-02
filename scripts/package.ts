@@ -1,5 +1,6 @@
 import { cp, mkdir, readdir, readFile, rm } from "node:fs/promises";
 import { resolve, join, dirname } from "node:path";
+import { createPackageArchives, includePackagePath } from "./package-archive";
 
 const root = resolve(import.meta.dir, "..");
 process.chdir(root);
@@ -19,7 +20,7 @@ await rm(staging, { recursive: true, force: true });
 await mkdir(staging, { recursive: true });
 for (const path of ["plugin.json", "mcp.json", "fnox.toml", "skills", "dist", "docs"]) {
   await mkdir(dirname(join(staging, path)), { recursive: true });
-  await cp(join(root, path), join(staging, path), { recursive: true, filter: source => !source.startsWith(join(root, "docs/packages")) });
+  await cp(join(root, path), join(staging, path), { recursive: true, filter: source => includePackagePath(root, source) });
 }
 await mkdir(join(staging, ".codex-plugin"), { recursive: true });
 const openai = manifest.extensions["com.openai"];
@@ -50,10 +51,7 @@ for (const name of packageDirs.sort()) {
 }
 await Bun.write(join(staging, "THIRD_PARTY_NOTICES.txt"), notices.join("\n"));
 await mkdir(join(root, "docs/packages"), { recursive: true });
-const archive = join(root, `docs/packages/stream-machine-${manifest.version}.tar.gz`);
-const pack = Bun.spawn(["tar", "-czf", archive, "-C", join(root, "artifacts/package"), "stream-machine"], { env: { ...process.env, COPYFILE_DISABLE: "1" }, stdout: "inherit", stderr: "inherit" });
-if (await pack.exited) throw new Error("Archive creation failed");
-const list = Bun.spawn(["tar", "-tzf", archive], { stdout: "pipe", stderr: "inherit" });
-const entries = (await new Response(list.stdout).text()).trim().split("\n");
-if (await list.exited || entries.some(path => /node_modules|\.env|\.git\/|\.DS_Store|\/\._/.test(path) || !path.startsWith("stream-machine/"))) throw new Error("Unexpected archive contents");
-console.log(`${archive}\n${entries.length} inspected archive entries; manifests and skill frontmatter parsed.`);
+const result = await createPackageArchives({
+  parent: join(root, "artifacts/package"), output: join(root, "docs/packages"), version: manifest.version,
+});
+console.log(`${result.archives.join("\n")}\n${result.entries} inspected entries per archive; manifests and skill frontmatter parsed.`);
