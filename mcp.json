@@ -6,6 +6,12 @@
       "url": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/mcp",
       "extensions": { "com.openai": { "auth": { "type": "oauth" } } }
     },
+    "stream-machine-obs": {
+      "type": "stdio",
+      "command": "bun",
+      "args": ["${PLUGIN_ROOT}/dist/obs-server.js"],
+      "cwd": "${PLUGIN_ROOT}"
+    },
     "stream-machine-desktop": {
       "type": "stdio",
       "command": "bun",

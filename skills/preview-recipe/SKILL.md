@@ -7,7 +7,7 @@ description: Preview a Stream Machine Twitch title through the hosted stream-mac
 
 Read the provider first. Use the account or device returned by that provider, not a guessed identifier.
 
-Use this plugin's hosted `stream-machine` server for Twitch and clips. Keep every Twitch step on that connection. The `stream-machine-desktop` server provides only OBS and Stream Deck tools, so it has no Twitch fallback. If the Stream Machine Site plugin is also installed, keep the whole task on one connection and never replay a mutation through the other.
+Use this plugin's hosted `stream-machine` server for Twitch and clips. Keep every Twitch step on that connection. The local `stream-machine-obs` server provides OBS tools and `stream-machine-desktop` provides Stream Deck tools. Neither provides a Twitch fallback. If the Stream Machine Site plugin is also installed, keep the whole task on one connection and never replay a mutation through the other.
 
 ## Update a Twitch title
 
