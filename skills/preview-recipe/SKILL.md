@@ -1,13 +1,13 @@
 ---
 name: preview-recipe
-description: Preview a Stream Machine Twitch title through the hosted stream-machine server, set a Stream Deck button with the stream-machine-desktop server, and browse, save, and zip the channel's Twitch clips through the hosted server.
+description: Preview a Stream Machine Twitch title through the hosted stream-machine server, set a Stream Deck button with the stream-machine-streamdeck server, and browse, save, and zip the channel's Twitch clips through the hosted server.
 ---
 
 # Preview and run a selected demo
 
 Read the provider first. Use the account or device returned by that provider, not a guessed identifier.
 
-Use this plugin's hosted `stream-machine` server for Twitch and clips. Keep every Twitch step on that connection. The `stream-machine-desktop` server provides only OBS and Stream Deck tools, so it has no Twitch fallback. If the Stream Machine Site plugin is also installed, keep the whole task on one connection and never replay a mutation through the other.
+Use this plugin's hosted `stream-machine` server for Twitch and clips. Keep every Twitch step on that connection. The `stream-machine-desktop` and `stream-machine-streamdeck` servers provide only OBS and Stream Deck tools, so they have no Twitch fallback. If the Stream Machine Site plugin is also installed, keep the whole task on one connection and never replay a mutation through the other.
 
 ## Update a Twitch title
 
@@ -22,7 +22,7 @@ An expired preview needs a new preview. A changed account or current title also 
 
 ## Set one Stream Deck button
 
-1. Call `stream_machine_streamdeck_inventory`.
+1. Call `stream_machine_streamdeck_inventory` on the `stream-machine-streamdeck` server.
 2. Select the user's original 3×5 device.
 3. Call `stream_machine_streamdeck_preview` with its serial, a key index from 0 to 14, and the requested HTTP URL.
 4. Show the exact button and explain that the USB process must remain running.
@@ -33,7 +33,7 @@ Do not claim the device while another demo process or Elgato app owns it. `strea
 
 ## Browse, save, and zip clips
 
-Use the hosted server's tools. `stream-machine-desktop` does not expose clip tools.
+Use the hosted server's tools. `stream-machine-desktop` and `stream-machine-streamdeck` do not expose clip tools.
 
 To browse or search clips, call `stream_machine_clips_library`. Pass `startedAt` and `endedAt` (RFC 3339) to filter by date and `first` (1 to 100, default 24) to set the page size. To read more, call it again with the returned `cursor` until `cursor` is `null`. Each item shows whether the clip is saved to the Site in `stored`.
 

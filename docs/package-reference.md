@@ -14,7 +14,9 @@ The separate **Build plugin packages** workflow runs after each main push and on
 
 The hosted `stream-machine` endpoint exposes nine Twitch tools. Each request uses its authenticated Sites caller's account. The #147 Site source adds three clip library tools; they appear after that source is published.
 
-The `stream-machine-desktop` command runs `bun ${PLUGIN_ROOT}/dist/server.js` directly. It does not start fnox, so launching the plugin never asks 1Password for access. That server exposes 7 tools: `stream_machine_obs_preflight`, `stream_machine_obs_list_scenes`, `stream_machine_obs_show_alert`, `stream_machine_streamdeck_inventory`, `stream_machine_streamdeck_preview`, `stream_machine_streamdeck_apply`, and `stream_machine_streamdeck_release`. None of them reads a secret. It registers no UI resource. `mise run smoke` verifies the count and names.
+The `stream-machine-desktop` command runs `bun ${PLUGIN_ROOT}/dist/server.js` directly. It does not start fnox, so launching the plugin never asks 1Password for access. That server exposes 3 tools: `stream_machine_obs_preflight`, `stream_machine_obs_list_scenes`, and `stream_machine_obs_show_alert`. None of them reads a secret. It registers no UI resource.
+
+The `stream-machine-streamdeck` command runs `bun ${PLUGIN_ROOT}/dist/streamdeck.js` as a separate stdio server (#192). It exposes 4 tools: `stream_machine_streamdeck_inventory`, `stream_machine_streamdeck_preview`, `stream_machine_streamdeck_apply`, and `stream_machine_streamdeck_release`. It starts the USB provider only when a tool needs it, and releases USB when stdin closes or the process receives SIGINT or SIGTERM. A host that stops this server frees the Stream Deck without affecting OBS. `mise run smoke` verifies the names of both servers' tools.
 
 Issue #159 comments out every other registration in `src/server.ts`: the mock-sample workspace tools, update, Twitch, creative, worker, IGDB, analytics, transcription, and clip media tools, and the workspace UI resource. The source modules and their unit tests remain. Re-enable a tool by uncommenting its import and registration.
 

@@ -1,8 +1,8 @@
 # Stream Machine Desktop
 
-Stream Machine Desktop gives ChatGPT Twitch tools plus OBS and USB Stream Deck controls on your desktop. One install registers two MCP servers. Sign in through the [ChatGPT Site](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site) to read your channel, preview a title change, and approve the exact title in your browser.
+Stream Machine Desktop gives ChatGPT Twitch tools plus OBS and USB Stream Deck controls on your desktop. One install registers three MCP servers. Sign in through the [ChatGPT Site](https://stream-machine-oauth-test.tinycocoa22.chatgpt.site) to read your channel, preview a title change, and approve the exact title in your browser.
 
-The hosted `stream-machine` server provides Twitch, clips, and the Stream Machine menu. The local `stream-machine-desktop` server provides 7 tools: three OBS tools and four Stream Deck tools. The other local tools are commented out in `src/server.ts` and not exposed. Their source modules and unit tests remain.
+The hosted `stream-machine` server provides Twitch, clips, and the Stream Machine menu. The local `stream-machine-desktop` server provides 3 OBS tools. The local `stream-machine-streamdeck` server provides 4 Stream Deck tools. The other local tools are commented out in `src/server.ts` and not exposed. Their source modules and unit tests remain.
 
 Web and mobile cannot start the local stdio server. On those hosts, install the Stream Machine Site plugin for Twitch. If you install both the Site plugin and this package on desktop, the Twitch tool names duplicate. Keep Twitch on the bundled `stream-machine` server.
 
