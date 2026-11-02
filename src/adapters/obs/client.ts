@@ -11,6 +11,7 @@ const allowedRequests = new Set([
   "CreateScene", "CreateInput", "CreateSceneItem", "SetInputSettings",
   "SetSceneItemEnabled", "SetSceneItemTransform", "SetCurrentProgramScene",
   "PressInputPropertiesButton", "GetSourceScreenshot",
+  "RemoveScene", "RemoveInput", "GetGroupList", "GetGroupSceneItemList",
   "GetSpecialInputs", "ToggleInputMute", "ToggleRecord", "ToggleStream",
 ]);
 export async function withObs<T>(run: (request: (name: string, data?: Record<string, unknown>) => Promise<Record<string, unknown>>) => Promise<T>, endpoint = OBS_ENDPOINT): Promise<T> {

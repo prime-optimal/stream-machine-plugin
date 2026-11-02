@@ -4,7 +4,7 @@ import { strict as assert } from "node:assert";
 import { dirname } from "node:path";
 
 const expected = {
-  obs: ["stream_machine_obs_list_scenes", "stream_machine_obs_preflight", "stream_machine_obs_show_alert"],
+  obs: ["stream_machine_obs_create_browser_source", "stream_machine_obs_create_scene", "stream_machine_obs_list_scenes", "stream_machine_obs_preflight", "stream_machine_obs_remove_browser_source", "stream_machine_obs_remove_scene", "stream_machine_obs_show_alert"],
   streamdeck: [
     "stream_machine_streamdeck_button_clear", "stream_machine_streamdeck_button_update", "stream_machine_streamdeck_inventory",
     "stream_machine_streamdeck_layout_apply", "stream_machine_streamdeck_layout_preview", "stream_machine_streamdeck_release",

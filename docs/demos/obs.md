@@ -2,6 +2,14 @@
 
 Real local OBS read and finite HTML alert. November 1, 2026.
 
+## Create scenes and browser sources
+
+The OBS server provides `stream_machine_obs_create_scene`, `stream_machine_obs_remove_scene`, `stream_machine_obs_create_browser_source`, and `stream_machine_obs_remove_browser_source`. Call these tools for the user's requested changes. Browser sources accept an HTTP or HTTPS URL or the absolute path to an existing local HTML file. Sources default to 800 by 600 pixels.
+
+Removing a scene fails if it is the current program scene or the last scene. Removing a browser source fails when the source is shared, grouped, or cannot be identified as a single direct item in the named scene. Adding or removing a source in the program scene can change visible content. These tools do not select a program scene or change streaming or recording.
+
+Other clients can change OBS between the safety check and deletion. Avoid concurrent edits during removal. If a request times out, inspect OBS before retrying because the outcome is unknown. The new actions have fake-only test coverage; no live mutation is claimed.
+
 ## Run
 
 From repository root:

@@ -19,7 +19,7 @@
       "interface": {
         "displayName": "Stream Machine Desktop",
         "shortDescription": "OBS and Stream Deck controls",
-        "longDescription": "Stream Machine Desktop installs three MCP servers on a desktop host. The hosted stream-machine server provides Twitch, clips, and the Stream Machine menu. The local stream-machine-obs server provides 3 OBS tools, and stream-machine-streamdeck provides 6 Stream Deck tools that lay out OBS scene, audio, record, and stream buttons on a USB deck. On web and mobile, install the Stream Machine Site plugin for Twitch instead.",
+        "longDescription": "Stream Machine Desktop installs three MCP servers on a desktop host. The hosted stream-machine server provides Twitch, clips, and the Stream Machine menu. The local stream-machine-obs server provides 7 OBS tools, and stream-machine-streamdeck provides 6 Stream Deck tools that lay out OBS scene, audio, record, and stream buttons on a USB deck. On web and mobile, install the Stream Machine Site plugin for Twitch instead.",
         "developerName": "prime-optimal",
         "capabilities": [
           "Interactive"
