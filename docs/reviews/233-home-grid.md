@@ -33,9 +33,11 @@ The asset prompt is authoring-only; it does not install anything into OBS automa
 | 768 × 1024 | 2 | 2 | None |
 | 375 × 812 | 1 | 4 | None |
 
-Screenshots use a labeled layout fixture, not a live account.
-No provider actions or messages were sent.
-Native-host theme/display-mode verification is not claimed by these previews.
+The local screenshots use a labeled layout fixture, not a live account. The fixture made no live provider calls or messages.
+
+After publication, the authenticated Site page loaded KLabFM and its real channel snapshot. Home showed four priority cards in two rows, and Open Clips loaded all twelve saved clips. A saved clip played to 29.07 seconds and sought to 15.00 seconds, with readyState 4 and no console errors. No provider writes or chat messages were sent.
+
+Native MCP-host theme/display-mode verification is still not claimed; the authenticated Site page uses the same bundle but a different host transport.
 
 ## Review questions
 
@@ -46,6 +48,8 @@ Native-host theme/display-mode verification is not claimed by these previews.
 
 ## Artifacts
 
+- [Live Home](../verification/233/home-live.jpg)
+- [Authenticated Site playback](../verification/233/live-clip.jpg)
 - [Desktop preview](../verification/233/home-1440.jpg)
 - [Tablet preview](../verification/233/home-768.jpg)
 - [Mobile preview](../verification/233/home-375.jpg)
