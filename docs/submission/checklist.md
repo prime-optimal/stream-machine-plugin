@@ -10,7 +10,7 @@ Owners: **Prime** is the repository owner and submitter. **Main agent** is the p
 | --- | --- | --- |
 | Code repository open for judging | **Failing.** `prime-optimal/stream-machine-plugin` is private and the only collaborator is the owner. The rules require a public repository, or a private one shared with `testing@devpost.com`. | Pick an option in [Repository access](#repository-access). |
 | Public YouTube demo under 3 minutes | **Not started.** No video exists. | Record from [demo-script.md](demo-script.md). |
-| Codex session ID | **Not collected.** | Run `/status` in the main build thread. |
+| Codex session ID | **Collected.** Principal ID and the full list are in [devpost.md](devpost.md#codex-session-id). | Paste the ID into the form. |
 | Free access for judges through the end of judging | **At risk.** Release downloads and Actions artifacts need repository access ([docs/setup.md](../setup.md#download-a-released-package)). The Site must stay published through November 15. | Resolve repository access. Keep the Site published. |
 
 ## Repository access
@@ -44,8 +44,8 @@ Before you choose B, check these:
 | 5 | Run the live dry run of every shot in [demo-script.md](demo-script.md) in a fresh chat. Mark each shot pass or fail. | Prime | Each non-optional shot passes. Cut any that fail. |
 | 6 | Record the video. Check each frame for tokens, emails, and the OBS stream key. | Prime | A file under 3:00 exists. |
 | 7 | Upload to YouTube as **Public**. Open the link while logged out. | Prime | The video plays without signing in. |
-| 8 | Copy the Codex session ID from `/status` in the main build thread. | Prime | The ID is in [devpost.md](devpost.md#codex-session-id). |
-| 9 | Fill the video URL and session ID placeholders in [devpost.md](devpost.md). | Prime | No `[BRACKETS]` remain. |
+| 8 | Paste the principal session ID from [devpost.md](devpost.md#codex-session-id) into the form. Upload `codex-sessions.png` to the gallery. | Prime | The form has the ID and the image. |
+| 9 | Fill the video URL placeholder in [devpost.md](devpost.md). | Prime | No `[BRACKETS]` remain. |
 | 10 | Compare [devpost.md](devpost.md) with the live form. Add any field the form has that this page lacks. | Prime | Every form field has an answer. |
 | 11 | Upload gallery images and the repository link. Save the draft. | Prime | Draft saved. |
 | 12 | Check that the hosted Site loads and that Connect with Twitch works for an account other than KLabFM. | Prime | A second account connects, or you record that it did not. |
@@ -55,7 +55,7 @@ Before you choose B, check these:
 
 ## Risks to the entry
 
-- **New work only.** The rules say the work must be built during the submission period, October 23 to November 2. The first commit here is November 1. The Twitch OAuth service and the OBS alert template come from the author's earlier `prime-optimal/stream-makeover` project. [devpost.md](devpost.md#disclosures) discloses this. Decide whether to keep that disclosure as written.
+- **New work only.** The rules say the work must be built during the submission period, October 23 to November 2. The first commit here is November 1. The Twitch OAuth service and the OBS alert template come from `prime-optimal/stream-makeover`, this project's prototype, whose first commit is October 28 and whose Codex sessions start October 26. [devpost.md](devpost.md#disclosures) discloses this with dates.
 - **Shots that depend on unverified behavior.** The hosted title write, the Home snapshot, and the OBS alert through the plugin have not been run in a host. Step 5 settles each.
 - **In-progress issues.** #191 to #195 may merge before the deadline. Update [devpost.md](devpost.md) only after each is verified. Until then the write-up lists them as in progress.
 - **Plugin listing.** #196 adds the icon and brand metadata. The checked-in `plugin.json` still has the display name "Stream Machine Desktop". Match the name in the form to the installed name.

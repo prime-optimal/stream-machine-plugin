@@ -102,5 +102,9 @@ run = "uv run scripts/release-plan.py prepare"
 description = "Publish the current version as a GitHub Release with its packages; pass --dry-run to only report"
 run = "bun scripts/release-publish.ts"
 
+[tasks.codex-sessions]
+description = "List this project's Codex sessions from the local Codex database in docs/submission/codex-sessions.html"
+run = "bun scripts/codex-sessions.ts"
+
 [env]
 HK_MISE = "1"

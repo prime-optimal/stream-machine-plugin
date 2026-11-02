@@ -13,7 +13,7 @@ The rules require these items. Devpost also asks for the standard project fields
 | Code repository URL | GitHub, GitLab, or Bitbucket. Must hold all source, assets, and run instructions. Private is allowed on GitHub or GitLab if shared with `testing@devpost.com`. | [Repository](#repository-and-links) |
 | Demo video | Under 3 minutes. Shows the project working on Twitch and shows how Codex built it. Public on YouTube. No third-party trademarks or copyrighted music without permission. | [Video](#repository-and-links) |
 | Project description | Explains features, functionality, and how you used Codex. | [Project story](#project-story) |
-| Codex session ID | The thread where most of the build happened. Run `/status` in Codex to read it. | [Session ID](#codex-session-id) |
+| Codex session ID | The thread where most of the build happened. | [Session ID](#codex-session-id) |
 
 | Standard Devpost field | Answer below |
 | --- | --- |
@@ -158,10 +158,16 @@ codex, openai-codex, chatgpt-plugins, model-context-protocol, mcp-apps, typescri
 
 ## Codex session ID
 
-Run `/status` in the Codex thread where most of the build happened and paste the ID here.
+The form takes one ID. Paste the principal session below. It is the thread that started the plugin with Plugin Creator and built its architecture, the largest thread in the plugin repository.
 
 ```text
-[CODEX_SESSION_ID]
+01a195dd-63f2-7ff1-a6cb-711a2d1539b6
+```
+
+The build used 204 Codex sessions: 91 top-level threads and 113 subagents, about 2.1 billion tokens between October 26 and November 2. [codex-sessions.html](codex-sessions.html) lists every session ID, grouped into the stream-makeover prototype, the plugin build, testing, and the Open Design brand work. Regenerate it with `mise run codex-sessions`. Upload `codex-sessions.png` to the gallery and add this sentence to the description:
+
+```text
+Built with 204 Codex sessions (91 threads, 113 subagents). Every session ID is listed in docs/submission/codex-sessions.html in the repository.
 ```
 
 ## Image gallery
@@ -207,6 +213,6 @@ Claims in the answers above trace to these records.
 
 Put these in the description or the repository notes so a judge does not find them first.
 
-- The repository's first commit is November 1, 2026, inside the submission window. The Twitch OAuth service in `src/auth/upstream/` is copied from the author's earlier `prime-optimal/stream-makeover` project, commit `4e2bff85`, and the OBS alert template comes from the same project ([docs/demos/twitch.md](../demos/twitch.md), [docs/demos/obs.md](../demos/obs.md), [docs/reuse-evidence.md](../reuse-evidence.md)). The Stream Deck server is the author's MIT fork of `streamdeck-mcp`, run at a pinned revision with no code copied ([docs/demos/streamdeck.md](../demos/streamdeck.md)).
+- The repository's first commit is November 1, 2026. The Twitch OAuth service in `src/auth/upstream/` is copied from the author's `prime-optimal/stream-makeover` project at commit `4e2bff85` (October 30), and the OBS alert template comes from the same project ([docs/demos/twitch.md](../demos/twitch.md), [docs/demos/obs.md](../demos/obs.md), [docs/reuse-evidence.md](../reuse-evidence.md)). stream-makeover is this project's prototype, not earlier work: its first commit is October 28, 2026, and its Codex sessions start October 26, both inside the submission window. [codex-sessions.html](codex-sessions.html) lists those sessions. The Stream Deck server is the author's MIT fork of `streamdeck-mcp`, run at a pinned revision with no code copied ([docs/demos/streamdeck.md](../demos/streamdeck.md)).
 - The hosted server runs on one test Site, `stream-machine-oauth-test`. It binds each Twitch connection to its ChatGPT caller, but only the author's KLabFM channel has been tested live. It is a prototype.
 - The hosted Site and the plugin use the Twitch app registered for the author. Judges connect their own Twitch account through the same OAuth flow.
