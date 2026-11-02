@@ -1,0 +1,169 @@
+{
+  "session": "issue88-synthetic-qa",
+  "head": "864eaf262409ce72a65882aece32037c154c7d37",
+  "results": [
+    {
+      "check": "all menu destinations; focus heading; zero navigation tool calls",
+      "result": {
+        "after": 1,
+        "before": 1,
+        "views": [
+          {
+            "focus": true,
+            "section": "assets",
+            "visible": true
+          },
+          {
+            "focus": true,
+            "section": "clips",
+            "visible": true
+          },
+          {
+            "focus": true,
+            "section": "streamdeck",
+            "visible": true
+          },
+          {
+            "focus": true,
+            "section": "connections",
+            "visible": true
+          },
+          {
+            "focus": true,
+            "section": "tools",
+            "visible": true
+          },
+          {
+            "focus": true,
+            "section": "mock",
+            "visible": true
+          },
+          {
+            "focus": true,
+            "section": "home",
+            "visible": true
+          }
+        ]
+      }
+    },
+    {
+      "check": "live drafts before mock reset",
+      "result": {
+        "assets": "stream-machine-synthetic-draft",
+        "deck": "SYNTHETIC-SERIAL",
+        "title": "Synthetic title draft"
+      }
+    },
+    {
+      "check": "same live nodes and drafts after mock reset",
+      "result": {
+        "assets": "stream-machine-synthetic-draft",
+        "deck": "SYNTHETIC-SERIAL",
+        "sameAssets": true,
+        "sameDeck": true,
+        "sameTitle": true,
+        "title": "Synthetic title draft"
+      }
+    },
+    {
+      "check": "mock collapse survives reset rerender",
+      "result": false
+    },
+    {
+      "check": "keyboard check focuses status while pending, restores initiating button on completion",
+      "result": true
+    },
+    {
+      "check": "explicit status and missing grants",
+      "result": "Account verified by explicit check.Synthetic owner (@synthetic_owner)Last successful check: 2026-11-01T23:55:53.689Z11 required permissions missing. Reconnect to request them, or expand permission details."
+    },
+    {
+      "check": "completion after leaving Connections does not steal heading focus",
+      "result": true
+    },
+    {
+      "check": "failed refresh retains stale account",
+      "result": "Access not verified. Twitch may be unavailable or setup may be needed. Recheck or reconnect.Synthetic owner (@synthetic_owner)Last successful check: 2026-11-01T23:55:55.607ZStale. Previous check does not establish current access.11 required permissions missing. Reconnect to request them, or expand permission details."
+    },
+    {
+      "check": "reconnect suppresses older delayed status; URL is not verification",
+      "result": "Not checked"
+    },
+    {
+      "check": "375x812 no horizontal overflow; all menu labels visible",
+      "result": {
+        "menu": [
+          "Home",
+          "Assets",
+          "Clips",
+          "Stream Deck",
+          "Connections",
+          "Tools",
+          "Mock demo"
+        ],
+        "scroll": 375,
+        "width": 375
+      }
+    },
+    {
+      "check": "375x812 all destinations fit viewport",
+      "result": [
+        {
+          "scroll": 375,
+          "section": "home",
+          "width": 375
+        },
+        {
+          "scroll": 375,
+          "section": "assets",
+          "width": 375
+        },
+        {
+          "scroll": 375,
+          "section": "clips",
+          "width": 375
+        },
+        {
+          "scroll": 375,
+          "section": "streamdeck",
+          "width": 375
+        },
+        {
+          "scroll": 375,
+          "section": "connections",
+          "width": 375
+        },
+        {
+          "scroll": 375,
+          "section": "tools",
+          "width": 375
+        },
+        {
+          "scroll": 375,
+          "section": "mock",
+          "width": 375
+        }
+      ]
+    },
+    {
+      "check": "injected SDK denial leaves page and provides safe copy fallback",
+      "result": "Synthetic host-link fallbackNo host connection or real authorization runs.TwitchConnect your Twitch account, approve the requested permissions in your browser, then check the connection.Not checkedRecheck Twitch accessConnect or reconnect Twitch · 12 permissionsConsent and exact required permissionsCurrent features use title updates and own-channel clip downloads, with broader broadcast and clip management access. Future permissions, not active features: read/send chat; read followers, subscriptions, and cheers; read/manage rewards; create clips; bot use. Requesting unused permissions conflicts with Twitch policy and risks API access suspension. Consent does not authorize a separate bot account.Existing grants are retained. Consent makes no channel change.bits:read\nchannel:bot\nchannel:manage:broadcast\nchannel:manage:clips\nchannel:manage:redemptions\nchannel:read:redemptions\nchannel:read:subscriptions\nclips:edit\nmoderator:read:followers\nuser:bot\nuser:read:chat\nuser:write:chatCurrent features use title updates and own-channel clip downloads, with broader broadcast and clip management access. Future permissions, not active features: read/send chat; read followers, subscriptions, and cheers; read/manage rewards; create clips; bot use. Requesting unused permissions conflicts with Twitch policy and risks API access suspension. Consent does not authorize a separate bot account. Exact requested scopes: bits:read, channel:bot, channel:manage:broadcast, channel:manage:clips, channel:manage:redemptions, channel:read:redemptions, channel:read:subscriptions, clips:edit, moderator:read:followers, user:bot, user:read:chat, user:write:chat.Requested: bits:read, channel:bot, channel:manage:broadcast, channel:manage:clips, channel:manage:redemptions, channel:read:redemptions, channel:read:subscriptions, clips:edit, moderator:read:followers, user:bot, user:read:chat, user:write:chatRetained extra grants: NoneConnection link ready. Approve permissions in your browser, then return and check the connection.Open Twitch authorizationHost could not open authorization. Copy the address into your normal browser. No automatic retry.Other connections are not available here yet."
+    },
+    {
+      "check": "browser errors",
+      "result": ""
+    },
+    {
+      "check": "synthetic tool request log",
+      "result": [
+        "stream_machine_open",
+        "stream_machine_reset",
+        "stream_machine_twitch_status",
+        "stream_machine_twitch_status",
+        "stream_machine_twitch_status",
+        "stream_machine_twitch_status",
+        "stream_machine_twitch_connect"
+      ]
+    }
+  ]
+}

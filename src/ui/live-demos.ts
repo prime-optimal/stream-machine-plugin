@@ -33,18 +33,15 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, content = ""): H
   const node = document.createElement(tag); node.textContent = content; return node;
 }
 
-export function createLiveDemos(request: ToolRequest): HTMLElement {
-  const section = element("section"); section.className = "live-demos";
-  const eyebrow = element("p", "CONNECTED TO YOUR TOOLS"); eyebrow.className = "eyebrow";
-  section.append(eyebrow, element("h1", "Live demos"), element("p", "Real services. Each action runs only when clicked. Start with a read check."));
-  const grid = element("div"); grid.className = "live-grid"; section.append(grid);
+export function createLiveDemos(request: ToolRequest) {
+
   let mutating = false;
   function card(title: string, note: string) {
     const node = element("article"); node.className = "live-card";
     const controls = element("div"); controls.className = "live-controls";
     const output = element("div", "Not checked"); output.className = "live-result"; output.setAttribute("role", "status"); output.setAttribute("aria-live", "polite");
     const links = element("div"); links.className = "live-links";
-    node.append(element("h2", title), element("p", note), controls, output, links); grid.append(node);
+    node.append(element("h2", title), element("p", note), controls, output, links);
     let pending = false;
     function field(label: string, value = "", type = "text", max = 140) {
       const wrap = element("label", label); const input = element("input"); input.type = type; input.value = value; input.maxLength = max; wrap.append(input); controls.append(wrap); return input;
@@ -85,7 +82,7 @@ export function createLiveDemos(request: ToolRequest): HTMLElement {
         output.classList.add("live-failure"); return undefined;
       } finally { pending = false; if (write) mutating = false; refresh(); }
     }
-    return { field, action, refresh, invoke, link, controls, output };
+    return { node, field, action, refresh, invoke, link, controls, output, clearLinks: () => links.replaceChildren() };
   }
   const obs = card("01 / OBS alert", "Show alert switches program to Stream Machine Demo. Broadcast and recording stay unchanged. Visibility requires checking OBS.");
   obs.action("Check OBS", () => void obs.invoke("obs_preflight"));
@@ -119,12 +116,14 @@ export function createLiveDemos(request: ToolRequest): HTMLElement {
   permissions.append(element("summary", "Exact requested permissions"), element("pre", requiredTwitchScopes.join("\n")));
   twitch.controls.before(permissions);
   let titlePreview = "";
-  twitch.action("Check connection", () => void twitch.invoke("twitch_status"));
-  twitch.action("Connect or reconnect Twitch · 12 permissions", () => void (async () => { const data = await twitch.invoke("twitch_connect"); twitch.link("Open Twitch connection", data?.connectUrl ?? data?.url); })());
+  let titleRevision = 0;
+  function invalidateTitle() { titleRevision++; titlePreview = ""; twitch.clearLinks(); twitch.output.textContent = "Recheck account and preview the title again after reconnect."; twitch.refresh(); }
   twitch.action("Read current channel", () => void twitch.invoke("twitch_channel"));
   const title = twitch.field("Proposed stream title", "", "text", 140);
   twitch.action("Preview title · no write", () => void (async () => {
-    titlePreview = ""; const data = await twitch.invoke("twitch_preview_title", { title: title.value.trim() });
+    titlePreview = ""; const revision = ++titleRevision;
+    const data = await twitch.invoke("twitch_preview_title", { title: title.value.trim() });
+    if (revision !== titleRevision) return;
     titlePreview = text(data?.previewId); twitch.link("Open exact-title approval", data?.approvalUrl); twitch.refresh();
   })(), () => !!title.value.trim());
   twitch.action("Apply browser-approved title", () => void (async () => { const id = titlePreview; titlePreview = ""; await twitch.invoke("twitch_apply_title", { previewId: id }, true); twitch.refresh(); })(), () => !!titlePreview);
@@ -161,5 +160,6 @@ export function createLiveDemos(request: ToolRequest): HTMLElement {
   worker.action("Arm configured event → OBS action", () => void worker.invoke("worker_arm", {}, true));
   worker.action("Pause new actions", () => void worker.invoke("worker_pause", {}, true));
   worker.action("Stop worker", () => void worker.invoke("worker_stop", {}, true));
-  return section;
+  const tools = element("div"); tools.className = "live-grid"; tools.append(obs.node, twitch.node, worker.node);
+  return { assets: creative.node, streamdeck: deck.node, tools, invalidateTitle };
 }
