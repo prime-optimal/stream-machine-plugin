@@ -11,6 +11,8 @@ type = "plain"
 type = "age"
 recipients = ["age1t0czu858kfs3wvwjv3qw200cnc7vuuk6w20z633097dhd8yyjezsffjnru"]
 [secrets]
+TRIAGEBOT_OPEN_AI_KEY = { provider = "onepass", value = "op://Developer/3y63o5ld73fu7apmv5yl25lale/credential" }
+BOT_GITHUB_TOKEN = { provider = "onepass", value = "op://Developer/xmlcx4nlsv2ll5hzvwsfpwrqsi/credential" }
 TWITCH_CLIENT_ID = { provider = "onepass", value = "op://Developer/fcoscbzu6xbz5vf5sducj2u73e/credential" }
 TWITCH_CLIENT_SECRET = { provider = "onepass", value = "op://Developer/zbv55k6yhs7cnwil6amzcox6za/credential" }
 TWITCH_TOKEN_ENCRYPTION_KEY = { provider = "onepass", value = "op://Developer/2pouahi5cewdu4mprn4pvya5na/credential" }
