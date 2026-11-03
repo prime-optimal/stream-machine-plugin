@@ -26,7 +26,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195 # v5.2.5
-      - uses: withastro/triagebot-action@v1
+      - uses: withastro/triagebot-action@51d30da13c0bd571a3822fc56882de40fead0086 # main, 2026-08-28; v0.4.0 lacks openai-api-key
         with:
           read-token: ${{ secrets.GITHUB_TOKEN }}
           write-token: ${{ secrets.BOT_GITHUB_TOKEN }}
