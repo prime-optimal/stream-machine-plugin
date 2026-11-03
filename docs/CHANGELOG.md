@@ -1,3 +1,10 @@
+## 0.12.1 (2026-11-02)
+
+### Fix
+
+- use triagebot-registered OpenAI models (#236) (#241)
+- pin triagebot-action to a commit with OpenAI support (#236) (#239)
+
 ## 0.12.0 (2026-11-02)
 
 ### Feat
