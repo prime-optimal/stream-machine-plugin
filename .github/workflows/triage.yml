@@ -26,12 +26,21 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195 # v5.2.5
+      - id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ secrets.TRIAGEBOT_APP_ID }}
+          private-key: ${{ secrets.TRIAGEBOT_APP_PRIVATE_KEY }}
+          permission-issues: write
+          permission-contents: write
+          permission-pull-requests: write
       - uses: withastro/triagebot-action@51d30da13c0bd571a3822fc56882de40fead0086 # main, 2026-08-28; v0.4.0 lacks openai-api-key
         with:
           read-token: ${{ secrets.GITHUB_TOKEN }}
-          write-token: ${{ secrets.BOT_GITHUB_TOKEN }}
+          write-token: ${{ steps.app-token.outputs.token }}
           openai-api-key: ${{ secrets.TRIAGEBOT_OPEN_AI_KEY }}
           triage-skill: .agents/skills/triage
           build-command: mise run install && mise run build
           triage-model: openai/gpt-5.5
           verification-model: openai/gpt-5.4-mini
+          bot-logins: astro-triagebot[bot]
