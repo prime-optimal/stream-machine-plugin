@@ -90,7 +90,7 @@ describe("hosted Home state", () => {
   });
   test("unavailable sections become quiet notes and clips show a plus when more exist", () => {
     expect(snapshotNotes(snapshot("a", { followers: null, unavailable: ["followers", "lastStream"] }))).toEqual([
-      "Follower total is not available right now.", "Last stream is not available right now.",
+      "Couldn't load follower count.", "Couldn't load last stream.",
     ]);
     expect(snapshotNotes(snapshot())).toEqual([]);
     expect(clipCountLabel({ count: 20, more: true, recent: [] })).toBe("20+ clips");

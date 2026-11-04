@@ -63,9 +63,9 @@ function faultCode(result: ToolResult): string | null {
 }
 
 export function parseSnapshot(result: ToolResult): ChannelSnapshot {
-  if (result.isError || faultCode(result)) throw new Error("The channel snapshot could not be loaded.");
+  if (result.isError || faultCode(result)) throw new Error("Couldn't load your channel.");
   const parsed = snapshotSchema.safeParse(result.structuredContent);
-  if (!parsed.success) throw new Error("The channel snapshot returned an unexpected response.");
+  if (!parsed.success) throw new Error("Couldn't load your channel.");
   return parsed.data;
 }
 
@@ -83,12 +83,12 @@ export function createHomeState(request: ToolRequest, changed: () => void, stora
     try {
       const fresh = parseSnapshot(await request("stream_machine_twitch_snapshot"));
       if (disposed || revision !== attempt) return;
-      if (fresh.account.id !== account.id) throw new Error("The channel snapshot belongs to a different account.");
+      if (fresh.account.id !== account.id) throw new Error("Couldn't load your channel.");
       writeCache(storage, fresh);
       set({ status: state.status, snapshot: { kind: "ready", data: fresh, cached: false } });
-    } catch (cause) {
+    } catch {
       if (disposed || revision !== attempt) return;
-      const message = cause instanceof Error && cause.message ? cause.message : "The channel snapshot could not be loaded.";
+      const message = "Couldn't load your channel.";
       set({ status: state.status, snapshot: { kind: "failed", data, cached: data !== null, message } });
     }
   }
@@ -134,9 +134,9 @@ export function createHomeState(request: ToolRequest, changed: () => void, stora
 
 export function snapshotNotes(data: ChannelSnapshot): string[] {
   const labels: Record<SnapshotSection, string> = {
-    channel: "Current title and category", followers: "Follower total", lastStream: "Last stream", clips: "Clips",
+    channel: "title and category", followers: "follower count", lastStream: "last stream", clips: "clips",
   };
-  return data.unavailable.map(section => `${labels[section]} is not available right now.`);
+  return data.unavailable.map(section => `Couldn't load ${labels[section]}.`);
 }
 
 export function clipCountLabel(clips: NonNullable<ChannelSnapshot["clips"]>): string {

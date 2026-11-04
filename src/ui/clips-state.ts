@@ -88,8 +88,8 @@ export function playableStored(stored: StoredClip, siteOrigin: string): boolean 
 }
 
 export function resolveArchive(result: ToolResult, clipId: string, siteOrigin: string): PreparationResult {
-  const unconfirmed: PreparationResult = { kind: "unconfirmed", message: "The save is not confirmed. Reload the library to check this clip before another save." };
-  if (result.isError) return { kind: "unknown", message: "The save outcome is unknown. Reload the library to check before another save." };
+  const unconfirmed: PreparationResult = { kind: "unconfirmed", message: "Couldn't confirm the save. Reload your clips to check." };
+  if (result.isError) return { kind: "unknown", message: "Couldn't confirm the save. Reload your clips to check." };
   try {
     const archive = parseArchive(result.structuredContent);
     const successes = [...archive.saved, ...archive.skipped].filter(item => item.clipId === clipId);
@@ -97,8 +97,8 @@ export function resolveArchive(result: ToolResult, clipId: string, siteOrigin: s
     if (successes.length + failures.length !== 1) return unconfirmed;
     const failure = failures[0];
     if (failure) return failure.outcome === "failed"
-      ? { kind: "failed", message: `The clip could not be saved (${failure.code}).` }
-      : { kind: "unknown", message: "The save outcome is unknown. Reload the library to check before another save." };
+      ? { kind: "failed", message: "Couldn't save this clip." }
+      : { kind: "unknown", message: "Couldn't confirm the save. Reload your clips to check." };
     const stored = successes[0]?.stored;
     if (!stored || !playableStored(stored, siteOrigin)) return unconfirmed;
     return { kind: "ready", stored, alreadyStored: archive.skipped.some(item => item.clipId === clipId) };
@@ -106,9 +106,9 @@ export function resolveArchive(result: ToolResult, clipId: string, siteOrigin: s
 }
 
 export function faultMessage(code: string): string {
-  if (/NOT_CONNECTED|NOT_CONFIGURED|UNAUTHORI[SZ]ED|NO_TOKEN|RECONNECT|ACCOUNT/.test(code)) return `Twitch is not connected (${code}). Select Connect with Twitch in Connections, then reload.`;
-  if (/SCOPE|PERMISSION/.test(code)) return `Twitch permissions are missing (${code}). Review permissions in Connections.`;
-  return `Clips could not be loaded (${code}).`;
+  if (/NOT_CONNECTED|NOT_CONFIGURED|UNAUTHORI[SZ]ED|NO_TOKEN|RECONNECT|ACCOUNT/.test(code)) return "Twitch isn't connected. Connect it in Connections, then reload.";
+  if (/SCOPE|PERMISSION/.test(code)) return "Some permissions are missing. Reconnect Twitch in Connections to grant them.";
+  return "Couldn't load your clips. Try again.";
 }
 
 export function safeHttpsUrl(value: unknown, hosts?: readonly string[]): string {

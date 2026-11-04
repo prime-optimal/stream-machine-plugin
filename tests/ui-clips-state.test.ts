@@ -59,7 +59,7 @@ describe("clip tool results", () => {
     const page = { clips: { account: { id: "1", login: "l", displayName: "L" }, items: [clip("a")], cursor: "next", storage: "site" } };
     expect(parseLibrary(page).cursor).toBe("next");
     expect(() => parseLibrary({ clips: {} })).toThrow(ClipLibraryError);
-    expect(() => parseLibrary({ error: { code: "TWITCH_RECONNECT_REQUIRED" } })).toThrow("Twitch is not connected");
+    expect(() => parseLibrary({ error: { code: "TWITCH_RECONNECT_REQUIRED" } })).toThrow("Twitch isn't connected");
   });
 
   test("keeps only HTTPS ZIP batch links", () => {

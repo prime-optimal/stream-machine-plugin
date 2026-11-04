@@ -13,7 +13,7 @@ export function createDetail(options: { openLink: OpenLink; zip: HTMLElement; ba
   const body = el("div");
   const heading = el("h2", "", "clip-detail-title");
   heading.tabIndex = -1;
-  const back = button("← Back to clips", options.back, "live-button");
+  const back = button("← Back", options.back, "live-button");
   const rows = el("dl", "", "clip-facts");
   const storage = el("div", "", "clip-storage");
   const zipSlot = el("div");
@@ -32,14 +32,13 @@ export function createDetail(options: { openLink: OpenLink; zip: HTMLElement; ba
     const poster = safeHttpsUrl(clip.thumbnailUrl, thumbnailHosts) || null;
     rows.replaceChildren();
     fact("Clipper", clip.creator.name ?? "Unknown");
-    fact("Category", clip.game.name ?? "Unknown category");
+    fact("Category", clip.game.name ?? "Unknown");
     fact("Duration", formatDuration(clip.durationSeconds));
     fact("Views", formatViews(clip.viewCount));
-    fact("Created on Twitch", formatDate(clip.createdAt));
-    fact("Saved to Site", clip.stored ? formatDate(clip.stored.storedAt) : "Not saved");
+    fact("Created", formatDate(clip.createdAt));
+    fact("Saved", clip.stored ? formatDate(clip.stored.storedAt) : "Not saved");
     if (clip.stored) fact("File size", formatBytes(clip.stored.bytes));
-    if (clip.videoId) fact("Source VOD", clip.vodOffsetSeconds === null ? clip.videoId : `${clip.videoId} at ${formatOffset(clip.vodOffsetSeconds)}`);
-    fact("Clip ID", clip.id);
+    if (clip.videoId) fact("VOD", clip.vodOffsetSeconds === null ? clip.videoId : `${clip.videoId} at ${formatOffset(clip.vodOffsetSeconds)}`);
     const twitchUrl = safeHttpsUrl(clip.url, twitchHosts);
     if (twitchUrl) fact("Twitch", externalLink("Open on Twitch", twitchUrl, options.openLink, "clip-link"));
 
@@ -47,7 +46,7 @@ export function createDetail(options: { openLink: OpenLink; zip: HTMLElement; ba
     let saveAction: HTMLElement | undefined;
     if (clip.stored) {
       const file = siteMediaUrl(clip.stored.downloadUrl, options.siteOrigin());
-      storage.append(el("p", "Saved on the Site.", "clips-note"));
+      storage.append(el("p", "Saved.", "clips-note"));
       if (file) storage.append(externalLink("Download MP4", file, options.openLink, "clip-link"));
     } else if (library === "site") {
       const message = el("p", "", "clips-error");
@@ -64,13 +63,13 @@ export function createDetail(options: { openLink: OpenLink; zip: HTMLElement; ba
         }
         if (result.kind === "cancelled") return;
         retry = result.kind === "failed";
-        save.disabled = !retry; save.textContent = retry ? "Retry save and play" : "Save unconfirmed";
+        save.disabled = !retry; save.textContent = retry ? "Try again" : "Not confirmed";
         message.textContent = result.message; message.hidden = false;
       })(), "primary play-button");
       saveAction = save;
-      storage.append(el("p", "Play saves one copy to the Site, then plays it here. The saved copy is also available for ZIP downloads."), message);
+      storage.append(message);
     } else {
-      storage.append(el("p", "Not on Site", "clips-note"), el("p", "This is the local server. It cannot read or write Site storage, so saving and ZIP downloads are unavailable here."));
+      storage.append(el("p", "Saving isn't available here.", "clips-note"));
     }
     player.idle(poster, clip.stored?.playbackUrl ?? null, saveAction);
     if (library === "site") storage.append(zipSlot);

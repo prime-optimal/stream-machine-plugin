@@ -17,30 +17,26 @@ export function createBulkPreparation(options: {
     const progress = options.controller().progress();
     const running = progress.kind === "working" || progress.kind === "stopping";
     element.replaceChildren();
-    const note = el("p", "Connected channel; ignores gallery filters. Each batch finds up to 100 unsaved clips across at most 1,000 clips.", "clips-note");
+    const note = el("p", "Saves up to 100 unsaved clips at a time.", "clips-note");
     element.append(note);
     if (discovering) element.append(el("p", "Finding unsaved clips…", "clips-note"), button("Cancel", cancel));
     else if (running) {
-      element.append(el("p", progress.kind === "stopping" ? "Stopping after the current clip. Its save may still complete." : "Preparing clips for playback…", "clips-note"));
-      const stop = button("Cancel remaining", cancel); stop.disabled = progress.kind === "stopping"; element.append(stop);
+      element.append(el("p", progress.kind === "stopping" ? "Stopping after the current clip…" : "Saving clips…", "clips-note"));
+      const stop = button("Cancel", cancel); stop.disabled = progress.kind === "stopping"; element.append(stop);
     } else if (snapshot) {
-      element.append(el("p", `${snapshot.items.length} unsaved clips found.${snapshot.truncated ? " More clips may remain outside this batch." : ""}`, "clips-note"));
-      if (snapshot.items.length) element.append(button(`Prepare ${snapshot.items.length} clips`, () => {
+      element.append(el("p", snapshot.items.length ? `${snapshot.items.length} unsaved ${snapshot.items.length === 1 ? "clip" : "clips"} found.${snapshot.truncated ? " There may be more." : ""}` : "All clips are saved.", "clips-note"));
+      if (snapshot.items.length) element.append(button(`Save ${snapshot.items.length} ${snapshot.items.length === 1 ? "clip" : "clips"}`, () => {
         const items = snapshot?.items ?? []; snapshot = null; message = "";
         void options.controller().startAll(items);
       }, "primary"));
       element.append(button("Cancel", () => { snapshot = null; refresh(); }));
-    } else element.append(button("Prepare all", () => void discover()));
+    } else element.append(button("Save all clips", () => void discover()));
     if (progress.kind !== "idle") {
-      const status = el("p", `${progress.completed}/${progress.total} checked · ${progress.saved} saved · ${progress.skipped} already saved · ${progress.failed} failed · ${progress.unknown} unknown${progress.kind === "cancelled" ? " · cancelled" : ""}`, "clips-note");
+      const failed = progress.failed + progress.unknown;
+      const summary = progress.kind === "cancelled" ? `Cancelled. ${progress.saved} saved.` : `${progress.completed} of ${progress.total} done. ${progress.saved} saved.`;
+      const status = el("p", summary, "clips-note");
       status.setAttribute("role", "status"); element.append(status);
-      if (progress.unknown) element.append(el("p", "Some saves may have completed. Reload the library to check; uncertain saves will not be retried in this session.", "clips-error"));
-      if (progress.failed) element.append(el("p", "Open an affected clip to review its failure and retry explicitly.", "clips-note"));
-      const failures = el("ul", "", "clips-prepare-failures");
-      for (const { clipId, result } of options.controller().outcomes()) {
-        if (result.kind === "failed" || result.kind === "unknown" || result.kind === "unconfirmed") failures.append(el("li", `${clipId}: ${result.message}`));
-      }
-      if (failures.childElementCount) element.append(failures);
+      if (failed) element.append(el("p", `${failed} ${failed === 1 ? "clip" : "clips"} couldn't be saved.`, "clips-error"));
     }
     if (message) { const error = el("p", message, "clips-error"); error.setAttribute("role", "alert"); element.append(error); }
   }
@@ -57,7 +53,7 @@ export function createBulkPreparation(options: {
       snapshot = found.cancelled ? null : found;
     } catch (cause) {
       if (disposed || mine !== revision) return;
-      message = cause instanceof Error ? cause.message : "Could not read the channel. No clips were prepared.";
+      message = cause instanceof Error ? cause.message : "Couldn't read your clips. Nothing was saved.";
     }
     discovering = false; refresh();
   }

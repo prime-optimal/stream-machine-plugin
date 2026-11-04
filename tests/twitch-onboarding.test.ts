@@ -91,7 +91,7 @@ test("a successful old server response cannot claim an unrequested browser launc
   }, () => {}, () => {});
   await model.startConnect(true);
   const state = model.state();
-  expect(state.connect.kind === "failed" && state.connect.message).toContain("browser could not be opened");
+  expect(state.connect.kind === "failed" && state.connect.message).toContain("Couldn't open your browser");
   expect(state.check.kind).toBe("not_checked");
   expect(calls).toEqual(["stream_machine_twitch_preflight", "stream_machine_twitch_connect"]);
 });

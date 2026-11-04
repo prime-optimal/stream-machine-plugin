@@ -39,7 +39,7 @@ export function createHome(options: HomeOptions) {
   const confirmation = node("p", "", "home-confirmation");
   confirmation.setAttribute("role", "status");
   const snapshotArea = node("section", "", "home-snapshot");
-  snapshotArea.setAttribute("aria-label", "Twitch channel snapshot");
+  snapshotArea.setAttribute("aria-label", "Channel");
   const suggestionArea = node("section", "", "home-suggestions");
   suggestionArea.setAttribute("aria-labelledby", "home-suggestions-title");
   const model = createHomeState(options.request, render, options.storage);
@@ -160,8 +160,8 @@ export function createHome(options: HomeOptions) {
     sending = true; feedback.textContent = ""; updateTry();
     try {
       const result = await options.sendMessage(messageParams(card.prompt));
-      sendStatus = result.isError ? "Could not send that to the chat. Try again." : "";
-    } catch { sendStatus = "Could not send that to the chat. Try again."; }
+      sendStatus = result.isError ? "Couldn't send that. Try again." : "";
+    } catch { sendStatus = "Couldn't send that. Try again."; }
     sending = false; feedback.textContent = sendStatus; updateTry();
   }
   function updateTry() {
@@ -193,7 +193,7 @@ export function createHome(options: HomeOptions) {
     const { status } = model.state();
     const connected = status.kind === "connected";
     confirmation.hidden = !connected;
-    confirmation.textContent = connected ? `Connected to Twitch as ${status.account.displayName}` : "";
+    confirmation.textContent = connected ? `Connected as ${status.account.displayName}` : "";
     renderSnapshot();
     updateTry();
     requestAnimationFrame(updateArrows);

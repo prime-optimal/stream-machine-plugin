@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { requiredTwitchScopes, twitchConsentSummary, twitchPermissions } from "../auth/permissions";
+import { requiredTwitchScopes, twitchPermissions } from "../auth/permissions";
 import { siteOrigin as defaultSiteOrigin } from "../site";
 import type { Runtime } from "./navigation";
 import type { ToolRequest, ToolResult } from "./tool-transport";
@@ -29,7 +29,7 @@ export type CheckState =
   | { kind: "verified"; value: Verified } | { kind: "failed"; message: string; previous: Verified | null };
 export type ConnectState =
   | { kind: "idle" } | { kind: "creating" }
-  | { kind: "link"; url: string; requested: string[]; retained: string[]; disclosure: string; browserRequested: boolean }
+  | { kind: "link"; url: string; browserRequested: boolean }
   | { kind: "failed"; message: string; replaceable: boolean };
 export const localConnectUrl = "http://localhost:4017/connect";
 export function hostedConnectUrl(siteOrigin: string): string {
@@ -73,7 +73,7 @@ export function createConnectionState(request: ToolRequest, changed: () => void,
         check = { kind: "verified", value: previous };
       } catch {
         if (disposed || revision !== attempt) return;
-        check = { kind: "failed", message: "Access not verified. Twitch may be unavailable or setup may be needed. Recheck or reconnect.", previous };
+        check = { kind: "failed", message: "Couldn't check your Twitch connection. Try again, or reconnect.", previous };
       }
       notify();
     },
@@ -92,10 +92,7 @@ export function createConnectionState(request: ToolRequest, changed: () => void,
           if (!requiredTwitchScopes.every(scope => twitch.requiredScopes.includes(scope))) throw new Error("Incomplete consent response.");
           const allowed = hostedConnectUrl(where.siteOrigin);
           connectionUrl(twitch.authorizationUrl, allowed, true);
-          connect = {
-            kind: "link", browserRequested: false, url: connectionUrl(twitch.connectionUrl, allowed, true), requested: twitch.requiredScopes,
-            retained: twitch.grantedScopes.filter(scope => !requiredTwitchScopes.includes(scope)), disclosure: twitch.disclosure
-          };
+          connect = { kind: "link", browserRequested: false, url: connectionUrl(twitch.connectionUrl, allowed, true) };
           notify();
           return;
         }
@@ -110,18 +107,15 @@ export function createConnectionState(request: ToolRequest, changed: () => void,
         const { twitch } = connectSchema.parse(result.structuredContent);
         if (!requiredTwitchScopes.every(scope => twitch.requestedScopes.includes(scope))) throw new Error("Incomplete consent response.");
         if (openBrowser && !twitch.browserRequested) throw new Error("TWITCH_BROWSER_OPEN_FAILED");
-        connect = {
-          kind: "link", browserRequested: twitch.browserRequested, url: connectionUrl(twitch.connectUrl, localConnectUrl), requested: twitch.requestedScopes,
-          retained: twitch.retainedScopes, disclosure: twitch.disclosure
-        };
+        connect = { kind: "link", browserRequested: twitch.browserRequested, url: connectionUrl(twitch.connectUrl, localConnectUrl) };
       } catch (error) {
         if (disposed || revision !== attempt) return;
         const code = error instanceof Error ? error.message : "";
-        const message = code === "TWITCH_LOCAL_PORT_PLUGIN" ? "Another Stream Machine chat is holding Twitch authorization port 4017. Close that chat, or stop it and connect here. Stopping it ends that chat's Stream Machine tools until its host restarts them." :
-          code === "TWITCH_LOCAL_PORT_BUSY" ? "Twitch authorization port 4017 is in use by another app. Close that app, then try again." :
-            code === "TWITCH_BROWSER_OPEN_FAILED" ? "The authorization browser could not be opened. Check your default browser, then try again. No automatic retry." :
-              context().runtime === "hosted" ? "The Site connection is unavailable. Try again, or reopen Stream Machine." :
-                "Connection URL unavailable. Check local Twitch setup before trying again.";
+        const message = code === "TWITCH_LOCAL_PORT_PLUGIN" ? "Another Stream Machine chat is using port 4017. Close that chat, or stop it and connect here. Stopping it turns off Stream Machine in that chat." :
+          code === "TWITCH_LOCAL_PORT_BUSY" ? "Another app is using port 4017. Close it, then try again." :
+            code === "TWITCH_BROWSER_OPEN_FAILED" ? "Couldn't open your browser. Check your default browser, then try again." :
+              context().runtime === "hosted" ? "Couldn't reach the Stream Machine Site. Try again, or reopen Stream Machine." :
+                "Couldn't start the Twitch connection. Check your local Twitch setup, then try again.";
         connect = { kind: "failed", message, replaceable: code === "TWITCH_LOCAL_PORT_PLUGIN" };
       }
       notify();
@@ -177,55 +171,33 @@ export function createConnections(options: {
     element.replaceChildren();
     element.append(node("h2", "Twitch"));
     const body = hosted ? element : node("div", "");
-    if (hosted) body.append(node("p", "Twitch runs on the hosted Stream Machine connection. Connect opens the Stream Machine Site, which sends you to Twitch only when permission is needed. Then return here and check access."));
-    else {
-      element.append(node("p", "Connect Twitch from the hosted Stream Machine menu in ChatGPT. Its status appears there, not in this desktop workspace."));
+    if (!hosted) {
+      element.append(node("p", "Connect Twitch from the Stream Machine menu in ChatGPT."));
       const fallback = node("details", ""); fallback.className = "fallback"; fallback.open = fallbackOpen;
       fallback.addEventListener("toggle", () => { fallbackOpen = fallback.open; });
-      fallback.append(node("summary", "Use desktop fallback"),
-        node("p", "Use this only if the hosted Site is unavailable. It runs Twitch authorization on this computer through port 4017 and stores the connection locally."), body);
+      fallback.append(node("summary", "Connect on this computer instead"),
+        node("p", "Use this only if the Stream Machine Site is down. The connection is stored on this computer."), body);
       element.append(fallback);
     }
     const status = node("div", ""); status.tabIndex = -1;
     status.className = "live-result"; status.setAttribute("role", "status"); status.setAttribute("aria-live", "polite");
-    const value = check.kind === "verified" ? check.value : check.kind === "failed" || check.kind === "checking" ? check.previous : null;
-    status.textContent = check.kind === "not_checked" ? "Not checked" : check.kind === "checking" ? "Checking access…" :
-      check.kind === "failed" ? check.message : "Account verified by explicit check.";
-    if (value) {
-      const permissions = twitchPermissions(value.account.scopes);
-      status.append(node("p", `${value.account.displayName} (@${value.account.login})`),
-        node("p", `Last successful check: ${value.checkedAt}`));
-      if (check.kind !== "verified") status.append(node("p", "Stale. Previous check does not establish current access."));
-      status.append(node("p", permissions.missingScopes.length ?
-        `${permissions.missingScopes.length} required permissions missing. Reconnect to request them, or expand permission details.` :
-        "All 12 required permissions present. Each live action still requires its own checks and approval."));
+    status.textContent = check.kind === "not_checked" ? "Not checked" : check.kind === "checking" ? "Checking…" :
+      check.kind === "failed" ? check.message : `Connected as ${check.value.account.displayName} (@${check.value.account.login})`;
+    if (check.kind === "verified" && twitchPermissions(check.value.account.scopes).missingScopes.length) {
+      status.append(node("p", "Some permissions are missing. Reconnect to grant them."));
     }
     body.append(status,
-      action("Recheck Twitch access", () => void model.recheck(), check.kind === "checking" || connect.kind === "creating"),
+      action("Check connection", () => void model.recheck(), check.kind === "checking" || connect.kind === "creating"),
       twitchConnect(() => void (hosted ? connectHosted() : model.startConnect(true)), connect.kind === "creating"));
-    const disclosure = node("details", "");
-    disclosure.append(node("summary", "Consent and exact required permissions"), node("p", twitchConsentSummary),
-      node("p", "Existing grants are retained. Consent makes no channel change."), node("pre", requiredTwitchScopes.join("\n")));
-    if (value) {
-      const permissions = twitchPermissions(value.account.scopes);
-      disclosure.append(node("p", `Granted: ${permissions.grantedScopes.join(", ") || "None"}`),
-        node("p", `Missing: ${permissions.missingScopes.join(", ") || "None"}`));
-    }
-    body.append(disclosure);
-    if (connect.kind === "creating") body.append(node("p", "Creating connection URL…"));
+    if (connect.kind === "creating") body.append(node("p", "Connecting…"));
     if (connect.kind === "failed") {
       body.append(node("p", connect.message));
       if (connect.replaceable) body.append(action("Stop the other chat and connect", () => void model.startConnect(true, true)));
     }
     if (connect.kind === "link") {
-      body.append(node("p", hosted ? "Opened the Stream Machine Site. Approve permissions there, then return and recheck Twitch access." :
-        connect.browserRequested ? "Browser requested. Approve permissions in your browser, then return and recheck Twitch access." :
-          "Connection ready. Select Connect with Twitch to open authorization, then return and recheck Twitch access."));
-      if (hosted) body.append(siteLink("Open the Stream Machine Site again", connect.url));
-      disclosure.append(node("p", connect.disclosure), node("p", `Requested: ${connect.requested.join(", ")}`),
-        node("p", `Retained extra grants: ${connect.retained.join(", ") || "None"}`));
+      body.append(node("p", "Finish connecting in your browser, then come back and check the connection."));
+      if (hosted) body.append(siteLink("Reopen the connection page", connect.url));
     }
-    element.append(node("p", "Other connections are not available here yet."));
     if (ownedFocus) {
       const target = Array.from(element.querySelectorAll("button")).find(button => button.dataset.action === returnFocus);
       if (target && !target.disabled) target.focus();

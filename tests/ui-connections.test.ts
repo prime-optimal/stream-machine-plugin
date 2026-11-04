@@ -129,7 +129,7 @@ describe("Twitch Connections", () => {
     expect(hostile.state().connect.kind).toBe("failed");
   });
   test("busy port and browser failures stay actionable without automatic retries", async () => {
-    for (const [code, message] of [["TWITCH_LOCAL_PORT_BUSY", "port 4017 is in use"], ["TWITCH_LOCAL_PORT_PLUGIN", "Another Stream Machine chat"], ["TWITCH_BROWSER_OPEN_FAILED", "browser could not be opened"]]) {
+    for (const [code, message] of [["TWITCH_LOCAL_PORT_BUSY", "Another app is using port 4017"], ["TWITCH_LOCAL_PORT_PLUGIN", "Another Stream Machine chat"], ["TWITCH_BROWSER_OPEN_FAILED", "Couldn't open your browser"]]) {
       let attempts = 0;
       const model = createConnectionState(async name => { if (name.endsWith("preflight") && code === "TWITCH_BROWSER_OPEN_FAILED") return { structuredContent: { twitch: { mode: "live", status: "ready" } } }; attempts++; return { isError: true, structuredContent: { error: { code } } }; }, () => { }, () => { });
       await model.startConnect(true);
