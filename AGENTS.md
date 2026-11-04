@@ -39,6 +39,7 @@ Use the repository layout to locate changes:
 - Edit `src/domain.ts`, `src/catalog.ts`, and `src/preview.ts` for domain behavior, mock data, and the local preview.
 - Edit `src/ui/` for the native UI.
 - Edit `skills/` for plugin skills and `plugin.json` for the manifest.
+- Edit the hosted Site in the separate private repository [prime-optimal/stream-machine-site](https://github.com/prime-optimal/stream-machine-site), checked out at `../stream-machine-site`. Publish it only from that repository's `main`, following its README.
 - Consult `docs/architecture.md` and `docs/decisions.md` for design decisions.
 
 ## Build context and delegate work
