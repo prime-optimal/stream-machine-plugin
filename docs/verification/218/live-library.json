@@ -1,0 +1,329 @@
+{
+  "capturedAt": "2026-11-02T20:18:08.295Z",
+  "source": "Live hosted stream_machine_clips_library after version 20 publication",
+  "structuredContent": {
+    "clips": {
+      "account": {
+        "id": "1494553296",
+        "login": "klabfm",
+        "displayName": "KLabFM"
+      },
+      "items": [
+        {
+          "id": "PoorTawdryTaroSMOrc-1IFadKk3EY9HeSkT",
+          "title": "K-LAB FIRST LIVE STREAM",
+          "url": "https://www.twitch.tv/klabfm/clip/PoorTawdryTaroSMOrc-1IFadKk3EY9HeSkT",
+          "createdAt": "2026-05-14T04:06:59Z",
+          "durationSeconds": 30,
+          "viewCount": 12,
+          "creator": {
+            "id": "977015336",
+            "name": "kwayscarlounge"
+          },
+          "game": {
+            "id": "0",
+            "name": null
+          },
+          "thumbnailUrl": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/85031b29-5baf-4d47-9f0a-480a90c5969c/landscape/thumb/thumb-0000000000-480x272.jpg",
+          "videoId": null,
+          "vodOffsetSeconds": null,
+          "stored": {
+            "fileId": "438ccd0e-237e-4684-9eda-cc1051d1da0e",
+            "playbackUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/438ccd0e-237e-4684-9eda-cc1051d1da0e",
+            "downloadUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/438ccd0e-237e-4684-9eda-cc1051d1da0e?download=1",
+            "bytes": 21208110,
+            "storedAt": "2026-11-02T19:13:42.392Z"
+          }
+        },
+        {
+          "id": "ClumsyZealousBibimbapAMPEnergyCherry-SefTK-jl03LGBlm7",
+          "title": "CAR CAR",
+          "url": "https://www.twitch.tv/klabfm/clip/ClumsyZealousBibimbapAMPEnergyCherry-SefTK-jl03LGBlm7",
+          "createdAt": "2026-05-15T03:56:23Z",
+          "durationSeconds": 30,
+          "viewCount": 11,
+          "creator": {
+            "id": "1494553296",
+            "name": "KLabFM"
+          },
+          "game": {
+            "id": "0",
+            "name": null
+          },
+          "thumbnailUrl": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/cae519df-b7bd-453d-9397-c710706a3074/landscape/thumb/thumb-0000000000-480x272.jpg",
+          "videoId": null,
+          "vodOffsetSeconds": null,
+          "stored": {
+            "fileId": "06f3b2fb-dfcc-436d-8e28-a5e77bd30790",
+            "playbackUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/06f3b2fb-dfcc-436d-8e28-a5e77bd30790",
+            "downloadUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/06f3b2fb-dfcc-436d-8e28-a5e77bd30790?download=1",
+            "bytes": 23172694,
+            "storedAt": "2026-11-02T20:16:03.019Z"
+          }
+        },
+        {
+          "id": "LachrymoseArborealTireFrankerZ-Dq6mxRdEwPXyd4Lx",
+          "title": "vegas 4",
+          "url": "https://www.twitch.tv/klabfm/clip/LachrymoseArborealTireFrankerZ-Dq6mxRdEwPXyd4Lx",
+          "createdAt": "2026-05-14T08:25:59Z",
+          "durationSeconds": 30,
+          "viewCount": 8,
+          "creator": {
+            "id": "883366824",
+            "name": "fernandomirandr"
+          },
+          "game": {
+            "id": "0",
+            "name": null
+          },
+          "thumbnailUrl": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/bd3be2c5-432e-41cb-8934-abcd3bfc9c23/landscape/thumb/thumb-0000000000-480x272.jpg",
+          "videoId": null,
+          "vodOffsetSeconds": null,
+          "stored": {
+            "fileId": "f6dc330e-1c0d-4af3-bac6-54b0f4071d63",
+            "playbackUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/f6dc330e-1c0d-4af3-bac6-54b0f4071d63",
+            "downloadUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/f6dc330e-1c0d-4af3-bac6-54b0f4071d63?download=1",
+            "bytes": 22964105,
+            "storedAt": "2026-11-02T20:16:54.244Z"
+          }
+        },
+        {
+          "id": "DirtyAltruisticSharkPartyTime-JxIXlKzPTwVdzfqk",
+          "title": "K-Lab",
+          "url": "https://www.twitch.tv/klabfm/clip/DirtyAltruisticSharkPartyTime-JxIXlKzPTwVdzfqk",
+          "createdAt": "2026-05-14T07:40:35Z",
+          "durationSeconds": 30,
+          "viewCount": 8,
+          "creator": {
+            "id": "977015336",
+            "name": "kwayscarlounge"
+          },
+          "game": {
+            "id": "0",
+            "name": null
+          },
+          "thumbnailUrl": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/babcdc76-a5f3-4193-ac2d-f528351d9edc/landscape/thumb/thumb-0000000000-480x272.jpg",
+          "videoId": null,
+          "vodOffsetSeconds": null,
+          "stored": {
+            "fileId": "f8b84588-566a-4db2-8b6f-d3837f881323",
+            "playbackUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/f8b84588-566a-4db2-8b6f-d3837f881323",
+            "downloadUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/f8b84588-566a-4db2-8b6f-d3837f881323?download=1",
+            "bytes": 23320431,
+            "storedAt": "2026-11-02T20:16:58.213Z"
+          }
+        },
+        {
+          "id": "TastySillyLouseDancingBanana-KXkKvEKYYwicvDk3",
+          "title": "COMRADE DIMPS",
+          "url": "https://www.twitch.tv/klabfm/clip/TastySillyLouseDancingBanana-KXkKvEKYYwicvDk3",
+          "createdAt": "2026-05-15T05:38:31Z",
+          "durationSeconds": 30,
+          "viewCount": 5,
+          "creator": {
+            "id": "1494553296",
+            "name": "KLabFM"
+          },
+          "game": {
+            "id": "0",
+            "name": null
+          },
+          "thumbnailUrl": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/e7e6cc7a-a812-445e-bd83-fe1411ea8511/landscape/thumb/thumb-0000000000-480x272.jpg",
+          "videoId": null,
+          "vodOffsetSeconds": null,
+          "stored": {
+            "fileId": "2a0e670d-992a-4416-b53d-350293662ecd",
+            "playbackUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/2a0e670d-992a-4416-b53d-350293662ecd",
+            "downloadUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/2a0e670d-992a-4416-b53d-350293662ecd?download=1",
+            "bytes": 23167834,
+            "storedAt": "2026-11-02T20:17:01.446Z"
+          }
+        },
+        {
+          "id": "CaringHilariousAlpacaHassaanChop-7RjeS2WvdwKBL6F-",
+          "title": "vegas 33",
+          "url": "https://www.twitch.tv/klabfm/clip/CaringHilariousAlpacaHassaanChop-7RjeS2WvdwKBL6F-",
+          "createdAt": "2026-05-14T08:11:24Z",
+          "durationSeconds": 30,
+          "viewCount": 5,
+          "creator": {
+            "id": "883366824",
+            "name": "fernandomirandr"
+          },
+          "game": {
+            "id": "0",
+            "name": null
+          },
+          "thumbnailUrl": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/5b8f7da0-8b19-4c55-af6d-93247331153c/landscape/thumb/thumb-0000000000-480x272.jpg",
+          "videoId": null,
+          "vodOffsetSeconds": null,
+          "stored": {
+            "fileId": "3cf20f20-8c33-4826-954e-ee7ccbb505a4",
+            "playbackUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/3cf20f20-8c33-4826-954e-ee7ccbb505a4",
+            "downloadUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/3cf20f20-8c33-4826-954e-ee7ccbb505a4?download=1",
+            "bytes": 22752136,
+            "storedAt": "2026-11-02T20:17:05.498Z"
+          }
+        },
+        {
+          "id": "StylishCautiousHamburgerThunBeast-AIE8Cgzkw7wPahYs",
+          "title": "vegas 2",
+          "url": "https://www.twitch.tv/klabfm/clip/StylishCautiousHamburgerThunBeast-AIE8Cgzkw7wPahYs",
+          "createdAt": "2026-05-14T08:02:44Z",
+          "durationSeconds": 30,
+          "viewCount": 5,
+          "creator": {
+            "id": "883366824",
+            "name": "fernandomirandr"
+          },
+          "game": {
+            "id": "0",
+            "name": null
+          },
+          "thumbnailUrl": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/dc9136e0-61cf-435e-93a0-4c500a12be20/landscape/thumb/thumb-0000000000-480x272.jpg",
+          "videoId": null,
+          "vodOffsetSeconds": null,
+          "stored": {
+            "fileId": "4ef4fb8a-1129-46d4-9d2e-945a6a1d2cae",
+            "playbackUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/4ef4fb8a-1129-46d4-9d2e-945a6a1d2cae",
+            "downloadUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/4ef4fb8a-1129-46d4-9d2e-945a6a1d2cae?download=1",
+            "bytes": 22798347,
+            "storedAt": "2026-11-02T20:17:09.129Z"
+          }
+        },
+        {
+          "id": "OnerousWealthyBeanRuleFive-5phmL47lxrfoTPc6",
+          "title": "K-LAB DISCOVERY",
+          "url": "https://www.twitch.tv/klabfm/clip/OnerousWealthyBeanRuleFive-5phmL47lxrfoTPc6",
+          "createdAt": "2026-05-14T06:35:10Z",
+          "durationSeconds": 30,
+          "viewCount": 4,
+          "creator": {
+            "id": "977015336",
+            "name": "kwayscarlounge"
+          },
+          "game": {
+            "id": "0",
+            "name": null
+          },
+          "thumbnailUrl": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/4653384c-4280-4ad9-ae7c-467dd39a5a12/landscape/thumb/thumb-0000000000-480x272.jpg",
+          "videoId": null,
+          "vodOffsetSeconds": null,
+          "stored": {
+            "fileId": "08af670c-cadd-420d-bf94-99c0aff6b10c",
+            "playbackUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/08af670c-cadd-420d-bf94-99c0aff6b10c",
+            "downloadUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/08af670c-cadd-420d-bf94-99c0aff6b10c?download=1",
+            "bytes": 22876170,
+            "storedAt": "2026-11-02T20:17:19.283Z"
+          }
+        },
+        {
+          "id": "BumblingCoyPassionfruitKlappa-1fdmHnWAmOfRc3V3",
+          "title": "MKAE IT BUMP",
+          "url": "https://www.twitch.tv/klabfm/clip/BumblingCoyPassionfruitKlappa-1fdmHnWAmOfRc3V3",
+          "createdAt": "2026-05-15T07:39:47Z",
+          "durationSeconds": 30,
+          "viewCount": 4,
+          "creator": {
+            "id": "1494553296",
+            "name": "KLabFM"
+          },
+          "game": {
+            "id": "0",
+            "name": null
+          },
+          "thumbnailUrl": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/bba922a1-71ed-4d65-a6a1-db003e3b4dc0/landscape/thumb/thumb-0000000000-480x272.jpg",
+          "videoId": null,
+          "vodOffsetSeconds": null,
+          "stored": {
+            "fileId": "38abe9e3-178d-4d72-bda5-8047921e409c",
+            "playbackUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/38abe9e3-178d-4d72-bda5-8047921e409c",
+            "downloadUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/38abe9e3-178d-4d72-bda5-8047921e409c?download=1",
+            "bytes": 23168517,
+            "storedAt": "2026-11-02T20:17:22.729Z"
+          }
+        },
+        {
+          "id": "EasyCloudyLeopardHassaanChop-dWYPcJRXojZC6cIO",
+          "title": "K-Lab",
+          "url": "https://www.twitch.tv/klabfm/clip/EasyCloudyLeopardHassaanChop-dWYPcJRXojZC6cIO",
+          "createdAt": "2026-05-14T11:15:00Z",
+          "durationSeconds": 30,
+          "viewCount": 4,
+          "creator": {
+            "id": "977015336",
+            "name": "kwayscarlounge"
+          },
+          "game": {
+            "id": "0",
+            "name": null
+          },
+          "thumbnailUrl": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/d7eb6c4b-212a-496c-ba96-2e188b648a76/landscape/thumb/thumb-0000000000-480x272.jpg",
+          "videoId": null,
+          "vodOffsetSeconds": null,
+          "stored": {
+            "fileId": "1dee53f9-b229-4cfe-9675-6bf4bb8eebbe",
+            "playbackUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/1dee53f9-b229-4cfe-9675-6bf4bb8eebbe",
+            "downloadUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/1dee53f9-b229-4cfe-9675-6bf4bb8eebbe?download=1",
+            "bytes": 21828660,
+            "storedAt": "2026-11-02T20:17:26.409Z"
+          }
+        },
+        {
+          "id": "DeliciousTastyEchidnaPMSTwin-BcYDNXS8QDztpZe-",
+          "title": "K-LAB",
+          "url": "https://www.twitch.tv/klabfm/clip/DeliciousTastyEchidnaPMSTwin-BcYDNXS8QDztpZe-",
+          "createdAt": "2026-05-15T06:01:10Z",
+          "durationSeconds": 30,
+          "viewCount": 2,
+          "creator": {
+            "id": "1494553296",
+            "name": "KLabFM"
+          },
+          "game": {
+            "id": "0",
+            "name": null
+          },
+          "thumbnailUrl": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/2ffdaffa-4446-4ee8-bd50-a8f0a5dd83d9/landscape/thumb/thumb-0000000000-480x272.jpg",
+          "videoId": null,
+          "vodOffsetSeconds": null,
+          "stored": {
+            "fileId": "ed7754a4-0a8e-4982-a0e2-29d00a41f1e1",
+            "playbackUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/ed7754a4-0a8e-4982-a0e2-29d00a41f1e1",
+            "downloadUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/ed7754a4-0a8e-4982-a0e2-29d00a41f1e1?download=1",
+            "bytes": 23015328,
+            "storedAt": "2026-11-02T20:17:29.368Z"
+          }
+        },
+        {
+          "id": "SlickTallFerretTBTacoLeft-y7qQ2XUaZFi8O0w6",
+          "title": "TIILO",
+          "url": "https://www.twitch.tv/klabfm/clip/SlickTallFerretTBTacoLeft-y7qQ2XUaZFi8O0w6",
+          "createdAt": "2026-05-16T04:39:19Z",
+          "durationSeconds": 30,
+          "viewCount": 1,
+          "creator": {
+            "id": "1494553296",
+            "name": "KLabFM"
+          },
+          "game": {
+            "id": "26936",
+            "name": "Music"
+          },
+          "thumbnailUrl": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/87fdf31c-6367-472f-b184-736edb09bf02/landscape/thumb/thumb-0000000000-480x272.jpg",
+          "videoId": null,
+          "vodOffsetSeconds": null,
+          "stored": {
+            "fileId": "97aae37e-3b38-43c9-a78f-8ea2f7ec98d7",
+            "playbackUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/97aae37e-3b38-43c9-a78f-8ea2f7ec98d7",
+            "downloadUrl": "https://stream-machine-oauth-test.tinycocoa22.chatgpt.site/api/user-data/files/97aae37e-3b38-43c9-a78f-8ea2f7ec98d7?download=1",
+            "bytes": 23173200,
+            "storedAt": "2026-11-02T20:17:33.889Z"
+          }
+        }
+      ],
+      "cursor": null,
+      "storage": "site"
+    }
+  }
+}

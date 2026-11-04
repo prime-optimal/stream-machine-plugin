@@ -1,0 +1,308 @@
+diff --git a/app/api/tool/route.ts b/app/api/tool/route.ts
+new file mode 100644
+index 0000000..2fc435a
+--- /dev/null
++++ b/app/api/tool/route.ts
+@@ -0,0 +1,4 @@
++import {POST as mcpPost} from '@/app/mcp/route';
++import {handleGalleryTool} from '@/lib/clips/gallery-http';
++
++export function POST(request: Request) { return handleGalleryTool(request, mcpPost); }
+diff --git a/app/clips/route.ts b/app/clips/route.ts
+new file mode 100644
+index 0000000..fe7c042
+--- /dev/null
++++ b/app/clips/route.ts
+@@ -0,0 +1,4 @@
++import {galleryPage} from '@/lib/clips/gallery-http';
++import {uiHtml} from '@/lib/stream-machine/ui-html';
++
++export function GET(request: Request) { return galleryPage(request, uiHtml); }
+diff --git a/app/page.tsx b/app/page.tsx
+index bb7b258..5ba4696 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -13,0 +14 @@ export default async function Home() {
++      <p><a href="/clips">Open clip gallery</a></p>
+diff --git a/lib/clips/archive.ts b/lib/clips/archive.ts
+index 36555da..6f5b723 100644
+--- a/lib/clips/archive.ts
++++ b/lib/clips/archive.ts
+@@ -3 +3 @@ import {TwitchFault} from '../stream-machine/auth/twitch';
+-import {fetchClipLibraryPage} from '../stream-machine/adapters/twitch/clip-library';
++import {fetchClipLibraryPage, type StoredClip} from '../stream-machine/adapters/twitch/clip-library';
+@@ -12 +12 @@ export const archiveInputSchema = z.object({
+-const unknownOutcomes = ['CLIP_DOWNLOAD_TIMEOUT', 'CLIP_DOWNLOAD_FAILED'];
++const unknownOutcomes = ['CLIP_DOWNLOAD_TIMEOUT', 'CLIP_DOWNLOAD_FAILED', 'CLIP_SAVE_UNCONFIRMED'];
+@@ -19,2 +19,2 @@ export type ArchiveDeps = ClipLibraryDeps & {
+-type Saved = {clipId: string; title: string; fileId: string; playbackUrl: string; bytes: number};
+-type Skipped = {clipId: string; reason: 'already_stored'};
++type Saved = {clipId: string; title: string; fileId: string; playbackUrl: string; bytes: number; stored: StoredClip};
++type Skipped = {clipId: string; reason: 'already_stored'; stored: StoredClip};
+@@ -21,0 +22,12 @@ type Failed = {clipId: string; code: string; outcome: 'failed' | 'unknown'};
++async function saveConfirmed(deps: ArchiveDeps, clipId: string, fallbackTitle: string): Promise<Saved> {
++  const result = await deps.download(clipId);
++  let stored: StoredClip | undefined;
++  try {
++    stored = (await storedClips(deps.db, deps.ownerId, deps.origin, [clipId])).get(clipId);
++  } catch {
++    throw new TwitchFault('CLIP_SAVE_UNCONFIRMED');
++  }
++  if (!stored) throw new TwitchFault('CLIP_SAVE_UNCONFIRMED');
++  return {clipId, title: result.clip.title ?? fallbackTitle, fileId: result.artifact.id,
++    playbackUrl: result.artifact.url, bytes: result.artifact.bytes, stored};
++}
+@@ -23,2 +35,2 @@ async function archiveOne(deps: ArchiveDeps, clipId: string) {
+-  const stored = await storedClips(deps.db, deps.ownerId, deps.origin, [clipId]);
+-  if (stored.has(clipId)) return {saved: [], skipped: [{clipId, reason: 'already_stored' as const}], failed: [], nextCursor: null, done: true};
++  const stored = (await storedClips(deps.db, deps.ownerId, deps.origin, [clipId])).get(clipId);
++  if (stored) return {saved: [], skipped: [{clipId, reason: 'already_stored' as const, stored}], failed: [], nextCursor: null, done: true};
+@@ -26,2 +38,2 @@ async function archiveOne(deps: ArchiveDeps, clipId: string) {
+-    const result = await deps.download(clipId);
+-    return {saved: [{clipId, title: result.clip.title ?? clipId, fileId: result.artifact.id, playbackUrl: result.artifact.url, bytes: result.artifact.bytes}], skipped: [], failed: [], nextCursor: null, done: true};
++    const saved = await saveConfirmed(deps, clipId, clipId);
++    return {saved: [saved], skipped: [], failed: [], nextCursor: null, done: true};
+@@ -77 +89,4 @@ export async function archiveClips(deps: ArchiveDeps, input: z.input<typeof arch
+-    for (const item of items) if (stored.has(item.id)) skipped.push({clipId: item.id, reason: 'already_stored'});
++    for (const item of items) {
++      const artifact = stored.get(item.id);
++      if (artifact) skipped.push({clipId: item.id, reason: 'already_stored', stored: artifact});
++    }
+@@ -80,2 +95 @@ export async function archiveClips(deps: ArchiveDeps, input: z.input<typeof arch
+-        const result = await deps.download(item.id);
+-        saved.push({clipId: item.id, title: result.clip.title ?? item.title, fileId: result.artifact.id, playbackUrl: result.artifact.url, bytes: result.artifact.bytes});
++        saved.push(await saveConfirmed(deps, item.id, item.title));
+diff --git a/lib/clips/gallery-http.ts b/lib/clips/gallery-http.ts
+new file mode 100644
+index 0000000..5b3c5b6
+--- /dev/null
++++ b/lib/clips/gallery-http.ts
+@@ -0,0 +1,69 @@
++import {z} from 'zod';
++import {validPrincipal} from '../twitch/http';
++
++const headers = {'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer'};
++const toolInput = z.object({
++  name: z.enum([
++    'stream_machine_open', 'stream_machine_twitch_status', 'stream_machine_twitch_preflight',
++    'stream_machine_twitch_connect', 'stream_machine_twitch_profile', 'stream_machine_twitch_snapshot',
++    'stream_machine_clips_library', 'stream_machine_clips_archive', 'stream_machine_clips_zip',
++  ]),
++  arguments: z.record(z.string(), z.unknown()).default({}),
++}).strict();
++const rpcResult = z.object({result: z.record(z.string(), z.unknown())});
++const maximumBytes = 16384;
++
++async function boundedBody(request: Request): Promise<string | null> {
++  const reader = request.body?.getReader();
++  if (!reader) return '';
++  const decoder = new TextDecoder();
++  let bytes = 0;
++  let text = '';
++  try {
++    while (true) {
++      const next = await reader.read();
++      if (next.done) return text + decoder.decode();
++      bytes += next.value.byteLength;
++      if (bytes > maximumBytes) { await reader.cancel(); return null; }
++      text += decoder.decode(next.value, {stream: true});
++    }
++  } finally { reader.releaseLock(); }
++}
++
++export async function handleGalleryTool(request: Request, dispatch: (request: Request) => Promise<Response>): Promise<Response> {
++  const failure = (status: number, code: string) => Response.json({isError: true, structuredContent: {error: {code}}}, {status, headers});
++  const ownerId = validPrincipal(request.headers.get('oai-authenticated-user-id'));
++  if (!ownerId) return failure(401, 'SIGN_IN_REQUIRED');
++  if (request.method !== 'POST') return failure(405, 'METHOD_NOT_ALLOWED');
++  const url = new URL(request.url);
++  if (request.headers.get('origin') !== url.origin) return failure(403, 'INVALID_ORIGIN');
++  if (url.search) return failure(400, 'INVALID_INPUT');
++  if (request.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() !== 'application/json') return failure(415, 'JSON_REQUIRED');
++  let input: z.infer<typeof toolInput>;
++  try {
++    const body = await boundedBody(request);
++    if (body === null) return failure(413, 'REQUEST_TOO_LARGE');
++    input = toolInput.parse(JSON.parse(body));
++  } catch { return failure(400, 'INVALID_INPUT'); }
++  try {
++    const forwarded = new Request(new URL('/mcp', url), {
++      method: 'POST', signal: request.signal,
++      headers: {'Content-Type': 'application/json', Origin: url.origin, 'oai-authenticated-user-id': ownerId},
++      body: JSON.stringify({jsonrpc: '2.0', id: 'gallery', method: 'tools/call', params: input}),
++    });
++    const response = await dispatch(forwarded);
++    if (!response.ok) return failure(response.status === 401 ? 401 : 502, response.status === 401 ? 'SIGN_IN_REQUIRED' : 'TOOL_UNAVAILABLE');
++    const parsed = rpcResult.safeParse(await response.json());
++    if (!parsed.success) return failure(502, 'TOOL_UNAVAILABLE');
++    return Response.json(parsed.data.result, {headers});
++  } catch { return failure(502, 'TOOL_UNAVAILABLE'); }
++}
++
++export function galleryPage(request: Request, html: string): Response {
++  if (!validPrincipal(request.headers.get('oai-authenticated-user-id'))) {
++    return new Response(null, {status: 303, headers: {
++      ...headers, Location: new URL('/signin-with-chatgpt?return_to=%2Fclips', request.url).toString(),
++    }});
++  }
++  return new Response(html, {headers: {...headers, 'Content-Type': 'text/html; charset=utf-8'}});
++}
+diff --git a/lib/clips/tools.ts b/lib/clips/tools.ts
+index 93df11c..c8c328f 100644
+--- a/lib/clips/tools.ts
++++ b/lib/clips/tools.ts
+@@ -7 +7 @@ import {archiveInputSchema} from './archive';
+-export const WORKSPACE_URI = 'ui://stream-machine/workspace-v4.html';
++export const WORKSPACE_URI = 'ui://stream-machine/workspace-v5.html';
+diff --git a/tests/clips/gallery-http.test.mjs b/tests/clips/gallery-http.test.mjs
+new file mode 100644
+index 0000000..dbc592b
+--- /dev/null
++++ b/tests/clips/gallery-http.test.mjs
+@@ -0,0 +1,56 @@
++import {describe, expect, test} from 'bun:test';
++import {galleryPage, handleGalleryTool} from '../../lib/clips/gallery-http';
++
++const origin = 'https://stream-machine.example';
++function request(body = {name: 'stream_machine_clips_library', arguments: {}}, extra = {}) {
++  return new Request(origin + '/api/tool', {method: 'POST', headers: {
++    'Content-Type': 'application/json', Origin: origin, 'oai-authenticated-user-id': 'owner-a', ...extra,
++  }, body: JSON.stringify(body)});
++}
++
++describe('authenticated gallery HTTP bridge', () => {
++  test('unsigned owner cookies do not authorize gallery reads or writes', async () => {
++    const req = request(undefined, {'oai-authenticated-user-id': '', Cookie: '__Host-stream-machine-owner=owner-a'});
++    const result = await handleGalleryTool(req, () => { throw new Error('must not dispatch'); });
++    expect(result.status).toBe(401);
++  });
++  test('cross-origin and missing-origin writes never dispatch', async () => {
++    for (const value of ['https://attacker.example', '']) {
++      const result = await handleGalleryTool(request({name: 'stream_machine_clips_archive', arguments: {clipId: 'clip'}}, {Origin: value}), () => { throw new Error('must not dispatch'); });
++      expect(result.status).toBe(403);
++    }
++  });
++  test('non-gallery tools and caller-selected owners are rejected', async () => {
++    for (const body of [{name: 'stream_machine_twitch_apply_title', arguments: {}}, {name: 'stream_machine_clips_library', arguments: {}, ownerId: 'other'}]) {
++      const result = await handleGalleryTool(request(body), () => { throw new Error('must not dispatch'); });
++      expect(result.status).toBe(400);
++    }
++  });
++  test('forwards the trusted principal and unwraps the exact tool result', async () => {
++    const result = {structuredContent: {archive: {saved: [{clipId: 'clip', stored: {playbackUrl: origin + '/api/user-data/files/clip'}}], failed: [], skipped: []}}};
++    const response = await handleGalleryTool(request({name: 'stream_machine_clips_archive', arguments: {clipId: 'clip'}}), async forwarded => {
++      expect(forwarded.url).toBe(origin + '/mcp');
++      expect(forwarded.headers.get('oai-authenticated-user-id')).toBe('owner-a');
++      expect((await forwarded.json()).params).toEqual({name: 'stream_machine_clips_archive', arguments: {clipId: 'clip'}});
++      return Response.json({jsonrpc: '2.0', id: 'gallery', result});
++    });
++    expect(await response.json()).toEqual(result);
++    expect(response.headers.get('cache-control')).toBe('no-store');
++  });
++  test('bounds inputs and sanitizes dispatch failures', async () => {
++    const oversized = await handleGalleryTool(request({name: 'stream_machine_clips_library', arguments: {value: 'x'.repeat(20000)}}), () => { throw new Error('must not dispatch'); });
++    expect(oversized.status).toBe(413);
++    const failed = await handleGalleryTool(request(), async () => { throw new Error('private details'); });
++    expect(failed.status).toBe(502);
++    expect(await failed.text()).not.toContain('private details');
++  });
++  test('gallery page uses platform sign-in and ignores owner cookies', () => {
++    const anonymous = galleryPage(new Request(origin + '/clips', {headers: {Cookie: '__Host-stream-machine-owner=owner-a'}}), '<html>gallery</html>');
++    expect(anonymous.status).toBe(303);
++    expect(anonymous.headers.get('location')).toBe(origin + '/signin-with-chatgpt?return_to=%2Fclips');
++    const signedIn = galleryPage(new Request(origin + '/clips', {headers: {'oai-authenticated-user-id': 'owner-a'}}), '<html>gallery</html>');
++    expect(signedIn.status).toBe(200);
++    expect(signedIn.headers.get('content-type')).toBe('text/html; charset=utf-8');
++    expect(signedIn.headers.get('cache-control')).toBe('no-store');
++  });
++});
+diff --git a/tests/clips/library-worker-fixture.ts b/tests/clips/library-worker-fixture.ts
+index 481c013..9408e0f 100644
+--- a/tests/clips/library-worker-fixture.ts
++++ b/tests/clips/library-worker-fixture.ts
+@@ -49,0 +50,5 @@ export default {async fetch(request: Request, env: Env) {
++    let confirming = false;
++    const db = {prepare(query: string) {
++      if (confirming && body.confirmation === 'failed' && query.startsWith('SELECT id, source_id')) throw new Error('Fixture confirmation unavailable');
++      return env.DB.prepare(query);
++    }};
+@@ -55,0 +61,2 @@ export default {async fetch(request: Request, env: Env) {
++      if (body.confirmation === 'missing') await env.DB.prepare('DELETE FROM user_data_artifacts WHERE id = ? AND owner_id = ?').bind(artifact.id, body.owner).run();
++      confirming = true;
+@@ -58 +65 @@ export default {async fetch(request: Request, env: Env) {
+-    const result = await archiveClips({...deps, download}, body.input ?? {});
++    const result = await archiveClips({...deps, db, download}, body.input ?? {});
+diff --git a/tests/clips/library-worker.test.mjs b/tests/clips/library-worker.test.mjs
+index b6d4c9a..d51ef3d 100644
+--- a/tests/clips/library-worker.test.mjs
++++ b/tests/clips/library-worker.test.mjs
+@@ -83 +83 @@ test('archive saves up to maxClips, skips stored clips, and resumes from nextCur
+-  expect(first.result.skipped).toEqual([{clipId: 'c2', reason: 'already_stored'}]);
++  expect(first.result.skipped).toMatchObject([{clipId: 'c2', reason: 'already_stored'}]);
+@@ -110 +110,38 @@ test('archive with clipId saves only that clip and skips a stored one', async ()
+-  expect(repeat.result.skipped).toEqual([{clipId: 'c6', reason: 'already_stored'}]);
++  expect(repeat.result.skipped).toMatchObject([{clipId: 'c6', reason: 'already_stored'}]);
++});
++
++test('single archive hands off authoritative stored metadata for saved and skipped clips', async () => {
++  const owner = 'handoff-single';
++  const run = await json('/fixture/archive', {owner, input: {clipId: 'c4'}});
++  const stored = new Map(await json('/fixture/join', {owner, ids: ['c4']})).get('c4');
++  expect(run.calls).toEqual(['c4']);
++  expect(run.result.saved).toEqual([{clipId: 'c4', title: 'Clip c4', fileId: stored.fileId,
++    playbackUrl: stored.playbackUrl, bytes: stored.bytes, stored}]);
++  const repeat = await json('/fixture/archive', {owner, input: {clipId: 'c4'}});
++  expect(repeat.calls).toEqual([]);
++  expect(repeat.result.skipped).toEqual([{clipId: 'c4', reason: 'already_stored', stored}]);
++});
++
++test('batch archive returns stored metadata for saved and skipped clips from the bound owner', async () => {
++  const owner = 'handoff-batch';
++  const existing = await seed(owner, 'c1', 'mine');
++  await seed('handoff-other', 'c1', 'theirs');
++  const run = await json('/fixture/archive', {owner, input: {maxClips: 2}});
++  const stored = new Map(await json('/fixture/join', {owner, ids: ['c1', 'c2', 'c3']}));
++  expect(run.calls).toEqual(['c2', 'c3']);
++  expect(run.result.skipped).toEqual([{clipId: 'c1', reason: 'already_stored', stored: stored.get('c1')}]);
++  expect(run.result.skipped[0].stored.fileId).toBe(existing.id);
++  for (const entry of run.result.saved) {
++    expect(entry.stored).toEqual(stored.get(entry.clipId));
++    expect(entry).toMatchObject({fileId: entry.stored.fileId, playbackUrl: entry.stored.playbackUrl, bytes: entry.stored.bytes});
++  }
++});
++
++test.each(['missing', 'failed'])('post-write %s confirmation is unknown without another download', async confirmation => {
++  for (const input of [{clipId: 'c5'}, {maxClips: 1}]) {
++    const owner = 'handoff-' + confirmation + (input.clipId ? '-single' : '-batch');
++    const run = await json('/fixture/archive', {owner, input, confirmation});
++    expect(run.calls).toEqual([input.clipId ?? 'c1']);
++    expect(run.result.saved).toEqual([]);
++    expect(run.result.failed).toEqual([{clipId: input.clipId ?? 'c1', code: 'CLIP_SAVE_UNCONFIRMED', outcome: 'unknown'}]);
++  }
+diff --git a/tests/twitch/mcp-handler.test.mjs b/tests/twitch/mcp-handler.test.mjs
+index aab960c..5f6c0c1 100644
+--- a/tests/twitch/mcp-handler.test.mjs
++++ b/tests/twitch/mcp-handler.test.mjs
+@@ -17 +17 @@ test('cacheable MCP results carry private immediately-stale cache hints', async
+-  const params = method === 'resources/read' ? { uri: 'ui://stream-machine/workspace-v4.html' } : {};
++  const params = method === 'resources/read' ? { uri: 'ui://stream-machine/workspace-v5.html' } : {};
+@@ -49 +49 @@ test('clip tools advertise the workspace UI only on the library tool', async ()
+- assert.equal(byName.stream_machine_clips_library._meta.ui.resourceUri, 'ui://stream-machine/workspace-v4.html');
++ assert.equal(byName.stream_machine_clips_library._meta.ui.resourceUri, 'ui://stream-machine/workspace-v5.html');
+@@ -61 +61 @@ test('stream_machine_open is a read-only global entry point that returns the hos
+- assert.equal(open._meta.ui.resourceUri, 'ui://stream-machine/workspace-v4.html');
++ assert.equal(open._meta.ui.resourceUri, 'ui://stream-machine/workspace-v5.html');
+@@ -85 +85 @@ test('resource diagnostics expose outcomes and schema paths without request data
+- await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v4.html' }), unused, options);
++ await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v5.html' }), unused, options);
+@@ -93,2 +93,2 @@ test('resources serve the workspace UI with CSP metadata and reject other URIs',
+- assert.deepEqual(list.result.resources.map(resource => [resource.uri, resource.mimeType]), [['ui://stream-machine/workspace-v4.html', 'text/html;profile=mcp-app']]);
+- const read = await (await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v4.html' }), unused, { uiHtml: html })).json();
++ assert.deepEqual(list.result.resources.map(resource => [resource.uri, resource.mimeType]), [['ui://stream-machine/workspace-v5.html', 'text/html;profile=mcp-app']]);
++ const read = await (await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v5.html' }), unused, { uiHtml: html })).json();
+@@ -102 +102 @@ test('resources serve the workspace UI with CSP metadata and reject other URIs',
+- const bundled = await (await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v4.html' }), unused)).json();
++ const bundled = await (await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v5.html' }), unused)).json();
+@@ -104 +104 @@ test('resources serve the workspace UI with CSP metadata and reject other URIs',
+- const withMeta = await (await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v4.html', _meta: { 'openai/userAgent': 'codex' } }), unused, { uiHtml: html })).json();
++ const withMeta = await (await handleMcp(request('resources/read', { uri: 'ui://stream-machine/workspace-v5.html', _meta: { 'openai/userAgent': 'codex' } }), unused, { uiHtml: html })).json();
