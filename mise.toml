@@ -70,6 +70,10 @@ description = "Build private desktop plugin archive"
 depends = ["build"]
 run = "bun run package"
 
+[tasks."package:release"]
+description = "Download and verify the latest released plugin archives into docs/packages; pass a tag such as v0.7.0 for another release"
+run = "bun scripts/package-release.ts"
+
 [tasks."hooks:install"]
 description = "Install repository hk hooks through mise"
 run = "hk install --mise"
