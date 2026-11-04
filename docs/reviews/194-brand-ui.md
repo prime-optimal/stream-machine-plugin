@@ -14,7 +14,7 @@ The shell uses the console palette, grid, serif headings, and compact corners fr
 
 - `mise run install`, `mise run hooks:install`, `mise run check`, `mise run build`, and `mise run hooks:check` passed.
 - `mise run test` passed with 279 tests, two skipped, and zero failures.
-- Browser and host appearance remain unverified. The preview command failed with a sandbox permission error; the escalation request was interrupted.
+- Local Brave preview at `127.0.0.1:4318` displayed the dark shell, grid, serif headings, and selected navigation. DevTools light-mode emulation changed the shell to light colors. Keyboard Tab and Enter opened Assets and moved focus to its heading. The console reported HTTP 400 for `/api/tool` on initial load. Narrow viewports and the MCP host remain unverified. No screenshot was saved.
 - `mise run smoke` and `mise run ui:audit` could not start their build dependency because of a sandbox permission error.
 - `scripts/build.ts` overlaps issue #191. Preserve both its server build changes and this stylesheet concatenation during integration.
 - This slice improves host theme handling; it does not claim a new MCP Apps capability or completion of issue #194.
