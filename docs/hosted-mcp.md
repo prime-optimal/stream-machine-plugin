@@ -41,13 +41,13 @@ If you also install the separate Site plugin on desktop, the Twitch tool names d
 
 ## Update shared source
 
-Sites maintains an independent source repository. Its retained checkout is ignored at `docs/hosted-oauth-site/`; the local plugin archive excludes it. Synchronize the explicit pure-module list after changing shared Twitch behavior:
+The Site source lives in the private repository [prime-optimal/stream-machine-site](https://github.com/prime-optimal/stream-machine-site), checked out at `../stream-machine-site` beside the plugin checkout. Synchronize the explicit pure-module list after changing shared Twitch behavior:
 
 ```sh
-mise exec -- bun scripts/sync-hosted-twitch.ts docs/hosted-oauth-site
+mise exec -- bun scripts/sync-hosted-twitch.ts ../stream-machine-site
 ```
 
-Expected result: nine copied modules, including `clip-library.ts`, and `lib/stream-machine/source.json` with source hashes. No local browser launcher, SQLite runtime, USB, OBS, or filesystem writer is copied. Build and publish the Site separately through the Sites workflow. Keep its project ID and current audience.
+Expected result: nine copied modules, including `clip-library.ts`, and `lib/stream-machine/source.json` with source hashes. No local browser launcher, SQLite runtime, USB, OBS, or filesystem writer is copied. Publish the Site by following the section "Publish the Site" in that repository's README. Publish only from `main`, and only after confirming that the live deployment's recorded source commit is already in `main`.
 
 ## Authorization boundary
 

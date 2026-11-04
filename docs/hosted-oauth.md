@@ -37,7 +37,7 @@ Sites sign-in is separate from Twitch consent. Each browser needs its own Sites 
 
 The private test Site is `appgprj_6ae8040442d481918f55ca79cca3b9b2`. Sites published source commit `87dfe2726b8338bf1ba2afe6e020dbaeb818ee2b` as version `appgprj_6ae8040442d481918f55ca79cca3b9b2~appgver_7d2f7b289d2c81918ed52b90915af19a`.
 
-Deployment `appgdep_6ae806a7de208191b918a02ab832e12f` succeeded with runtime environment revision 2. Sites maintains this source in its own repository. The retained local checkout is `docs/hosted-oauth-site/`; Git ignores that independent checkout in this repository.
+Deployment `appgdep_6ae806a7de208191b918a02ab832e12f` succeeded with runtime environment revision 2. The Site source now lives in the private repository [prime-optimal/stream-machine-site](https://github.com/prime-optimal/stream-machine-site), checked out at `../stream-machine-site` beside the plugin checkout.
 
 The test reuses TwitchCon's server-side OAuth service and encrypted D1 storage. Server configuration uses `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`, `TWITCH_REDIRECT_URI`, and `TWITCH_TOKEN_ENCRYPTION_KEY`. Values remain outside source. The test has its own D1 database.
 
